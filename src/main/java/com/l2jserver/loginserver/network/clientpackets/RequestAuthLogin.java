@@ -30,6 +30,7 @@ import com.l2jserver.loginserver.GameServerTable.GameServerInfo;
 import com.l2jserver.loginserver.LoginController;
 import com.l2jserver.loginserver.LoginController.AuthLoginResult;
 import com.l2jserver.loginserver.model.data.AccountInfo;
+import com.l2jserver.loginserver.model.data.ForumInfo;
 import com.l2jserver.loginserver.network.L2LoginClient;
 import com.l2jserver.loginserver.network.L2LoginClient.LoginClientState;
 import com.l2jserver.loginserver.network.serverpackets.AccountKicked;
@@ -123,7 +124,30 @@ public class RequestAuthLogin extends L2LoginClientPacket
 		InetAddress clientAddr = getClient().getConnection().getInetAddress();
 		
 		final LoginController lc = LoginController.getInstance();
-		AccountInfo info = lc.retriveAccountInfo(clientAddr, _user, _password);
+		ForumInfo finfo = lc.retrieveForumInfo(clientAddr, _user, _password);
+		switch (finfo.getLoginStatus()) {
+		case 200:
+			// This is fine
+			break;
+
+		case 204:
+		case 401:
+			client.close(LoginFailReason.REASON_USER_OR_PASS_WRONG);
+			return;
+
+		case 412:
+			client.close(LoginFailReason.REASON_INACTIVE);
+			return;
+
+		case 429:
+			client.close(LoginFailReason.REASON_ACCESS_FAILED_TRY_AGAIN_LATER);
+			return;
+
+		default:
+			client.close(LoginFailReason.REASON_SYSTEM_ERROR_LOGIN_LATER);
+			return;
+		}
+		AccountInfo info = lc.retriveAccountInfo(clientAddr, finfo.getUserName(), finfo.getFakePass());
 		if (info == null)
 		{
 			// user or pass wrong
