@@ -164,7 +164,7 @@ public final class RequestJoinParty extends L2GameClientPacket
 	{
 		final L2Party party = requestor.getParty();
 		// summary of ppl already in party and ppl that get invitation
-		if (!party.isLeader(requestor))
+		if (!Config.EVERYBODY_CAN_INVITE && !party.isLeader(requestor))
 		{
 			requestor.sendPacket(SystemMessageId.ONLY_LEADER_CAN_INVITE);
 			return;

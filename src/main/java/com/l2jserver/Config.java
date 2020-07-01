@@ -108,6 +108,7 @@ public final class Config
 	public static final String EMAIL_CONFIG_FILE = "./config/Email.properties";
 	public static final String CH_SIEGE_FILE = "./config/ConquerableHallSiege.properties";
 	public static final String GEODATA_FILE = "./config/GeoData.properties";
+	public static final String CUSTOM_FILE = "./config/Custom.properties";
 	// --------------------------------------------------
 	// L2J Variable Definitions
 	// --------------------------------------------------
@@ -1112,6 +1113,9 @@ public final class Config
 	public static boolean TRY_LOAD_UNSPECIFIED_REGIONS;
 	public static Map<String, Boolean> GEODATA_REGIONS;
 	
+	// Custom settings
+	public static boolean EVERYBODY_CAN_INVITE;
+
 	/**
 	 * This class initializes all global variables for configuration.<br>
 	 * If the key doesn't appear in properties file, a default value is set by this class. {@link #CONFIGURATION_FILE} (properties file) for configuring your server.
@@ -2711,6 +2715,10 @@ public final class Config
 					}
 				}
 			}
+
+			final PropertiesParser customsSettings = new PropertiesParser(CUSTOM_FILE);
+
+			EVERYBODY_CAN_INVITE = customsSettings.getBoolean("EverybodyCanInvite", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
