@@ -25,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.GameTimeController;
+import com.l2jserver.gameserver.ThreadPoolManager;
+import com.l2jserver.gameserver.ai.CtrlIntention;
 import com.l2jserver.gameserver.cache.HtmCache;
 import com.l2jserver.gameserver.data.sql.impl.TeleportLocationTable;
 import com.l2jserver.gameserver.enums.InstanceType;
@@ -37,7 +40,10 @@ import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.zone.ZoneId;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ActionFailed;
+import com.l2jserver.gameserver.network.serverpackets.MagicSkillUse;
 import com.l2jserver.gameserver.network.serverpackets.NpcHtmlMessage;
+import com.l2jserver.gameserver.network.serverpackets.SetupGauge;
+import com.l2jserver.gameserver.util.Broadcast;
 
 /**
  * @author NightMarez
@@ -308,7 +314,11 @@ public final class L2TeleporterInstance extends L2Npc
 			{
 				LOG.debug("Teleporting {} to new location: {}, {}, {}", player, list.getLocX(), list.getLocY(), list.getLocZ());
 				
-				player.teleToLocation(list.getLocX(), list.getLocY(), list.getLocZ(), player.getHeading(), -1);
+				if (player.isGM()) {
+					player.teleToLocation(list.getLocX(), list.getLocY(), list.getLocZ(), player.getHeading(), -1);
+				} else {
+					delayedTeleToLocation(player, list, player.getHeading(), -1);
+				}
 			}
 		}
 		else
@@ -341,5 +351,48 @@ public final class L2TeleporterInstance extends L2Npc
 		}
 		
 		return COND_ALL_FALSE;
+	}
+
+	private void delayedTeleToLocation(L2PcInstance activeChar, L2TeleportLocation location, int heading, int instanceId) {
+		int teleportTimer = Config.GATEKEEPER_INTERVAL * 1000;
+		activeChar.forceIsCasting(GameTimeController.getInstance().getGameTicks() + (teleportTimer / GameTimeController.MILLIS_IN_TICK));
+
+		activeChar.getAI().setIntention(CtrlIntention.AI_INTENTION_IDLE);
+		// SoE Animation section
+		activeChar.setTarget(activeChar);
+		activeChar.disableAllSkills();
+
+		MagicSkillUse msk = new MagicSkillUse(activeChar, 1050, 1, teleportTimer, 0);
+		Broadcast.toSelfAndKnownPlayersInRadius(activeChar, msk, 900);
+		SetupGauge sg = new SetupGauge(0, teleportTimer);
+		activeChar.sendPacket(sg);
+		// End SoE Animation section
+
+		// continue execution later
+		activeChar.setSkillCast(ThreadPoolManager.getInstance().scheduleGeneral(new EscapeFinalizer(activeChar, location, heading, instanceId), teleportTimer));
+	}
+
+	private static class EscapeFinalizer implements Runnable {
+		private final L2PcInstance _activeChar;
+		private final L2TeleportLocation _location;
+		private final int _heading;
+		private final int _instanceId;
+
+		EscapeFinalizer(L2PcInstance activeChar, L2TeleportLocation location, int heading, int instanceId) {
+			_activeChar = activeChar;
+			_location = location;
+			_heading = heading;
+			_instanceId = instanceId;
+		}
+
+		@Override
+		public void run() {
+			if (_activeChar.isDead()) {
+				return;
+			}
+			_activeChar.enableAllSkills();
+			_activeChar.setIsCastingNow(false);
+			_activeChar.teleToLocation(_location.getLocX(), _location.getLocY(), _location.getLocZ(), _heading, _instanceId);
+		}
 	}
 }
