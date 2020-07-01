@@ -507,7 +507,7 @@ public class L2VillageMasterInstance extends L2NpcInstance
 						allowAddition = false;
 					}
 					
-					if (player.getLevel() < 75)
+					if (player.getLevel() < Config.MIN_SUBCLASS_LEVEL)
 					{
 						allowAddition = false;
 					}
@@ -520,7 +520,7 @@ public class L2VillageMasterInstance extends L2NpcInstance
 							{
 								SubClass subClass = subList.next();
 								
-								if (subClass.getLevel() < 75)
+								if (subClass.getLevel() < Config.MIN_SUBCLASS_LEVEL)
 								{
 									allowAddition = false;
 									break;

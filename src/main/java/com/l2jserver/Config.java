@@ -1116,6 +1116,7 @@ public final class Config
 	// Custom settings
 	public static boolean EVERYBODY_CAN_INVITE;
 	public static boolean ALLOW_FASHION;
+	public static int MIN_SUBCLASS_LEVEL;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2721,6 +2722,7 @@ public final class Config
 
 			EVERYBODY_CAN_INVITE = customsSettings.getBoolean("EverybodyCanInvite", false);
 			ALLOW_FASHION = customsSettings.getBoolean("AllowFashion", false);
+			MIN_SUBCLASS_LEVEL = customsSettings.getInt("MinSubclassLevel", 75);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{

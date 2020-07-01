@@ -209,7 +209,7 @@ public enum PlayerClass
 	static
 	{
 		Set<PlayerClass> subclasses = getSet(null, Third);
-		subclasses.removeAll(neverSubclassed);
+		//subclasses.removeAll(neverSubclassed);
 		
 		mainSubclassSet = subclasses;
 		
@@ -254,7 +254,7 @@ public enum PlayerClass
 				
 				subclasses.remove(this);
 				
-				switch (player.getRace())
+				/*switch (player.getRace())
 				{
 					case ELF:
 						subclasses.removeAll(getSet(Race.DARK_ELF, Third));
@@ -262,21 +262,22 @@ public enum PlayerClass
 					case DARK_ELF:
 						subclasses.removeAll(getSet(Race.ELF, Third));
 						break;
-				}
+				}*/
 				
 				subclasses.removeAll(getSet(Race.KAMAEL, Third));
 				
-				Set<PlayerClass> unavailableClasses = subclassSetMap.get(this);
+				/*Set<PlayerClass> unavailableClasses = subclassSetMap.get(this);
 				
 				if (unavailableClasses != null)
 				{
 					subclasses.removeAll(unavailableClasses);
-				}
+				}*/
 				
 			}
 			else
 			{
-				subclasses = getSet(Race.KAMAEL, Third);
+				//subclasses = getSet(Race.KAMAEL, Third);
+				subclasses = EnumSet.copyOf(mainSubclassSet);
 				subclasses.remove(this);
 				// Check sex, male subclasses female and vice versa
 				// If server owner set MaxSubclass > 3 some kamael's cannot take 4 sub
@@ -292,7 +293,7 @@ public enum PlayerClass
 						subclasses.removeAll(EnumSet.of(maleSoulbreaker));
 					}
 				}
-				if (!player.getSubClasses().containsKey(2) || (player.getSubClasses().get(2).getLevel() < 75))
+				if (!player.getSubClasses().containsKey(2) || (player.getSubClasses().get(2).getLevel() < Config.MIN_SUBCLASS_LEVEL))
 				{
 					subclasses.removeAll(EnumSet.of(inspector));
 				}
