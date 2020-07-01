@@ -386,6 +386,12 @@ public final class L2PcInstance extends L2Playable
 	private static final String INSERT_CHAR_RECIPE_SHOP = "REPLACE INTO character_recipeshoplist (`charId`, `recipeId`, `price`, `index`) VALUES (?, ?, ?, ?)";
 	private static final String RESTORE_CHAR_RECIPE_SHOP = "SELECT * FROM character_recipeshoplist WHERE charId=? ORDER BY `index`";
 	
+	// Character fashion paperdoll
+	private static final String CREATE_FASHION_PAPERDOLL = "INSERT INTO character_fashion (charId) values (?)";
+	private static final String RESTORE_FASHION_PAPERDOLL = "SELECT * FROM character_fashion WHERE charId =?";
+	private static final String STORE_FASHION_PAPERDOLL = "UPDATE character_fashion SET under=?,head=?,rhand=?,lhand=?,gloves=?,chest=?,legs=?,feet=?,cloak=?,hair=?,hair2=?,rbracelet=?,lbracelet=?,deco1=?,deco2=?,deco3=?,deco4=?,deco5=?,deco6=?,belt=? WHERE charId = ?";
+
+
 	private static final String COND_OVERRIDE_KEY = "cond_override";
 	
 	public static final String NEWBIE_KEY = "NEWBIE";
@@ -812,6 +818,8 @@ public final class L2PcInstance extends L2Playable
 	private volatile int _actionMask;
 	private Map<Stats, Double> _servitorShare;
 	
+	private final L2Item[] _fashion = new L2Item[Inventory.PAPERDOLL_TOTALSLOTS];
+
 	/**
 	 * Creates a player.
 	 * @param objectId the object ID
@@ -939,7 +947,7 @@ public final class L2PcInstance extends L2Playable
 		// Give 20 recommendations
 		player.setRecomLeft(20);
 		// Add the player in the characters table of the database
-		return player.createDb() ? player : null;
+		return player.createDb() && player.createFashion() ? player : null;
 	}
 	
 	public String getAccountName()
@@ -6730,6 +6738,18 @@ public final class L2PcInstance extends L2Playable
 		return true;
 	}
 	
+	public boolean createFashion() {
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(CREATE_FASHION_PAPERDOLL)) {
+			ps.setInt(1, getObjectId());
+			ps.executeUpdate();
+		} catch (Exception e) {
+			LOG.error("Could not insert fashion data: {}", e);
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Retrieve a L2PcInstance from the characters table of the database and add it in _allObjects of the L2world. <B><U> Actions</U> :</B>
 	 * <li>Retrieve the L2PcInstance from the characters table of the database</li>
@@ -6977,6 +6997,8 @@ public final class L2PcInstance extends L2Playable
 			player.refreshExpertisePenalty();
 			
 			player.restoreFriendList();
+
+			player.restoreFashion();
 			
 			if (Config.STORE_UI_SETTINGS)
 			{
@@ -7275,6 +7297,8 @@ public final class L2PcInstance extends L2Playable
 		{
 			aVars.storeMe();
 		}
+
+		storeFashion();
 	}
 	
 	@Override
@@ -7388,6 +7412,36 @@ public final class L2PcInstance extends L2Playable
 		}
 	}
 	
+	public void storeFashion() {
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(STORE_FASHION_PAPERDOLL)) {
+			ps.setInt(1, getFashionItemId(Inventory.PAPERDOLL_UNDER));
+			ps.setInt(2, getFashionItemId(Inventory.PAPERDOLL_HEAD));
+			ps.setInt(3, getFashionItemId(Inventory.PAPERDOLL_RHAND));
+			ps.setInt(4, getFashionItemId(Inventory.PAPERDOLL_LHAND));
+			ps.setInt(5, getFashionItemId(Inventory.PAPERDOLL_GLOVES));
+			ps.setInt(6, getFashionItemId(Inventory.PAPERDOLL_CHEST));
+			ps.setInt(7, getFashionItemId(Inventory.PAPERDOLL_LEGS));
+			ps.setInt(8, getFashionItemId(Inventory.PAPERDOLL_FEET));
+			ps.setInt(9, getFashionItemId(Inventory.PAPERDOLL_CLOAK));
+			ps.setInt(10, getFashionItemId(Inventory.PAPERDOLL_HAIR));
+			ps.setInt(11, getFashionItemId(Inventory.PAPERDOLL_HAIR2));
+			ps.setInt(12, getFashionItemId(Inventory.PAPERDOLL_RBRACELET));
+			ps.setInt(13, getFashionItemId(Inventory.PAPERDOLL_LBRACELET));
+			ps.setInt(14, getFashionItemId(Inventory.PAPERDOLL_DECO1));
+			ps.setInt(15, getFashionItemId(Inventory.PAPERDOLL_DECO2));
+			ps.setInt(16, getFashionItemId(Inventory.PAPERDOLL_DECO3));
+			ps.setInt(17, getFashionItemId(Inventory.PAPERDOLL_DECO4));
+			ps.setInt(18, getFashionItemId(Inventory.PAPERDOLL_DECO5));
+			ps.setInt(19, getFashionItemId(Inventory.PAPERDOLL_DECO6));
+			ps.setInt(20, getFashionItemId(Inventory.PAPERDOLL_BELT));
+			ps.setInt(21, getObjectId());
+			ps.execute();
+		} catch (Exception e) {
+			LOG.error("Could not store {} fashion data: {}", this, e);
+		}
+	}
+
 	@Override
 	public void storeEffect(boolean storeEffects)
 	{
@@ -7951,6 +8005,39 @@ public final class L2PcInstance extends L2Playable
 		recalcHennaStats();
 	}
 	
+	public void restoreFashion() {
+		try (Connection con = ConnectionFactory.getInstance().getConnection();
+			PreparedStatement ps = con.prepareStatement(RESTORE_FASHION_PAPERDOLL)) {
+			ps.setInt(1, getObjectId());
+			try (ResultSet rset = ps.executeQuery()) {
+				if (rset.next()) {
+					setFashionItem(Inventory.PAPERDOLL_UNDER, rset.getInt("under"));
+					setFashionItem(Inventory.PAPERDOLL_HEAD, rset.getInt("head"));
+					setFashionItem(Inventory.PAPERDOLL_RHAND, rset.getInt("rhand"));
+					setFashionItem(Inventory.PAPERDOLL_LHAND, rset.getInt("lhand"));
+					setFashionItem(Inventory.PAPERDOLL_GLOVES, rset.getInt("gloves"));
+					setFashionItem(Inventory.PAPERDOLL_CHEST, rset.getInt("chest"));
+					setFashionItem(Inventory.PAPERDOLL_LEGS, rset.getInt("legs"));
+					setFashionItem(Inventory.PAPERDOLL_FEET, rset.getInt("feet"));
+					setFashionItem(Inventory.PAPERDOLL_CLOAK, rset.getInt("cloak"));
+					setFashionItem(Inventory.PAPERDOLL_HAIR, rset.getInt("hair"));
+					setFashionItem(Inventory.PAPERDOLL_HAIR2, rset.getInt("hair2"));
+					setFashionItem(Inventory.PAPERDOLL_RBRACELET, rset.getInt("rbracelet"));
+					setFashionItem(Inventory.PAPERDOLL_LBRACELET, rset.getInt("lbracelet"));
+					setFashionItem(Inventory.PAPERDOLL_DECO1, rset.getInt("deco1"));
+					setFashionItem(Inventory.PAPERDOLL_DECO2, rset.getInt("deco2"));
+					setFashionItem(Inventory.PAPERDOLL_DECO3, rset.getInt("deco3"));
+					setFashionItem(Inventory.PAPERDOLL_DECO4, rset.getInt("deco4"));
+					setFashionItem(Inventory.PAPERDOLL_DECO5, rset.getInt("deco5"));
+					setFashionItem(Inventory.PAPERDOLL_DECO6, rset.getInt("deco6"));
+					setFashionItem(Inventory.PAPERDOLL_BELT, rset.getInt("belt"));
+				}
+			}
+		} catch (Exception e) {
+			LOG.error("Failed loading fashion data. {}", e);
+		}
+	}
+
 	/**
 	 * @return the number of Henna empty slot of the L2PcInstance.
 	 */
@@ -10502,6 +10589,10 @@ public final class L2PcInstance extends L2Playable
 			checkPlayerSkills();
 		}
 		
+		if (!isGM()) {
+			checkPlayerFashionItems();
+		}
+
 		try
 		{
 			for (L2ZoneType zone : ZoneManager.getInstance().getZones(this))
@@ -13949,6 +14040,21 @@ public final class L2PcInstance extends L2Playable
 		// Store new data
 		storeRecommendations();
 	}
+
+	public void checkPlayerFashionItems() {
+		for (int i = 0; i < _fashion.length; i++) {
+			L2Item item = _fashion[i];
+
+			if (item == null) {
+				continue;
+			}
+
+			if (getWarehouse().getInventoryItemCount(item.getId(), -1) == 0
+					&& getInventory().getInventoryItemCount(item.getId(), -1) == 0) {
+				_fashion[i] = null;
+			}
+		}
+	}
 	
 	public void stopRecoBonusTask()
 	{
@@ -14420,5 +14526,35 @@ public final class L2PcInstance extends L2Playable
 			return 1.0d;
 		}
 		return _servitorShare.get(stat);
+	}
+
+	public int getFashionItemId(int slot) {
+		L2Item item = _fashion[slot];
+		return (item != null) ? item.getId() : 0;
+	}
+
+	public void setFashionItem(int slot, int itemId) {
+		_fashion[slot] = ItemTable.getInstance().getTemplate(itemId);
+	}
+
+	public int getFashionItemDisplayId(int slot) {
+		final int fashionId = getFashionItemId(slot);
+
+		if (slot == Inventory.PAPERDOLL_LEGS) {
+			// handle real full armor
+			L2ItemInstance realChest = getInventory().getPaperdollItem(Inventory.PAPERDOLL_CHEST);
+			if (realChest != null && realChest.getItem().getBodyPart() == L2Item.SLOT_FULL_ARMOR) {
+				return fashionId;
+			}
+			// handle fashion full armor
+			L2Item fashionChest = _fashion[Inventory.PAPERDOLL_CHEST];
+			if (fashionChest != null && fashionChest.getBodyPart() == L2Item.SLOT_FULL_ARMOR) {
+				return 0;
+			}
+		}
+
+		final int itemId = getInventory().getPaperdollItemDisplayId(slot);
+
+		return (itemId == 0 || fashionId == 0) ? itemId : fashionId;
 	}
 }

@@ -210,7 +210,7 @@ public class CharInfo extends L2GameServerPacket
 			
 			for (int slot : getPaperdollOrder())
 			{
-				writeD(_activeChar.getInventory().getPaperdollItemDisplayId(slot));
+				writeD(_activeChar.getFashionItemDisplayId(slot));
 			}
 			
 			for (int slot : getPaperdollOrder())
