@@ -85,6 +85,7 @@ import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.items.L2Weapon;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.model.olympiad.Olympiad;
+import com.l2jserver.gameserver.model.skills.AbnormalVisualEffect;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.model.variables.NpcVariables;
 import com.l2jserver.gameserver.model.zone.type.L2TownZone;
@@ -1949,5 +1950,10 @@ public class L2Npc extends L2Character
 		{
 			_summonedNpcs.clear();
 		}
+	}
+
+	@Override
+	public int getAbnormalVisualEffectSpecial() {
+		return isChampion() ? super.getAbnormalVisualEffectSpecial() | AbnormalVisualEffect.NAVIT_ADVENT.getMask() : super.getAbnormalVisualEffectSpecial();
 	}
 }
