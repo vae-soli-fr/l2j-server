@@ -1118,6 +1118,7 @@ public final class Config
 	public static boolean ALLOW_FASHION;
 	public static int MIN_SUBCLASS_LEVEL;
 	public static int GATEKEEPER_INTERVAL;
+	public static int[] RAID_STATIC_RESPAWN_TIME;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2725,6 +2726,13 @@ public final class Config
 			ALLOW_FASHION = customsSettings.getBoolean("AllowFashion", false);
 			MIN_SUBCLASS_LEVEL = customsSettings.getInt("MinSubclassLevel", 75);
 			GATEKEEPER_INTERVAL = customsSettings.getInt("GatekeeperInterval", 20);
+
+			final String[] time = customsSettings.getString("RaidStaticRespawnTime", "21;00").split(";");
+			RAID_STATIC_RESPAWN_TIME = new int[time.length];
+			for (int i = 0; i < time.length; i++)
+			{
+				RAID_STATIC_RESPAWN_TIME[i] = Integer.parseInt(time[i]);
+			}
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{

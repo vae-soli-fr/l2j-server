@@ -24,6 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -172,17 +173,36 @@ public class RaidBossSpawnManager
 		if (isBossDead)
 		{
 			boss.setRaidStatus(StatusEnum.DEAD);
+
+			final long respawnDelay;
+			final long respawnTime;
+
+			if (boss.getLevel() >= 40) {
+				final Calendar cal = Calendar.getInstance();
+				cal.set(Calendar.HOUR_OF_DAY, Config.RAID_STATIC_RESPAWN_TIME[0]);
+				cal.set(Calendar.MINUTE, Config.RAID_STATIC_RESPAWN_TIME[1]);
+				cal.set(Calendar.SECOND, 0);
+				cal.set(Calendar.MILLISECOND, 0);
+
+				if (cal.getTime().before(new Date())) {
+					cal.add(Calendar.DATE, 1);
+				}
 			
-			final int respawnMinDelay = (int) (boss.getSpawn().getRespawnMinDelay() * Config.RAID_MIN_RESPAWN_MULTIPLIER);
-			final int respawnMaxDelay = (int) (boss.getSpawn().getRespawnMaxDelay() * Config.RAID_MAX_RESPAWN_MULTIPLIER);
-			final int respawnDelay = Rnd.get(respawnMinDelay, respawnMaxDelay);
-			final long respawnTime = Calendar.getInstance().getTimeInMillis() + respawnDelay;
-			
+				respawnTime = cal.getTimeInMillis();
+				respawnDelay = respawnTime - Calendar.getInstance().getTimeInMillis();
+
+			} else {
+				final int respawnMinDelay = (int) (boss.getSpawn().getRespawnMinDelay() * Config.RAID_MIN_RESPAWN_MULTIPLIER);
+				final int respawnMaxDelay = (int) (boss.getSpawn().getRespawnMaxDelay() * Config.RAID_MAX_RESPAWN_MULTIPLIER);
+				respawnDelay = Rnd.get(respawnMinDelay, respawnMaxDelay);
+				respawnTime = Calendar.getInstance().getTimeInMillis() + respawnDelay;
+			}
+
 			info.set("currentHP", boss.getMaxHp());
 			info.set("currentMP", boss.getMaxMp());
 			info.set("respawnTime", respawnTime);
 			
-			if (!_schedules.containsKey(boss.getId()) && ((respawnMinDelay > 0) || (respawnMaxDelay > 0)))
+			if (!_schedules.containsKey(boss.getId()) && (respawnDelay > 0))
 			{
 				final Calendar time = Calendar.getInstance();
 				time.setTimeInMillis(respawnTime);
