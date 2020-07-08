@@ -60,6 +60,7 @@ import com.l2jserver.gameserver.RecipeController;
 import com.l2jserver.gameserver.SevenSigns;
 import com.l2jserver.gameserver.SevenSignsFestival;
 import com.l2jserver.gameserver.ThreadPoolManager;
+import com.l2jserver.gameserver.WhosOnline;
 import com.l2jserver.gameserver.ai.CtrlIntention;
 import com.l2jserver.gameserver.ai.L2CharacterAI;
 import com.l2jserver.gameserver.ai.L2PlayerAI;
@@ -11613,7 +11614,9 @@ public final class L2PcInstance extends L2Playable
 		// Remove L2Object object from _allObjects of L2World
 		L2World.getInstance().removeObject(this);
 		L2World.getInstance().removeFromAllPlayers(this); // force remove in case of crash during teleport
-		
+
+		WhosOnline.refreshPlayersList();
+
 		try
 		{
 			notifyFriends();

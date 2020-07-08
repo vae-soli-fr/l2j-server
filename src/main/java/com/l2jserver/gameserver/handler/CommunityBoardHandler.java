@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.WhosOnline;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.util.Util;
@@ -109,7 +110,8 @@ public final class CommunityBoardHandler implements IHandler<IParseBoardHandler,
 		
 		if (!Config.ENABLE_COMMUNITY_BOARD)
 		{
-			player.sendPacket(SystemMessageId.CB_OFFLINE);
+			//player.sendPacket(SystemMessageId.CB_OFFLINE);
+			WhosOnline.showPlayersList(player);
 			return;
 		}
 		
