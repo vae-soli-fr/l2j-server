@@ -18,6 +18,8 @@
  */
 package com.l2jserver.gameserver.network.clientpackets;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -27,6 +29,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import com.l2jserver.Config;
+import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
 import com.l2jserver.gameserver.data.sql.impl.CharNameTable;
 import com.l2jserver.gameserver.data.xml.impl.InitialEquipmentData;
 import com.l2jserver.gameserver.data.xml.impl.InitialShortcutData;
@@ -254,7 +257,16 @@ public final class CharacterCreate extends L2GameClientPacket
 		
 		if (Config.STARTING_ADENA > 0)
 		{
-			newChar.addAdena("Init", Config.STARTING_ADENA, null, false);
+			try (Connection con = ConnectionFactory.getInstance().getConnection())
+			{
+				L2PcInstance.loadCharacters(newChar.getId(), newChar, con);
+			}
+			catch (Exception e)
+			{
+				_log.log(Level.WARNING, "Failed loading account characters. {}", e);
+			}
+			long adenas = (long) (Config.STARTING_ADENA / Math.pow(2, newChar.getAccountChars().size()));
+			newChar.addAdena("Init", adenas, null, false);
 		}
 		
 		final L2PcTemplate template = newChar.getTemplate();

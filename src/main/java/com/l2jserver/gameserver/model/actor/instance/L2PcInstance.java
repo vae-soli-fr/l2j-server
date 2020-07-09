@@ -6933,19 +6933,7 @@ public final class L2PcInstance extends L2Playable
 					// Language
 					player.setLang(rset.getString("language"));
 					
-					// Retrieve the name and ID of the other characters assigned to this account.
-					try (PreparedStatement stmt = con.prepareStatement("SELECT charId, char_name FROM characters WHERE account_name=? AND charId<>?"))
-					{
-						stmt.setString(1, player._accountName);
-						stmt.setInt(2, objectId);
-						try (ResultSet chars = stmt.executeQuery())
-						{
-							while (chars.next())
-							{
-								player._chars.put(chars.getInt("charId"), chars.getString("char_name"));
-							}
-						}
-					}
+					loadCharacters(objectId, player, con);
 				}
 			}
 			
@@ -7017,6 +7005,29 @@ public final class L2PcInstance extends L2Playable
 			LOG.error("Failed loading character. {}", e);
 		}
 		return player;
+	}
+
+	/**
+	 * Retrieve the name and ID of the other characters assigned to this account
+	 * @param objectId
+	 * @param player
+	 * @param con
+	 * @throws SQLException
+	 */
+	public static void loadCharacters(int objectId, L2PcInstance player, Connection con) throws SQLException
+	{
+		try (PreparedStatement stmt = con.prepareStatement("SELECT charId, char_name FROM characters WHERE account_name=? AND charId<>?"))
+		{
+			stmt.setString(1, player._accountName);
+			stmt.setInt(2, objectId);
+			try (ResultSet chars = stmt.executeQuery())
+			{
+				while (chars.next())
+				{
+					player._chars.put(chars.getInt("charId"), chars.getString("char_name"));
+				}
+			}
+		}
 	}
 	
 	/**
