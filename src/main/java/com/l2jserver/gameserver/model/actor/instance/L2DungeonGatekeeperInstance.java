@@ -65,7 +65,7 @@ public class L2DungeonGatekeeperInstance extends L2Npc
 		if (actualCommand.startsWith("necro"))
 		{
 			boolean canPort = true;
-			if (isSealValidationPeriod)
+			/*if (isSealValidationPeriod)
 			{
 				if ((compWinner == SevenSigns.CABAL_DAWN) && ((playerCabal != SevenSigns.CABAL_DAWN) || (sealAvariceOwner != SevenSigns.CABAL_DAWN)))
 				{
@@ -92,7 +92,7 @@ public class L2DungeonGatekeeperInstance extends L2Npc
 				{
 					canPort = false;
 				}
-			}
+			}*/
 			
 			if (!canPort)
 			{
@@ -110,7 +110,7 @@ public class L2DungeonGatekeeperInstance extends L2Npc
 		else if (actualCommand.startsWith("cata"))
 		{
 			boolean canPort = true;
-			if (isSealValidationPeriod)
+			/*if (isSealValidationPeriod)
 			{
 				if ((compWinner == SevenSigns.CABAL_DAWN) && ((playerCabal != SevenSigns.CABAL_DAWN) || (sealGnosisOwner != SevenSigns.CABAL_DAWN)))
 				{
@@ -137,7 +137,7 @@ public class L2DungeonGatekeeperInstance extends L2Npc
 				{
 					canPort = false;
 				}
-			}
+			}*/
 			
 			if (!canPort)
 			{
