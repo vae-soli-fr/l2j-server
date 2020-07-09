@@ -52,6 +52,7 @@ import org.slf4j.LoggerFactory;
 
 import com.l2jserver.Config;
 import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
+import com.l2jserver.gameserver.DescriptionManager;
 import com.l2jserver.gameserver.GameTimeController;
 import com.l2jserver.gameserver.GeoData;
 import com.l2jserver.gameserver.ItemsAutoDestroy;
@@ -358,7 +359,7 @@ public final class L2PcInstance extends L2Playable
 	
 	// Character Character SQL String Definitions:
 	private static final String INSERT_CHARACTER = "INSERT INTO characters (account_name,charId,char_name,level,maxHp,curHp,maxCp,curCp,maxMp,curMp,face,hairStyle,hairColor,sex,exp,sp,karma,fame,pvpkills,pkkills,clanid,race,classid,deletetime,cancraft,title,title_color,accesslevel,online,isin7sdungeon,clan_privs,wantspeace,base_class,newbie,nobless,power_grade,createDate) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-	private static final String UPDATE_CHARACTER = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,language=? WHERE charId=?";
+	private static final String UPDATE_CHARACTER = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,language=?,char_slot=? WHERE charId=?";
 	private static final String RESTORE_CHARACTER = "SELECT * FROM characters WHERE charId=?";
 	
 	// Character Teleport Bookmark:
@@ -820,6 +821,9 @@ public final class L2PcInstance extends L2Playable
 	private Map<Stats, Double> _servitorShare;
 	
 	private final L2Item[] _fashion = new L2Item[Inventory.PAPERDOLL_TOTALSLOTS];
+
+	private int _charSlot;
+	private String _description;
 
 	/**
 	 * Creates a player.
@@ -6988,6 +6992,8 @@ public final class L2PcInstance extends L2Playable
 			player.restoreFriendList();
 
 			player.restoreFashion();
+
+			DescriptionManager.load(player);
 			
 			if (Config.STORE_UI_SETTINGS)
 			{
@@ -7016,16 +7022,23 @@ public final class L2PcInstance extends L2Playable
 	 */
 	public static void loadCharacters(int objectId, L2PcInstance player, Connection con) throws SQLException
 	{
-		try (PreparedStatement stmt = con.prepareStatement("SELECT charId, char_name FROM characters WHERE account_name=? AND charId<>?"))
+		try (PreparedStatement stmt = con.prepareStatement("SELECT charId, char_name, createDate FROM characters WHERE account_name=? AND charId<>?"))
 		{
 			stmt.setString(1, player._accountName);
 			stmt.setInt(2, objectId);
 			try (ResultSet chars = stmt.executeQuery())
 			{
+				int slot = 1;
 				while (chars.next())
 				{
 					player._chars.put(chars.getInt("charId"), chars.getString("char_name"));
+					 Calendar charCreation = Calendar.getInstance();
+					 charCreation.setTimeInMillis(chars.getTimestamp("createDate").getTime());
+					 if (player.getCreateDate().after(charCreation)) {
+						 slot++;
+					 }
 				}
+				player.setCharSlot(slot);
 			}
 		}
 	}
@@ -7384,7 +7397,8 @@ public final class L2PcInstance extends L2Playable
 			ps.setInt(47, getBookMarkSlot());
 			ps.setInt(48, getVitalityPoints());
 			ps.setString(49, getLang());
-			ps.setInt(50, getObjectId());
+			ps.setInt(50, getCharSlot());
+			ps.setInt(51, getObjectId());
 			
 			ps.execute();
 		}
@@ -14570,5 +14584,25 @@ public final class L2PcInstance extends L2Playable
 		final int itemId = getInventory().getPaperdollItemDisplayId(slot);
 
 		return (itemId == 0 || fashionId == 0) ? itemId : fashionId;
+	}
+
+	public int getCharSlot()
+	{
+		return _charSlot;
+	}
+
+	public void setCharSlot(int charSlot)
+	{
+		_charSlot = charSlot;
+	}
+
+	public String getDescription()
+	{
+		return _description;
+	}
+
+	public void setDescription(String description)
+	{
+		_description = description;
 	}
 }

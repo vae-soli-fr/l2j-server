@@ -1119,6 +1119,7 @@ public final class Config
 	public static int MIN_SUBCLASS_LEVEL;
 	public static int GATEKEEPER_INTERVAL;
 	public static int[] RAID_STATIC_RESPAWN_TIME;
+	public static boolean ALLOW_DESCRIPTION;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2733,6 +2734,8 @@ public final class Config
 			{
 				RAID_STATIC_RESPAWN_TIME[i] = Integer.parseInt(time[i]);
 			}
+
+			ALLOW_DESCRIPTION = customsSettings.getBoolean("AllowDescription", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
