@@ -206,7 +206,7 @@ public class CharInfo extends L2GameServerPacket
 			writeS(_activeChar.getAppearance().getVisibleName());
 			writeD(_activeChar.getRace().ordinal());
 			writeD(_activeChar.getAppearance().getSex() ? 1 : 0);
-			writeD(_activeChar.getBaseClass());
+			writeD(_activeChar.getVisibleClass());
 			
 			for (int slot : getPaperdollOrder())
 			{

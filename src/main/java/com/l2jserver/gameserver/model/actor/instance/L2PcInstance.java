@@ -358,8 +358,8 @@ public final class L2PcInstance extends L2Playable
 	private static final String DELETE_ITEM_REUSE_SAVE = "DELETE FROM character_item_reuse_save WHERE charId=?";
 	
 	// Character Character SQL String Definitions:
-	private static final String INSERT_CHARACTER = "INSERT INTO characters (account_name,charId,char_name,level,maxHp,curHp,maxCp,curCp,maxMp,curMp,face,hairStyle,hairColor,sex,exp,sp,karma,fame,pvpkills,pkkills,clanid,race,classid,deletetime,cancraft,title,title_color,accesslevel,online,isin7sdungeon,clan_privs,wantspeace,base_class,newbie,nobless,power_grade,createDate) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-	private static final String UPDATE_CHARACTER = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,language=?,char_slot=? WHERE charId=?";
+	private static final String INSERT_CHARACTER = "INSERT INTO characters (account_name,charId,char_name,level,maxHp,curHp,maxCp,curCp,maxMp,curMp,face,hairStyle,hairColor,sex,exp,sp,karma,fame,pvpkills,pkkills,clanid,race,classid,deletetime,cancraft,title,title_color,accesslevel,online,isin7sdungeon,clan_privs,wantspeace,base_class,newbie,nobless,power_grade,createDate,visible_class) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+	private static final String UPDATE_CHARACTER = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,language=?,char_slot=?,visible_class=? WHERE charId=?";
 	private static final String RESTORE_CHARACTER = "SELECT * FROM characters WHERE charId=?";
 	
 	// Character Teleport Bookmark:
@@ -421,6 +421,7 @@ public final class L2PcInstance extends L2Playable
 	
 	private final ReentrantLock _subclassLock = new ReentrantLock();
 	protected int _baseClass;
+	private int _visibleClass;
 	protected int _activeClass;
 	protected int _classIndex = 0;
 	
@@ -947,6 +948,8 @@ public final class L2PcInstance extends L2Playable
 		player.setCreateDate(Calendar.getInstance());
 		// Set the base class ID to that of the actual class ID.
 		player.setBaseClass(player.getClassId());
+		// Set the visible class ID to that of the actual class ID.
+		player.setVisibleClass(player.getClassId());
 		// Kept for backwards compatibility.
 		player.setNewbie(1);
 		// Give 20 recommendations
@@ -1159,7 +1162,7 @@ public final class L2PcInstance extends L2Playable
 	 */
 	public final L2PcTemplate getBaseTemplate()
 	{
-		return PlayerTemplateData.getInstance().getTemplate(_baseClass);
+		return PlayerTemplateData.getInstance().getTemplate(_visibleClass);
 	}
 	
 	/**
@@ -2680,11 +2683,7 @@ public final class L2PcInstance extends L2Playable
 	@Override
 	public Race getRace()
 	{
-		if (!isSubClassActive())
-		{
-			return getTemplate().getRace();
-		}
-		return PlayerTemplateData.getInstance().getTemplate(_baseClass).getRace();
+		return getBaseTemplate().getRace();
 	}
 	
 	public L2Radar getRadar()
@@ -6733,6 +6732,7 @@ public final class L2PcInstance extends L2Playable
 			ps.setInt(35, isNoble() ? 1 : 0);
 			ps.setLong(36, 0);
 			ps.setTimestamp(37, new Timestamp(getCreateDate().getTimeInMillis()));
+			ps.setInt(38, getVisibleClass());
 			ps.executeUpdate();
 		}
 		catch (Exception e)
@@ -6886,7 +6886,9 @@ public final class L2PcInstance extends L2Playable
 						// TODO: Should this be logged?
 						player.setBaseClass(activeClassId);
 					}
-					
+
+					player.setVisibleClass(rset.getInt("visible_class"));
+
 					// Restore Subclass Data (cannot be done earlier in function)
 					if (restoreSubClassData(player))
 					{
@@ -7398,7 +7400,8 @@ public final class L2PcInstance extends L2Playable
 			ps.setInt(48, getVitalityPoints());
 			ps.setString(49, getLang());
 			ps.setInt(50, getCharSlot());
-			ps.setInt(51, getObjectId());
+			ps.setInt(51, getVisibleClass());
+			ps.setInt(52, getObjectId());
 			
 			ps.execute();
 		}
@@ -14604,5 +14607,20 @@ public final class L2PcInstance extends L2Playable
 	public void setDescription(String description)
 	{
 		_description = description;
+	}
+
+	public int getVisibleClass()
+	{
+		return _visibleClass;
+	}
+
+	public void setVisibleClass(int visibleClass)
+	{
+		_visibleClass = visibleClass;
+	}
+
+	public void setVisibleClass(ClassId visibleClass)
+	{
+		_visibleClass = visibleClass.ordinal();
 	}
 }

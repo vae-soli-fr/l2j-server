@@ -108,15 +108,7 @@ public class CharSelectionInfo extends L2GameServerPacket
 			
 			writeD(charInfoPackage.getSex());
 			writeD(charInfoPackage.getRace());
-			
-			if (charInfoPackage.getClassId() == charInfoPackage.getBaseClassId())
-			{
-				writeD(charInfoPackage.getClassId());
-			}
-			else
-			{
-				writeD(charInfoPackage.getBaseClassId());
-			}
+			writeD(charInfoPackage.getVisibleClassId());
 			
 			writeD(0x01); // active ??
 			
@@ -285,6 +277,7 @@ public class CharSelectionInfo extends L2GameServerPacket
 		
 		final int baseClassId = chardata.getInt("base_class");
 		final int activeClassId = chardata.getInt("classid");
+		final int visibleClassId = chardata.getInt("visible_class");
 		
 		charInfopackage.setX(chardata.getInt("x"));
 		charInfopackage.setY(chardata.getInt("y"));
@@ -346,6 +339,8 @@ public class CharSelectionInfo extends L2GameServerPacket
 			charInfopackage.setBaseClassId(baseClassId);
 		}
 		
+		charInfopackage.setVisibleClassId(visibleClassId);
+
 		charInfopackage.setDeleteTimer(deletetime);
 		charInfopackage.setLastAccess(chardata.getLong("lastAccess"));
 		return charInfopackage;

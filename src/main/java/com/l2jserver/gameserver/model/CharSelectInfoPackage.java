@@ -36,6 +36,7 @@ public class CharSelectInfoPackage
 	private int _race = 0;
 	private int _classId = 0;
 	private int _baseClassId = 0;
+	private int _visibleClassId = 0;
 	private long _deleteTimer = 0L;
 	private long _lastAccess = 0L;
 	private int _face = 0;
@@ -387,5 +388,15 @@ public class CharSelectInfoPackage
 	public int getVitalityPoints()
 	{
 		return _vitalityPoints;
+	}
+
+	public int getVisibleClassId()
+	{
+		return _visibleClassId;
+	}
+
+	public void setVisibleClassId(int visibleClassId)
+	{
+		_visibleClassId = visibleClassId;
 	}
 }
