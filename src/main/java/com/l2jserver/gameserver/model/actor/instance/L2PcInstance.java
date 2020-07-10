@@ -89,6 +89,7 @@ import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.HtmlActionScope;
 import com.l2jserver.gameserver.enums.IllegalActionPunishmentType;
 import com.l2jserver.gameserver.enums.InstanceType;
+import com.l2jserver.gameserver.enums.Language;
 import com.l2jserver.gameserver.enums.MountType;
 import com.l2jserver.gameserver.enums.PartyDistributionType;
 import com.l2jserver.gameserver.enums.PlayerAction;
@@ -98,6 +99,7 @@ import com.l2jserver.gameserver.enums.Sex;
 import com.l2jserver.gameserver.enums.ShortcutType;
 import com.l2jserver.gameserver.enums.ShotType;
 import com.l2jserver.gameserver.enums.Team;
+import com.l2jserver.gameserver.enums.Volume;
 import com.l2jserver.gameserver.handler.IItemHandler;
 import com.l2jserver.gameserver.handler.ItemHandler;
 import com.l2jserver.gameserver.idfactory.IdFactory;
@@ -825,6 +827,9 @@ public final class L2PcInstance extends L2Playable
 
 	private int _charSlot;
 	private String _description;
+
+	private Volume _volume = Volume.DEFAULT;
+	private Language _language = Language.COMMON;
 
 	/**
 	 * Creates a player.
@@ -14622,5 +14627,25 @@ public final class L2PcInstance extends L2Playable
 	public void setVisibleClass(ClassId visibleClass)
 	{
 		_visibleClass = visibleClass.ordinal();
+	}
+
+	public Volume getVolume()
+	{
+		return _volume;
+	}
+
+	public void setVolume(Volume volume)
+	{
+		_volume = volume;
+	}
+
+	public Language getLanguage()
+	{
+		return _language;
+	}
+
+	public void setLanguage(Language language)
+	{
+		_language = language;
 	}
 }

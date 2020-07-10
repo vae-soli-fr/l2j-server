@@ -1120,6 +1120,7 @@ public final class Config
 	public static int GATEKEEPER_INTERVAL;
 	public static int[] RAID_STATIC_RESPAWN_TIME;
 	public static boolean ALLOW_DESCRIPTION;
+	public static boolean ALLOW_DIDASCALIES;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2736,6 +2737,7 @@ public final class Config
 			}
 
 			ALLOW_DESCRIPTION = customsSettings.getBoolean("AllowDescription", false);
+			ALLOW_DIDASCALIES = customsSettings.getBoolean("AllowDidascalies", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
