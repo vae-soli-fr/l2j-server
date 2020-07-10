@@ -18,6 +18,9 @@
  */
 package com.l2jserver.gameserver.model.actor.instance;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.l2jserver.Config;
 import com.l2jserver.gameserver.cache.HtmCache;
 import com.l2jserver.gameserver.data.xml.impl.ClassListData;
@@ -26,6 +29,7 @@ import com.l2jserver.gameserver.enums.InstanceType;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
+import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ExBrExtraUserInfo;
 import com.l2jserver.gameserver.network.serverpackets.NpcHtmlMessage;
@@ -41,6 +45,8 @@ import com.l2jserver.util.StringUtil;
  */
 public final class L2ClassMasterInstance extends L2MerchantInstance
 {
+	private static final Logger LOG = LoggerFactory.getLogger(L2ClassMasterInstance.class);
+
 	/**
 	 * Creates a class master.
 	 * @param template the class master NPC template
@@ -138,6 +144,17 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 	
 	public static final void onTutorialLink(L2PcInstance player, String request)
 	{
+		if (request != null && request.startsWith("COGG")) {
+			try {
+				int val = Integer.parseInt(request.substring(4));
+				changeBaseClass(player, val);
+			} catch (NumberFormatException e) {
+				LOG.warn("Player " + player + " send invalid base class change request [" + request + "]!");
+			}
+			player.sendPacket(TutorialCloseHtml.STATIC_PACKET);
+			return;
+		}
+
 		if (!Config.ALTERNATE_CLASS_MASTER || (request == null) || !request.startsWith("CO"))
 		{
 			return;
@@ -476,5 +493,19 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 			sb.append("<tr><td><font color=\"LEVEL\">" + holder.getCount() + "</font></td><td>" + ItemTable.getInstance().getTemplate(holder.getId()).getName() + "</td></tr>");
 		}
 		return sb.toString();
+	}
+
+	private static void changeBaseClass(L2PcInstance player, int val) {
+		if (player.getLevel() > Config.STARTING_LEVEL) {
+			return;
+		}
+		for (Skill skill : player.getAllSkills()) {
+			player.removeSkill(skill);
+		}
+		player.setClassId(val);
+		player.setBaseClass(player.getActiveClass());
+		player.giveAvailableSkills(false, true);
+		player.sendSkillList();
+		player.broadcastUserInfo();
 	}
 }

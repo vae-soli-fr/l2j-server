@@ -27,7 +27,9 @@ import com.l2jserver.gameserver.WhosOnline;
 import com.l2jserver.gameserver.cache.HtmCache;
 import com.l2jserver.gameserver.data.sql.impl.AnnouncementsTable;
 import com.l2jserver.gameserver.data.xml.impl.AdminData;
+import com.l2jserver.gameserver.data.xml.impl.ClassListData;
 import com.l2jserver.gameserver.data.xml.impl.SkillTreesData;
+import com.l2jserver.gameserver.enums.Race;
 import com.l2jserver.gameserver.instancemanager.CHSiegeManager;
 import com.l2jserver.gameserver.instancemanager.CastleManager;
 import com.l2jserver.gameserver.instancemanager.ClanHallManager;
@@ -48,6 +50,7 @@ import com.l2jserver.gameserver.model.PcCondOverride;
 import com.l2jserver.gameserver.model.TeleportWhereType;
 import com.l2jserver.gameserver.model.actor.instance.L2ClassMasterInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.entity.Couple;
 import com.l2jserver.gameserver.model.entity.Fort;
 import com.l2jserver.gameserver.model.entity.FortSiege;
@@ -87,6 +90,8 @@ import com.l2jserver.gameserver.network.serverpackets.QuestList;
 import com.l2jserver.gameserver.network.serverpackets.ShortCutInit;
 import com.l2jserver.gameserver.network.serverpackets.SkillCoolTime;
 import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
+import com.l2jserver.gameserver.network.serverpackets.TutorialShowHtml;
+import com.l2jserver.util.StringUtil;
 
 /**
  * Enter World Packet Handler
@@ -103,6 +108,9 @@ public class EnterWorld extends L2GameClientPacket
 	
 	private final int[][] tracert = new int[5][4];
 	
+	private static final ClassId[] visibleClasses = new ClassId[] { ClassId.fighter, ClassId.mage, ClassId.elvenFighter, ClassId.elvenMage,
+		ClassId.darkFighter, ClassId.darkMage, ClassId.orcFighter, ClassId.orcMage, ClassId.dwarvenFighter };
+
 	@Override
 	protected void readImpl()
 	{
@@ -378,11 +386,6 @@ public class EnterWorld extends L2GameClientPacket
 		
 		Quest.playerEnter(activeChar);
 		
-		if (!Config.DISABLE_TUTORIAL)
-		{
-			loadTutorial(activeChar);
-		}
-		
 		activeChar.sendPacket(new QuestList());
 		
 		if (Config.PLAYER_SPAWN_PROTECTION > 0)
@@ -458,7 +461,25 @@ public class EnterWorld extends L2GameClientPacket
 				sendPacket(new NpcHtmlMessage(serverNews));
 			}
 		}
-		
+
+		if (activeChar.getLevel() == Config.STARTING_LEVEL) {
+			String html = HtmCache.getInstance().getHtm(activeChar.getHtmlPrefix(), "data/html/choosebaseclass.htm");
+			if (html != null) {
+				final StringBuilder list = new StringBuilder(500);
+				for (int i = 0; i < visibleClasses.length; i++) {
+					if (!activeChar.getClassId().equals(visibleClasses[i])) {
+						StringUtil.append(list, "<a action=\"link COGG", String.valueOf(visibleClasses[i].getId()), "\">", ClassListData.getInstance().getClass(visibleClasses[i]).getEscapedClientCode(), "</a><br>");
+					}
+				}
+				html = html.replaceAll("%list%", list.toString());
+				html = html.replaceAll("%class%", ClassListData.getInstance().getClass(activeChar.getClassId()).getEscapedClientCode());
+				html = html.replace("%disclaimer%", activeChar.getRace().equals(Race.KAMAEL) ? "[ Les animations et les equipements des<br1>kamaels sont limites, renseignez-vous<br1>sur le forum avant de choisir ]" : "");
+				sendPacket(new TutorialShowHtml(html));
+			}
+		} else if (!Config.DISABLE_TUTORIAL) {
+			loadTutorial(activeChar);
+		}
+
 		if (Config.PETITIONING_ALLOWED)
 		{
 			PetitionManager.getInstance().checkPetitionMessages(activeChar);
