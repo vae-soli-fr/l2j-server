@@ -21,6 +21,7 @@ package com.l2jserver.gameserver.network.clientpackets;
 import java.util.Base64;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.CustomImage;
 import com.l2jserver.gameserver.LoginServerThread;
 import com.l2jserver.gameserver.SevenSigns;
 import com.l2jserver.gameserver.WhosOnline;
@@ -458,7 +459,9 @@ public class EnterWorld extends L2GameClientPacket
 			String serverNews = HtmCache.getInstance().getHtm(activeChar.getHtmlPrefix(), "data/html/servnews.htm");
 			if (serverNews != null)
 			{
-				sendPacket(new NpcHtmlMessage(serverNews));
+				NpcHtmlMessage html = new NpcHtmlMessage(serverNews);
+				CustomImage.sendPackets(activeChar, html);
+				sendPacket(html);
 			}
 		}
 
