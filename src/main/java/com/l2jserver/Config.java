@@ -1121,6 +1121,7 @@ public final class Config
 	public static int[] RAID_STATIC_RESPAWN_TIME;
 	public static boolean ALLOW_DESCRIPTION;
 	public static boolean ALLOW_DIDASCALIES;
+	public static boolean ALLOW_TITRE;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2738,6 +2739,7 @@ public final class Config
 
 			ALLOW_DESCRIPTION = customsSettings.getBoolean("AllowDescription", false);
 			ALLOW_DIDASCALIES = customsSettings.getBoolean("AllowDidascalies", false);
+			ALLOW_TITRE = customsSettings.getBoolean("AllowTitre", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
