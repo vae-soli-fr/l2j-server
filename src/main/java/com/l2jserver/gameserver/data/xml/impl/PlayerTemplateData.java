@@ -39,6 +39,7 @@ import com.l2jserver.util.data.xml.IXmlReader;
  */
 public final class PlayerTemplateData implements IXmlReader
 {
+	private final int _maxlevel = ExperienceData.getInstance().getMaxLevel();
 	private final Map<ClassId, L2PcTemplate> _playerTemplates = new HashMap<>();
 	
 	private int _dataCount = 0;
@@ -152,6 +153,10 @@ public final class PlayerTemplateData implements IXmlReader
 								
 								for (Node valNode = lvlNode.getFirstChild(); valNode != null; valNode = valNode.getNextSibling())
 								{
+									if (level >= _maxlevel) {
+										continue;
+									}
+
 									String nodeName = valNode.getNodeName();
 									
 									if ((nodeName.startsWith("hp") || nodeName.startsWith("mp") || nodeName.startsWith("cp")) && _playerTemplates.containsKey(ClassId.getClassId(classId)))
