@@ -19,7 +19,6 @@
 package com.l2jserver.gameserver.model.actor;
 
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_ACTIVE;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -428,7 +427,15 @@ public class L2Npc extends L2Character
 	 */
 	public int getAggroRange()
 	{
-		return hasAIValue("aggroRange") ? getAIValue("aggroRange") : getTemplate().getAggroRange();
+		if (hasAIValue("aggroRange")) {
+			return getAIValue("aggroRange");
+		}
+
+		if (Config.MAX_AGGRO_RANGE > 0) {
+			return Math.min(getTemplate().getAggroRange(), Config.MAX_AGGRO_RANGE);
+		}
+
+		return getTemplate().getAggroRange();
 	}
 	
 	public boolean isInMyClan(L2Npc npc)

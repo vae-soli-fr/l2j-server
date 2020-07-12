@@ -1123,6 +1123,7 @@ public final class Config
 	public static boolean ALLOW_DIDASCALIES;
 	public static boolean ALLOW_TITRE;
 	public static boolean ENABLE_ROLEPLAY_REWARD;
+	public static int MAX_AGGRO_RANGE;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2742,6 +2743,7 @@ public final class Config
 			ALLOW_DIDASCALIES = customsSettings.getBoolean("AllowDidascalies", false);
 			ALLOW_TITRE = customsSettings.getBoolean("AllowTitre", false);
 			ENABLE_ROLEPLAY_REWARD = customsSettings.getBoolean("EnableRoleplayReward", false);
+			MAX_AGGRO_RANGE = customsSettings.getInt("MaxAggroRange", 450);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
