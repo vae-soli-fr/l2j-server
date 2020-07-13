@@ -1124,6 +1124,7 @@ public final class Config
 	public static boolean ALLOW_TITRE;
 	public static boolean ENABLE_ROLEPLAY_REWARD;
 	public static int MAX_AGGRO_RANGE;
+	public static String DEFAULT_SHOUT_CHAT;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2744,6 +2745,7 @@ public final class Config
 			ALLOW_TITRE = customsSettings.getBoolean("AllowTitre", false);
 			ENABLE_ROLEPLAY_REWARD = customsSettings.getBoolean("EnableRoleplayReward", false);
 			MAX_AGGRO_RANGE = customsSettings.getInt("MaxAggroRange", 450);
+			DEFAULT_SHOUT_CHAT = customsSettings.getString("ShoutChat", "ON");
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
