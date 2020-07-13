@@ -1003,4 +1003,11 @@ public final class Util
 		}
 		return false;
 	}
+
+	public static boolean between(int value, int minInclusive, int maxInclusive) {
+		if (value >= minInclusive && value <= maxInclusive) {
+			return true;
+		}
+		return false;
+	}
 }

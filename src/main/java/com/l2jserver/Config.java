@@ -1125,6 +1125,7 @@ public final class Config
 	public static boolean ENABLE_ROLEPLAY_REWARD;
 	public static int MAX_AGGRO_RANGE;
 	public static String DEFAULT_SHOUT_CHAT;
+	public static int RAID_REWARD_ITEM_ID;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2746,6 +2747,7 @@ public final class Config
 			ENABLE_ROLEPLAY_REWARD = customsSettings.getBoolean("EnableRoleplayReward", false);
 			MAX_AGGRO_RANGE = customsSettings.getInt("MaxAggroRange", 450);
 			DEFAULT_SHOUT_CHAT = customsSettings.getString("ShoutChat", "ON");
+			RAID_REWARD_ITEM_ID = customsSettings.getInt("RaidRewardItem", 0);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{

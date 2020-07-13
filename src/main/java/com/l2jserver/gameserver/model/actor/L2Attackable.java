@@ -1028,6 +1028,35 @@ public class L2Attackable extends L2Npc
 				}
 			}
 		}
+
+		if (isRaid() && !isRaidMinion() && Config.RAID_REWARD_ITEM_ID > 0) {
+
+			ItemHolder reward;
+
+			if (Util.between(getLevel(), 30, 39)) {
+				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 100);
+
+			} else if (Util.between(getLevel(), 40, 64)) {
+				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 1_000);
+
+			} else if (Util.between(getLevel(), 65, 75)) {
+				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 10_000);
+
+			} else if (getLevel() > 75) {
+				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 100_000);
+
+			} else {
+				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 10);
+			}
+
+			dropItem(player, reward);
+			L2Item item = ItemTable.getInstance().getTemplate(reward.getId());
+			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_DIED_DROPPED_S3_S2);
+			sm.addCharName(this);
+			sm.addItemName(item);
+			sm.addLong(reward.getCount());
+			broadcastPacket(sm);
+		}
 	}
 	
 	/**
