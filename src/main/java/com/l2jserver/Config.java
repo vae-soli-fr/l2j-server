@@ -1126,6 +1126,7 @@ public final class Config
 	public static int MAX_AGGRO_RANGE;
 	public static String DEFAULT_SHOUT_CHAT;
 	public static int RAID_REWARD_ITEM_ID;
+	public static boolean ENABLE_SUPPORT_MAGIC;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2748,6 +2749,7 @@ public final class Config
 			MAX_AGGRO_RANGE = customsSettings.getInt("MaxAggroRange", 450);
 			DEFAULT_SHOUT_CHAT = customsSettings.getString("ShoutChat", "ON");
 			RAID_REWARD_ITEM_ID = customsSettings.getInt("RaidRewardItem", 0);
+			ENABLE_SUPPORT_MAGIC = customsSettings.getBoolean("EnableSupportMagic", true);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
