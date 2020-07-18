@@ -1128,6 +1128,7 @@ public final class Config
 	public static int RAID_REWARD_ITEM_ID;
 	public static boolean ENABLE_SUPPORT_MAGIC;
 	public static int RANGE_GUARD_MIN_DISTANCE;
+	public static int MAX_SUBCLASS_CERTIF;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2752,6 +2753,7 @@ public final class Config
 			RAID_REWARD_ITEM_ID = customsSettings.getInt("RaidRewardItem", 0);
 			ENABLE_SUPPORT_MAGIC = customsSettings.getBoolean("EnableSupportMagic", true);
 			RANGE_GUARD_MIN_DISTANCE = customsSettings.getInt("RangeGuardMinDistance", 150);
+			MAX_SUBCLASS_CERTIF = customsSettings.getInt("MaxSubclassCertification", 3);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
