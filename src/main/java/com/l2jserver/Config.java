@@ -1129,6 +1129,7 @@ public final class Config
 	public static boolean ENABLE_SUPPORT_MAGIC;
 	public static int RANGE_GUARD_MIN_DISTANCE;
 	public static int MAX_SUBCLASS_CERTIF;
+	public static boolean ALLOW_PET_TALK;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2754,6 +2755,7 @@ public final class Config
 			ENABLE_SUPPORT_MAGIC = customsSettings.getBoolean("EnableSupportMagic", true);
 			RANGE_GUARD_MIN_DISTANCE = customsSettings.getInt("RangeGuardMinDistance", 150);
 			MAX_SUBCLASS_CERTIF = customsSettings.getInt("MaxSubclassCertification", 3);
+			ALLOW_PET_TALK = customsSettings.getBoolean("AllowPetTalk", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
