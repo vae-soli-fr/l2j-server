@@ -14592,14 +14592,16 @@ public final class L2PcInstance extends L2Playable
 				return 0;
 			}
 
-		} else if (slot == Inventory.PAPERDOLL_RHAND || slot == Inventory.PAPERDOLL_LHAND) {
-			L2ItemInstance realWeapon = getInventory().getPaperdollItem(slot);
-			if (realWeapon == null) {
-				return 0;
+		} else if (slot == Inventory.PAPERDOLL_LHAND) {
+			// handle real double-handed weapon
+			L2ItemInstance realRhand = getInventory().getPaperdollItem(Inventory.PAPERDOLL_RHAND);
+			if (realRhand != null && realRhand.getItem().getBodyPart() == L2Item.SLOT_LR_HAND) {
+				return fashionId;
 			}
-			L2Item fashionWeapon = _fashion[slot];
-			if (fashionWeapon == null || realWeapon.getItemType() != fashionWeapon.getItemType()) {
-				return realWeapon.getDisplayId();
+			// handle fashion double-handed weapon
+			L2Item fashionRhand = _fashion[Inventory.PAPERDOLL_RHAND];
+			if (fashionRhand != null && fashionRhand.getBodyPart() == L2Item.SLOT_LR_HAND) {
+				return 0;
 			}
 		}
 
