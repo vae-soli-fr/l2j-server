@@ -14591,6 +14591,16 @@ public final class L2PcInstance extends L2Playable
 			if (fashionChest != null && fashionChest.getBodyPart() == L2Item.SLOT_FULL_ARMOR) {
 				return 0;
 			}
+
+		} else if (slot == Inventory.PAPERDOLL_RHAND || slot == Inventory.PAPERDOLL_LHAND) {
+			L2ItemInstance realWeapon = getInventory().getPaperdollItem(slot);
+			if (realWeapon == null) {
+				return 0;
+			}
+			L2Item fashionWeapon = _fashion[slot];
+			if (fashionWeapon == null || realWeapon.getItemType() != fashionWeapon.getItemType()) {
+				return realWeapon.getDisplayId();
+			}
 		}
 
 		final int itemId = getInventory().getPaperdollItemDisplayId(slot);
