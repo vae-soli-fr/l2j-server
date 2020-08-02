@@ -1130,6 +1130,7 @@ public final class Config
 	public static int RANGE_GUARD_MIN_DISTANCE;
 	public static int MAX_SUBCLASS_CERTIF;
 	public static boolean ALLOW_PET_TALK;
+	public static boolean SPAWN_SEVENSIGNS_NPC;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2756,6 +2757,7 @@ public final class Config
 			RANGE_GUARD_MIN_DISTANCE = customsSettings.getInt("RangeGuardMinDistance", 150);
 			MAX_SUBCLASS_CERTIF = customsSettings.getInt("MaxSubclassCertification", 3);
 			ALLOW_PET_TALK = customsSettings.getBoolean("AllowPetTalk", false);
+			SPAWN_SEVENSIGNS_NPC = customsSettings.getBoolean("SpawnSevenSignsNpc", true);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{

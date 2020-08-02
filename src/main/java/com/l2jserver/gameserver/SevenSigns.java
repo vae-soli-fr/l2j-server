@@ -251,7 +251,7 @@ public class SevenSigns
 		final List<AutoSpawnInstance> preacherSpawns = AutoSpawnHandler.getInstance().getAutoSpawnInstances(PREACHER_NPC_ID);
 		final List<AutoSpawnInstance> marketeerSpawns = AutoSpawnHandler.getInstance().getAutoSpawnInstances(MAMMON_MARKETEER_ID);
 		
-		if (isSealValidationPeriod() || isCompResultsPeriod())
+		if (Config.SPAWN_SEVENSIGNS_NPC && (isSealValidationPeriod() || isCompResultsPeriod()))
 		{
 			for (AutoSpawnInstance spawnInst : marketeerSpawns)
 			{
