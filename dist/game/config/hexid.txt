@@ -1,0 +1,5 @@
+#the hexID to auth into login
+HexID=3462fef147bf5b44948a3b279de5df98
+#HexID=701eb924e0698a123125d8bb51424e83
+ServerID=1
+#ServerID=43
