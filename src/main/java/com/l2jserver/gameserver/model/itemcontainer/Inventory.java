@@ -97,6 +97,7 @@ public abstract class Inventory extends ItemContainer
 	public static final double MAX_ARMOR_WEIGHT = 12000;
 	
 	private final L2ItemInstance[] _paperdoll;
+	private final L2Item[] _fashion;
 	private final List<PaperdollListener> _paperdollListeners;
 	
 	// protected to be accessed from child classes only
@@ -186,6 +187,7 @@ public abstract class Inventory extends ItemContainer
 				if (arrow != null)
 				{
 					inventory.setPaperdollItem(PAPERDOLL_LHAND, null);
+					inventory.setFashionItem(PAPERDOLL_LHAND, null);
 				}
 			}
 			else if (item.getItemType() == WeaponType.CROSSBOW)
@@ -195,6 +197,7 @@ public abstract class Inventory extends ItemContainer
 				if (bolts != null)
 				{
 					inventory.setPaperdollItem(PAPERDOLL_LHAND, null);
+					inventory.setFashionItem(PAPERDOLL_LHAND, null);
 				}
 			}
 			else if (item.getItemType() == WeaponType.FISHINGROD)
@@ -204,6 +207,7 @@ public abstract class Inventory extends ItemContainer
 				if (lure != null)
 				{
 					inventory.setPaperdollItem(PAPERDOLL_LHAND, null);
+					inventory.setFashionItem(PAPERDOLL_LHAND, null);
 				}
 			}
 		}
@@ -223,6 +227,7 @@ public abstract class Inventory extends ItemContainer
 				if (arrow != null)
 				{
 					inventory.setPaperdollItem(PAPERDOLL_LHAND, arrow);
+					inventory.setFashionItem(PAPERDOLL_LHAND, arrow.getItem());
 				}
 			}
 			else if (item.getItemType() == WeaponType.CROSSBOW)
@@ -232,6 +237,7 @@ public abstract class Inventory extends ItemContainer
 				if (bolts != null)
 				{
 					inventory.setPaperdollItem(PAPERDOLL_LHAND, bolts);
+					inventory.setFashionItem(PAPERDOLL_LHAND, bolts.getItem());
 				}
 			}
 		}
@@ -759,6 +765,7 @@ public abstract class Inventory extends ItemContainer
 	protected Inventory()
 	{
 		_paperdoll = new L2ItemInstance[PAPERDOLL_TOTALSLOTS];
+		_fashion = new L2Item[Inventory.PAPERDOLL_TOTALSLOTS];
 		_paperdollListeners = new ArrayList<>();
 		
 		if (this instanceof PcInventory)
@@ -902,6 +909,15 @@ public abstract class Inventory extends ItemContainer
 	
 	/**
 	 * @param slot the slot.
+	 * @return the item in the fashion slot
+	 */
+	public L2Item getFashionItem(int slot)
+	{
+		return _fashion[slot];
+	}
+
+	/**
+	 * @param slot the slot.
 	 * @return {@code true} if specified paperdoll slot is empty, {@code false} otherwise
 	 */
 	public boolean isPaperdollSlotEmpty(int slot)
@@ -994,6 +1010,21 @@ public abstract class Inventory extends ItemContainer
 	}
 	
 	/**
+	 * Returns the ID of the item in the fashion slot
+	 * @param slot : int designating the slot
+	 * @return int designating the ID of the item
+	 */
+	public int getFashionItemId(int slot)
+	{
+		L2Item item = _fashion[slot];
+		if (item != null)
+		{
+			return item.getId();
+		}
+		return 0;
+	}
+
+	/**
 	 * Returns the ID of the item in the paperdoll slot
 	 * @param slot : int designating the slot
 	 * @return int designating the ID of the item
@@ -1004,6 +1035,17 @@ public abstract class Inventory extends ItemContainer
 		return (item != null) ? item.getDisplayId() : 0;
 	}
 	
+	/**
+	 * Returns the ID of the item in the fashion slot
+	 * @param slot : int designating the slot
+	 * @return int designating the ID of the item
+	 */
+	public int getFashionItemDisplayId(int slot)
+	{
+		final L2Item item = _fashion[slot];
+		return (item != null) ? item.getDisplayId() : 0;
+	}
+
 	public int getPaperdollAugmentationId(int slot)
 	{
 		final L2ItemInstance item = _paperdoll[slot];
@@ -1103,6 +1145,15 @@ public abstract class Inventory extends ItemContainer
 		return old;
 	}
 	
+	/**
+	 * Equips an item in the given slot of the fashion.
+	 * @param slot
+	 * @param item
+	 */
+	public synchronized void setFashionItem(int slot, L2Item item) {
+		_fashion[slot] = item;
+	}
+
 	/**
 	 * @return the mask of wore item
 	 */
