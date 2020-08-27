@@ -415,6 +415,42 @@ public class Shutdown extends Thread
 				
 				switch (_secondsShut)
 				{
+					case 7200: // 120mn
+						SendServerQuit(7200);
+						break;
+					case 6600: // 110mn
+						SendServerQuit(6600);
+						break;
+					case 6000: // 100mn
+						SendServerQuit(6000);
+						break;
+					case 5400: // 90mn
+						SendServerQuit(5400);
+						break;
+					case 4800: // 80mn
+						SendServerQuit(4800);
+						break;
+					case 4200: // 70mn
+						SendServerQuit(4200);
+						break;
+					case 3600: // 60mn
+						SendServerQuit(3600);
+						break;
+					case 3000: // 50mn
+						SendServerQuit(3000);
+						break;
+					case 2400: // 40mn
+						SendServerQuit(2400);
+						break;
+					case 1800: // 30mn
+						SendServerQuit(1800);
+						break;
+					case 1200: // 20mn
+						SendServerQuit(1200);
+						break;
+					case 600:  // 10mn
+						SendServerQuit(600);
+						break;
 					case 540:
 						SendServerQuit(540);
 						break;
