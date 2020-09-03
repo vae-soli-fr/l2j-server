@@ -114,7 +114,7 @@ public class PcStat extends PlayableStat
 		return true;
 	}
 	
-	public boolean addExpAndSp(long addToExp, int addToSp, boolean useBonuses)
+	public boolean addExpAndSp(long addToExp, int addToSp, boolean useBonuses, boolean sendMessage)
 	{
 		L2PcInstance activeChar = getActiveChar();
 		
@@ -179,6 +179,11 @@ public class PcStat extends PlayableStat
 			return false;
 		}
 		
+		if (!sendMessage)
+		{
+			return true;
+		}
+
 		SystemMessage sm = null;
 		if ((addToExp == 0) && (addToSp != 0))
 		{
