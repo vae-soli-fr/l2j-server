@@ -2,8 +2,10 @@ package com.l2jserver.gameserver;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -11,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.instancemanager.GlobalVariablesManager;
 import com.l2jserver.gameserver.model.L2World;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.base.ClassId;
@@ -34,6 +37,8 @@ public final class WhosOnline {
 
 	private static int _onlineCount = 0;
 	private static int _onlineCountGm = 0;
+	private static int _onlineRecord = GlobalVariablesManager.getInstance().getInt("onlineRecord", 0);
+	private static long _onlineRecordDate = GlobalVariablesManager.getInstance().getLong("onlineRecordDate", 0L);
 
 	private static List<L2PcInstance> _onlinePlayers = new CopyOnWriteArrayList<>();
 	private static Map<String, String> _communityPages = new ConcurrentHashMap<>();
@@ -62,6 +67,13 @@ public final class WhosOnline {
 			addOnlinePlayer(player);
 		}
 
+		if (_onlineCount >= _onlineRecord) {
+			_onlineRecord = _onlineCount;
+			_onlineRecordDate = Calendar.getInstance().getTimeInMillis();
+			GlobalVariablesManager.getInstance().set("onlineRecord", _onlineRecord);
+			GlobalVariablesManager.getInstance().set("onlineRecordDate", _onlineRecordDate);
+		}
+
 		_communityPages.clear();
 		writeCommunityPages();
 	}
@@ -69,7 +81,7 @@ public final class WhosOnline {
 	private static void addOnlinePlayer(L2PcInstance player) {
 		if (!_onlinePlayers.contains(player)) {
 			_onlinePlayers.add(player);
-			if (!player.isInvisible() && !player.isInOfflineMode())
+			if (!player.isGM() && !player.isInOfflineMode())
 				_onlineCount++;
 			if (!player.isInOfflineMode())
 				_onlineCountGm++;
@@ -92,7 +104,8 @@ public final class WhosOnline {
 				+ colSpacer + tdOpen + "Party x" + Config.RATE_PARTY_XP + tdClose + trClose + trOpen
 				+ tdOpen + "Drop x" + Config.RATE_DEATH_DROP_CHANCE_MULTIPLIER + tdClose + colSpacer + tdOpen + "Spoil x"
 				+ Config.RATE_CORPSE_DROP_CHANCE_MULTIPLIER + tdClose + colSpacer + tdOpen + "Adena x" + Config.RATE_DROP_CHANCE_MULTIPLIER.getOrDefault(57, 1F) + tdClose
-				+ trClose + "</table>" + "<table>" + trOpen + "<td><img src=\"sek.cbui355\" width=600 height=1><br></td>" + trClose + trOpen + tdOpen
+				+ trClose + "</table>" + "<br>Record de " + _onlineRecord + " joueurs " + formater.format(_onlineRecordDate)
+				+ "<table>" + trOpen + "<td><img src=\"sek.cbui355\" width=600 height=1><br></td>" + trClose + trOpen + tdOpen
 				+ getOnlineCount("gm") + " joueurs en ligne " + "<br1>(<font color=\"" + CBCOLOR_HUMAN + "\">Humain</font>, " + "<font color=\""
 				+ CBCOLOR_ELF + "\">Elfe</font>, " + "<font color=\"" + CBCOLOR_DARKELF + "\">Sombre</font>, " + "<font color=\"" + CBCOLOR_DWARF
 				+ "\">Nain</font>, " + "<font color=\"" + CBCOLOR_ORC + "\">Orc</font>, " + "<font color=\"" + CBCOLOR_KAMAEL + "\">Kamael</font>, "
@@ -166,7 +179,8 @@ public final class WhosOnline {
 				+ colSpacer + tdOpen + "Party x" + Config.RATE_PARTY_XP + tdClose + trClose + trOpen
 				+ tdOpen + "Drop x" + Config.RATE_DEATH_DROP_CHANCE_MULTIPLIER + tdClose + colSpacer + tdOpen + "Spoil x"
 				+ Config.RATE_CORPSE_DROP_CHANCE_MULTIPLIER + tdClose + colSpacer + tdOpen + "Adena x" + Config.RATE_DROP_CHANCE_MULTIPLIER.getOrDefault(57, 1F) + tdClose
-				+ trClose + "</table>" + "<table>" + trOpen + "<td><img src=\"sek.cbui355\" width=600 height=1><br></td>" + trClose + trOpen + tdOpen
+				+ trClose + "</table>" + "<br>Record de " + _onlineRecord + " joueurs " + formater.format(_onlineRecordDate)
+				+ "<table>" + trOpen + "<td><img src=\"sek.cbui355\" width=600 height=1><br></td>" + trClose + trOpen + tdOpen
 				+ getOnlineCount("pl") + " joueur(s) en ligne " + "<br1>(<font color=\"" + CBCOLOR_HUMAN + "\">Humain</font>, " + "<font color=\""
 				+ CBCOLOR_ELF + "\">Elfe</font>, " + "<font color=\"" + CBCOLOR_DARKELF + "\">Sombre</font>, " + "<font color=\"" + CBCOLOR_DWARF
 				+ "\">Nain</font>, " + "<font color=\"" + CBCOLOR_ORC + "\">Orc</font>, " + "<font color=\"" + CBCOLOR_KAMAEL + "\">Kamael</font>, "
