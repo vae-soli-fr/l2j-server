@@ -958,7 +958,7 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable
 		
 		// ------------------------------------------------------------------------------
 		// BOSS/Raid Minion Target Reconsider
-		if (npc.isRaid() || npc.isRaidMinion())
+		if ((npc.isRaid() || npc.isRaidMinion()) && npc.getCurrentHp() < Config.RAID_CHAOS_BELOW * npc.getMaxHp())
 		{
 			_chaosTime++;
 			if (npc instanceof L2RaidBossInstance)

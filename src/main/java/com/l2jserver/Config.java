@@ -1131,6 +1131,7 @@ public final class Config
 	public static int MAX_SUBCLASS_CERTIF;
 	public static boolean ALLOW_PET_TALK;
 	public static boolean SPAWN_SEVENSIGNS_NPC;
+	public static float RAID_CHAOS_BELOW;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2758,6 +2759,7 @@ public final class Config
 			MAX_SUBCLASS_CERTIF = customsSettings.getInt("MaxSubclassCertification", 3);
 			ALLOW_PET_TALK = customsSettings.getBoolean("AllowPetTalk", false);
 			SPAWN_SEVENSIGNS_NPC = customsSettings.getBoolean("SpawnSevenSignsNpc", true);
+			RAID_CHAOS_BELOW = customsSettings.getFloat("RaidChaosBelow", 1);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
