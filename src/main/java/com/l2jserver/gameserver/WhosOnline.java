@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -36,7 +35,6 @@ public final class WhosOnline {
 	private static String CBCOLOR_OFFLINE = "808080";
 
 	private static int _onlineCount = 0;
-	private static int _onlineCountGm = 0;
 	private static int _onlineRecord = GlobalVariablesManager.getInstance().getInt("onlineRecord", 0);
 	private static long _onlineRecordDate = GlobalVariablesManager.getInstance().getLong("onlineRecordDate", 0L);
 
@@ -45,7 +43,7 @@ public final class WhosOnline {
 
 	public static void showPlayersList(L2PcInstance activeChar) {
 		NpcHtmlMessage html = new NpcHtmlMessage();
-		html.setHtml(_communityPages.get(activeChar.isGM() ? "gm" : "pl"));
+		html.setHtml(_communityPages.get("default"));
 		activeChar.sendPacket(html);
 	}
 
@@ -61,7 +59,6 @@ public final class WhosOnline {
 
 		_onlinePlayers.clear();
 		_onlineCount = 0;
-		_onlineCountGm = 0;
 
 		for (L2PcInstance player : sortedPlayers) {
 			addOnlinePlayer(player);
@@ -83,8 +80,6 @@ public final class WhosOnline {
 			_onlinePlayers.add(player);
 			if (!player.isGM() && !player.isInOfflineMode())
 				_onlineCount++;
-			if (!player.isInOfflineMode())
-				_onlineCountGm++;
 		}
 	}
 
@@ -95,7 +90,7 @@ public final class WhosOnline {
 		final String trClose = "</tr>";
 		final String trOpen = "<tr>";
 		final String colSpacer = "<td FIXWIDTH=15></td>";
-		final SimpleDateFormat formater = new SimpleDateFormat("EEEE dd MMMM 'à' HH:mm", Locale.FRANCE);
+		final SimpleDateFormat formater = new SimpleDateFormat("EEEE dd MMMM HH:mm", Locale.FRANCE);
 
 		htmlCode.setLength(0);
 		htmlCode.append("<html><title>Communauté</title><body><br>" + "Serveur redémarré " + formater.format(GameServer.dateTimeServerStarted.getTime())
@@ -106,8 +101,8 @@ public final class WhosOnline {
 				+ Config.RATE_CORPSE_DROP_CHANCE_MULTIPLIER + tdClose + colSpacer + tdOpen + "Adena x" + Config.RATE_DROP_CHANCE_MULTIPLIER.getOrDefault(57, 1F) + tdClose
 				+ trClose + "</table>" + "<br>Record de " + _onlineRecord + " joueurs " + formater.format(_onlineRecordDate)
 				+ "<table>" + trOpen + "<td><img src=\"sek.cbui355\" width=600 height=1><br></td>" + trClose + trOpen + tdOpen
-				+ getOnlineCount("gm") + " joueurs en ligne " + "<br1>(<font color=\"" + CBCOLOR_HUMAN + "\">Humain</font>, " + "<font color=\""
-				+ CBCOLOR_ELF + "\">Elfe</font>, " + "<font color=\"" + CBCOLOR_DARKELF + "\">Sombre</font>, " + "<font color=\"" + CBCOLOR_DWARF
+				+ _onlineCount + " joueurs en ligne " + "(<font color=\"" + CBCOLOR_HUMAN + "\">Humain</font>, " + "<font color=\""
+				+ CBCOLOR_ELF + "\">Elfe</font>, " + "<font color=\"" + CBCOLOR_DARKELF + "\">Sombre</font>, " + "<br1><font color=\"" + CBCOLOR_DWARF
 				+ "\">Nain</font>, " + "<font color=\"" + CBCOLOR_ORC + "\">Orc</font>, " + "<font color=\"" + CBCOLOR_KAMAEL + "\">Kamael</font>, "
 				+ "<font color=\"" + CBCOLOR_GM + "\">GM</font>, " + "<font color=\"" + CBCOLOR_OFFLINE + "\">Offline</font>)</td>" + trClose + "</table>");
 
@@ -130,22 +125,22 @@ public final class WhosOnline {
 			} else {
 				switch (player.getRace()) {
 				case DARK_ELF:
-					htmlCode.append("<font color=\"").append(CBCOLOR_DARKELF).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
+					htmlCode.append("<font color=\"").append(CBCOLOR_DARKELF).append("\">").append(player.getName()).append("<br1>(").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
 					break;
 				case DWARF:
-					htmlCode.append("<font color=\"").append(CBCOLOR_DWARF).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
+					htmlCode.append("<font color=\"").append(CBCOLOR_DWARF).append("\">").append(player.getName()).append("<br1>(").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
 					break;
 				case ELF:
-					htmlCode.append("<font color=\"").append(CBCOLOR_ELF).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
+					htmlCode.append("<font color=\"").append(CBCOLOR_ELF).append("\">").append(player.getName()).append("<br1>(").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
 					break;
 				case HUMAN:
-					htmlCode.append("<font color=\"").append(CBCOLOR_HUMAN).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
+					htmlCode.append("<font color=\"").append(CBCOLOR_HUMAN).append("\">").append(player.getName()).append("<br1>(").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
 					break;
 				case KAMAEL:
-					htmlCode.append("<font color=\"").append(CBCOLOR_KAMAEL).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
+					htmlCode.append("<font color=\"").append(CBCOLOR_KAMAEL).append("\">").append(player.getName()).append("<br1>(").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
 					break;
 				case ORC:
-					htmlCode.append("<font color=\"").append(CBCOLOR_ORC).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
+					htmlCode.append("<font color=\"").append(CBCOLOR_ORC).append("\">").append(player.getName()).append("<br1>(").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
 					break;
 				default:
 					htmlCode.append(player.getName());
@@ -170,88 +165,7 @@ public final class WhosOnline {
 
 		htmlCode.append("</table><br></td></tr>" + trOpen + "<td><img src=\"sek.cbui355\" width=600 height=1><br></td>" + trClose + "</table></body></html>");
 
-		_communityPages.put("gm", htmlCode.toString());
-
-		htmlCode.setLength(0);
-		htmlCode.append("<html><title>Communauté</title><body><br>" + "Serveur redémarré " + formater.format(GameServer.dateTimeServerStarted.getTime())
-				+ "<table>" + trOpen + tdOpen
-				+ "XP x" + Config.RATE_XP + tdClose + colSpacer + tdOpen + "SP x" + Config.RATE_SP + tdClose
-				+ colSpacer + tdOpen + "Party x" + Config.RATE_PARTY_XP + tdClose + trClose + trOpen
-				+ tdOpen + "Drop x" + Config.RATE_DEATH_DROP_CHANCE_MULTIPLIER + tdClose + colSpacer + tdOpen + "Spoil x"
-				+ Config.RATE_CORPSE_DROP_CHANCE_MULTIPLIER + tdClose + colSpacer + tdOpen + "Adena x" + Config.RATE_DROP_CHANCE_MULTIPLIER.getOrDefault(57, 1F) + tdClose
-				+ trClose + "</table>" + "<br>Record de " + _onlineRecord + " joueurs " + formater.format(_onlineRecordDate)
-				+ "<table>" + trOpen + "<td><img src=\"sek.cbui355\" width=600 height=1><br></td>" + trClose + trOpen + tdOpen
-				+ getOnlineCount("pl") + " joueur(s) en ligne " + "<br1>(<font color=\"" + CBCOLOR_HUMAN + "\">Humain</font>, " + "<font color=\""
-				+ CBCOLOR_ELF + "\">Elfe</font>, " + "<font color=\"" + CBCOLOR_DARKELF + "\">Sombre</font>, " + "<font color=\"" + CBCOLOR_DWARF
-				+ "\">Nain</font>, " + "<font color=\"" + CBCOLOR_ORC + "\">Orc</font>, " + "<font color=\"" + CBCOLOR_KAMAEL + "\">Kamael</font>, "
-				+ "<font color=\"" + CBCOLOR_GM + "\">GM</font>)</td>" + trClose + "</table>");
-
-		htmlCode.append("<table border=0><tr><td><table border=0>");
-
-		cell = 0;
-		for (L2PcInstance player : _onlinePlayers) {
-			if (player == null || player.isInvisible() || player.isInOfflineMode())
-				continue; // Go to next
-
-			cell++;
-
-			if (cell == 1) {
-				htmlCode.append(trOpen);
-			}
-
-			htmlCode.append("<td align=left valign=top FIXWIDTH=70>");
-
-			if (player.isGM()) {
-				htmlCode.append("<font color=\"" + CBCOLOR_GM + "\">" + player.getName() + "</font>");
-			} else {
-				switch (player.getRace()) {
-				case DARK_ELF:
-					htmlCode.append("<font color=\"").append(CBCOLOR_DARKELF).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
-					break;
-				case DWARF:
-					htmlCode.append("<font color=\"").append(CBCOLOR_DWARF).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
-					break;
-				case ELF:
-					htmlCode.append("<font color=\"").append(CBCOLOR_ELF).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
-					break;
-				case HUMAN:
-					htmlCode.append("<font color=\"").append(CBCOLOR_HUMAN).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
-					break;
-				case KAMAEL:
-					htmlCode.append("<font color=\"").append(CBCOLOR_KAMAEL).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
-					break;
-				case ORC:
-					htmlCode.append("<font color=\"").append(CBCOLOR_ORC).append("\">").append(player.getName()).append(" (").append(getClassAbbreviation(player.getClassId())).append(")").append("</font>");
-					break;
-				default:
-					htmlCode.append(player.getName());
-					break;
-				}
-
-			}
-
-			htmlCode.append("</a></td>");
-
-			if (cell < NAME_PER_ROW_COMMUNITYBOARD)
-				htmlCode.append(colSpacer);
-
-			if (cell == NAME_PER_ROW_COMMUNITYBOARD) {
-				cell = 0;
-				htmlCode.append(trClose);
-			}
-		}
-		if (cell > 0 && cell < NAME_PER_ROW_COMMUNITYBOARD)
-			htmlCode.append(trClose);
-
-		htmlCode.append("</table><br></td></tr>" + trOpen + "<td><img src=\"sek.cbui355\" width=600 height=1><br></td>" + trClose + "</table></body></html>");
-
-		_communityPages.put("pl", htmlCode.toString());
-	}
-
-	private static int getOnlineCount(String type) {
-		if (type.equalsIgnoreCase("gm"))
-			return _onlineCountGm;
-		return _onlineCount;
+		_communityPages.put("default", htmlCode.toString());
 	}
 
 	private static String getClassAbbreviation(ClassId clazz) {
