@@ -1132,6 +1132,7 @@ public final class Config
 	public static boolean ALLOW_PET_TALK;
 	public static boolean SPAWN_SEVENSIGNS_NPC;
 	public static float RAID_CHAOS_BELOW;
+	public static int ROLEPLAY_NPC_MIN_DISTANCE;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2760,6 +2761,7 @@ public final class Config
 			ALLOW_PET_TALK = customsSettings.getBoolean("AllowPetTalk", false);
 			SPAWN_SEVENSIGNS_NPC = customsSettings.getBoolean("SpawnSevenSignsNpc", true);
 			RAID_CHAOS_BELOW = customsSettings.getFloat("RaidChaosBelow", 1);
+			ROLEPLAY_NPC_MIN_DISTANCE = customsSettings.getInt("RoleplayNpcMinDistance", 150);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
