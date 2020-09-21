@@ -1,8 +1,14 @@
 #!/bin/bash
 NAME=`basename "$0" ".sh"`
 JAVA=`which java`
+USER=`whoami`
 MIN=1g
 MAX=8g
+
+if [ $USER != 'l2jserver' ]; then
+	echo "This script must be run as l2jserver user not $USER."
+	exit;
+fi
 
 # exit codes of GameServer:
 #  0 normal shutdown
