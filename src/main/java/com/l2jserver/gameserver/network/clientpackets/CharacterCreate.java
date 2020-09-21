@@ -259,7 +259,7 @@ public final class CharacterCreate extends L2GameClientPacket
 		{
 			try (Connection con = ConnectionFactory.getInstance().getConnection())
 			{
-				L2PcInstance.loadCharacters(newChar.getId(), newChar, con);
+				L2PcInstance.loadCharacters(newChar.getObjectId(), newChar, con);
 			}
 			catch (Exception e)
 			{
