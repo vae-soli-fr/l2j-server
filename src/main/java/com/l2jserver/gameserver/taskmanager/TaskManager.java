@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 
 import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
 import com.l2jserver.gameserver.ThreadPoolManager;
+import com.l2jserver.gameserver.taskmanager.tasks.TaskAnalytics;
 import com.l2jserver.gameserver.taskmanager.tasks.TaskBirthday;
 import com.l2jserver.gameserver.taskmanager.tasks.TaskClanLeaderApply;
 import com.l2jserver.gameserver.taskmanager.tasks.TaskCleanUp;
@@ -198,6 +199,7 @@ public final class TaskManager
 		registerTask(new TaskScript());
 		registerTask(new TaskSevenSignsUpdate());
 		registerTask(new TaskShutdown());
+		registerTask(new TaskAnalytics());
 	}
 	
 	public void registerTask(Task task)
