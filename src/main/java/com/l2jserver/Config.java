@@ -1133,6 +1133,7 @@ public final class Config
 	public static boolean SPAWN_SEVENSIGNS_NPC;
 	public static float RAID_CHAOS_BELOW;
 	public static int ROLEPLAY_NPC_MIN_DISTANCE;
+	public static int RAID_CRYSTAL_CHANCE;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2762,6 +2763,7 @@ public final class Config
 			SPAWN_SEVENSIGNS_NPC = customsSettings.getBoolean("SpawnSevenSignsNpc", true);
 			RAID_CHAOS_BELOW = customsSettings.getFloat("RaidChaosBelow", 1);
 			ROLEPLAY_NPC_MIN_DISTANCE = customsSettings.getInt("RoleplayNpcMinDistance", 150);
+			RAID_CRYSTAL_CHANCE = customsSettings.getInt("RaidCrystalChance", 5);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
