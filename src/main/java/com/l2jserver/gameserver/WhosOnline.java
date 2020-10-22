@@ -78,8 +78,9 @@ public final class WhosOnline {
 	private static void addOnlinePlayer(L2PcInstance player) {
 		if (!_onlinePlayers.contains(player)) {
 			_onlinePlayers.add(player);
-			if (!player.isGM() && !player.isInOfflineMode())
+			if (!player.isInOfflineMode()) {
 				_onlineCount++;
+			}
 		}
 	}
 

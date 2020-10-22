@@ -55,7 +55,7 @@ public class TaskAnalytics extends Task
 	private int getOnlinePlayers() {
 		int count = 0;
 		for (L2PcInstance player : L2World.getInstance().getPlayers()) {
-			if (player.isInOfflineMode() || player.isGM()) {
+			if (player.isInOfflineMode()) {
 				continue;
 			}
 			count++;
