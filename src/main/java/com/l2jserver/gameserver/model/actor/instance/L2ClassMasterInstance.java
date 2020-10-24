@@ -340,6 +340,14 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 		msg = msg.replaceAll("%name%", ClassListData.getInstance().getClass(currentClassId).getEscapedClientCode());
 		
 		final StringBuilder menu = new StringBuilder(100);
+
+		if (player.isSubClassActive() && currentClassId.level() + 1 > player.getBaseClassId().level()) {
+			msg = msg.replaceAll("%menu%", "Subclass cannot overtake main class.");
+			msg = msg.replace("%req_items%", getRequiredItems(currentClassId.level() + 1));
+			player.sendPacket(new TutorialShowHtml(msg));
+			return;
+		}
+
 		for (ClassId cid : ClassId.values())
 		{
 			if ((cid == ClassId.inspector) && (player.getTotalSubClasses() < 2))

@@ -10261,6 +10261,11 @@ public final class L2PcInstance extends L2Playable
 		return _baseClass;
 	}
 	
+	public ClassId getBaseClassId()
+	{
+		return ClassId.getClassId(_baseClass);
+	}
+
 	public int getActiveClass()
 	{
 		return _activeClass;
