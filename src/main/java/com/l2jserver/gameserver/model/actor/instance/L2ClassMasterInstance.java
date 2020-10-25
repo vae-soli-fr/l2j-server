@@ -324,7 +324,7 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 		}
 		
 		html.replace("%objectId%", String.valueOf(objectId));
-		html.replace("%req_items%", getRequiredItems(level));
+		html.replace("%req_items%", getRequiredItems(level, player.isSubClassActive()));
 		player.sendPacket(html);
 	}
 	
@@ -343,7 +343,7 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 
 		if (player.isSubClassActive() && currentClassId.level() + 1 > player.getBaseClassId().level()) {
 			msg = msg.replaceAll("%menu%", "Subclass cannot overtake main class.");
-			msg = msg.replace("%req_items%", getRequiredItems(currentClassId.level() + 1));
+			msg = msg.replace("%req_items%", getRequiredItems(currentClassId.level() + 1, true));
 			player.sendPacket(new TutorialShowHtml(msg));
 			return;
 		}
@@ -361,7 +361,7 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 		}
 		
 		msg = msg.replaceAll("%menu%", menu.toString());
-		msg = msg.replace("%req_items%", getRequiredItems(currentClassId.level() + 1));
+		msg = msg.replace("%req_items%", getRequiredItems(currentClassId.level() + 1, player.isSubClassActive()));
 		player.sendPacket(new TutorialShowHtml(msg));
 	}
 	
@@ -390,6 +390,9 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 		// check if player have all required items for class transfer
 		for (ItemHolder holder : Config.CLASS_MASTER_SETTINGS.getRequireItems(newJobLevel))
 		{
+			if (player.isSubClassActive()) {
+				break;
+			}
 			if (player.getInventory().getInventoryItemCount(holder.getId(), -1) < holder.getCount())
 			{
 				player.sendPacket(SystemMessageId.NOT_ENOUGH_ITEMS);
@@ -400,6 +403,9 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 		// get all required items for class transfer
 		for (ItemHolder holder : Config.CLASS_MASTER_SETTINGS.getRequireItems(newJobLevel))
 		{
+			if (player.isSubClassActive()) {
+				break;
+			}
 			if (!player.destroyItemByItemId("ClassMaster", holder.getId(), holder.getCount(), player, true))
 			{
 				return false;
@@ -489,9 +495,9 @@ public final class L2ClassMasterInstance extends L2MerchantInstance
 		return false;
 	}
 	
-	private static String getRequiredItems(int level)
+	private static String getRequiredItems(int level, boolean isSubClass)
 	{
-		if ((Config.CLASS_MASTER_SETTINGS.getRequireItems(level) == null) || Config.CLASS_MASTER_SETTINGS.getRequireItems(level).isEmpty())
+		if ((isSubClass || Config.CLASS_MASTER_SETTINGS.getRequireItems(level) == null) || Config.CLASS_MASTER_SETTINGS.getRequireItems(level).isEmpty())
 		{
 			return "<tr><td>none</td></tr>";
 		}
