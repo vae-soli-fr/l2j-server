@@ -232,7 +232,7 @@ public final class Say2 extends L2GameClientPacket
 			_type = PETITION_GM;
 		}
 		
-		if (Config.LOG_CHAT)
+		if (Config.LOG_CHAT && Util.contains(Config.LOG_CHAT_CHANNELS, _type))
 		{
 			LogRecord record = new LogRecord(Level.INFO, _text);
 			record.setLoggerName("chat");

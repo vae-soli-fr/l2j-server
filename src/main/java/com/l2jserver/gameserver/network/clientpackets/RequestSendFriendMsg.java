@@ -27,6 +27,7 @@ import com.l2jserver.gameserver.model.L2World;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.L2FriendSay;
+import com.l2jserver.gameserver.util.Util;
 
 /**
  * Recieve Private (Friend) Message - 0xCC Format: c SS S: Message S: Receiving Player
@@ -68,7 +69,7 @@ public final class RequestSendFriendMsg extends L2GameClientPacket
 			return;
 		}
 		
-		if (Config.LOG_CHAT)
+		if (Config.LOG_CHAT && Util.contains(Config.LOG_CHAT_CHANNELS, Say2.L2FRIEND))
 		{
 			LogRecord record = new LogRecord(Level.INFO, _message);
 			record.setLoggerName("chat");

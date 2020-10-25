@@ -1134,6 +1134,7 @@ public final class Config
 	public static float RAID_CHAOS_BELOW;
 	public static int ROLEPLAY_NPC_MIN_DISTANCE;
 	public static int RAID_CRYSTAL_CHANCE;
+	public static int[] LOG_CHAT_CHANNELS;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2764,6 +2765,20 @@ public final class Config
 			RAID_CHAOS_BELOW = customsSettings.getFloat("RaidChaosBelow", 1);
 			ROLEPLAY_NPC_MIN_DISTANCE = customsSettings.getInt("RoleplayNpcMinDistance", 150);
 			RAID_CRYSTAL_CHANCE = customsSettings.getInt("RaidCrystalChance", 5);
+			String[] logChatSplit = customsSettings.getString("LogChatChannels", "0").trim().split(";");
+			LOG_CHAT_CHANNELS = new int[logChatSplit.length];
+			try
+			{
+				int i = 0;
+				for (String chatId : logChatSplit)
+				{
+					LOG_CHAT_CHANNELS[i++] = Integer.parseInt(chatId);
+				}
+			}
+			catch (NumberFormatException nfe)
+			{
+				_log.warn("Unable to load logged channels!", nfe);
+			}
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
