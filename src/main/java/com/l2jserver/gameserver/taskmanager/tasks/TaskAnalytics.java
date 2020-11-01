@@ -2,6 +2,7 @@ package com.l2jserver.gameserver.taskmanager.tasks;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
@@ -19,11 +20,13 @@ import com.l2jserver.gameserver.taskmanager.TaskTypes;
  */
 public class TaskAnalytics extends Task
 {
+	private static final int BLUE_EVA = 4355;
 	private static final String DELAY = "900000";
 	private static final String INTERVAL = "900000";
 
 	private static final String NAME = "analytics";
-	private static final String QUERY = "INSERT INTO analytics VALUES (?,?)";
+	private static final String QUERY = "INSERT INTO analytics VALUES (?,?,?)";
+	private static final String ITEM_TOTAL = "SELECT SUM(count) as total FROM items i JOIN characters c ON i.owner_id = c.charId WHERE c.accesslevel = 0 AND i.item_id = ?";
 
 	@Override
 	public String getName()
@@ -44,6 +47,7 @@ public class TaskAnalytics extends Task
 		{
 			ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 			ps.setInt(2, getOnlinePlayers());
+			ps.setInt(3, getItemTotal(BLUE_EVA));
 			ps.execute();
 		}
 		catch (SQLException e)
@@ -61,6 +65,30 @@ public class TaskAnalytics extends Task
 			count++;
 		}
 		return count;
+	}
+
+	private int getItemTotal(int itemId) {
+		int total = 0;
+		try
+		{
+			try (Connection con = ConnectionFactory.getInstance().getConnection();
+				PreparedStatement ps = con.prepareStatement(ITEM_TOTAL))
+			{
+				ps.setInt(1, itemId);
+				try (ResultSet rs = ps.executeQuery())
+				{
+					if (rs.next())
+					{
+						total = rs.getInt("total");
+					}
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			_log.warning("Error while counting item " + itemId + " ! " + e);
+		}
+		return total;
 	}
 
 	@Override
