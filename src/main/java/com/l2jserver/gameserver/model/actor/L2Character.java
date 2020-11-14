@@ -68,6 +68,7 @@ import com.l2jserver.gameserver.model.Location;
 import com.l2jserver.gameserver.model.PcCondOverride;
 import com.l2jserver.gameserver.model.TeleportWhereType;
 import com.l2jserver.gameserver.model.TimeStamp;
+import com.l2jserver.gameserver.model.actor.instance.L2GuardInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PetInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2RiftInvaderInstance;
@@ -4854,7 +4855,9 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			// Notify target AI
 			if (target.hasAI())
 			{
-				target.getAI().notifyEvent(CtrlEvent.EVT_EVADED, this);
+				if (!(target instanceof L2GuardInstance)){
+					target.getAI().notifyEvent(CtrlEvent.EVT_EVADED, this);
+				}
 			}
 			notifyAttackAvoid(target, false);
 		}
@@ -4973,7 +4976,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			}
 			
 			// Notify AI with EVT_ATTACKED
-			if (target.hasAI())
+			if (!(target instanceof L2GuardInstance) && target.hasAI())
 			{
 				target.getAI().notifyEvent(CtrlEvent.EVT_ATTACKED, this);
 			}
@@ -5491,7 +5494,9 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 							}
 						}
 					}
-					targetList.add(target);
+					if ((!(target instanceof L2GuardInstance) && isPlayer())){
+						targetList.add(target);
+					}
 				}
 			}
 			if (targetList.isEmpty())
@@ -5570,13 +5575,15 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 				else if (isPlayable() && tgt.isAttackable())
 				{
 					L2Character target = (L2Character) tgt;
-					if (skill.getEffectPoint() > 0)
-					{
-						((L2Attackable) target).reduceHate(this, skill.getEffectPoint());
-					}
-					else if (skill.getEffectPoint() < 0)
-					{
-						((L2Attackable) target).addDamageHate(this, 0, -skill.getEffectPoint());
+					if (!(target instanceof L2GuardInstance)){
+						if (skill.getEffectPoint() > 0)
+						{
+							((L2Attackable) target).reduceHate(this, skill.getEffectPoint());
+						}
+						else if (skill.getEffectPoint() < 0)
+						{
+							((L2Attackable) target).addDamageHate(this, 0, -skill.getEffectPoint());
+						}
 					}
 				}
 			}
@@ -5893,11 +5900,13 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 										break;
 									default:
 										// add attacker into list
-										((L2Character) target).addAttackerToAttackByList(this);
+										if (!(target instanceof L2GuardInstance)) {
+											((L2Character) target).addAttackerToAttackByList(this);
+										}
 								}
 							}
 							// notify target AI about the attack
-							if (((L2Character) target).hasAI() && !skill.hasEffectType(L2EffectType.HATE))
+							if (!(target instanceof L2GuardInstance) && ((L2Character) target).hasAI() && !skill.hasEffectType(L2EffectType.HATE))
 							{
 								((L2Character) target).getAI().notifyEvent(CtrlEvent.EVT_ATTACKED, this);
 							}
@@ -5975,7 +5984,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 					if (target.isCharacter())
 					{
 						final L2Character creature = (L2Character) target;
-						if (creature.hasAI())
+						if (!(target instanceof L2GuardInstance) && creature.hasAI())
 						{
 							// Notify target AI about the attack
 							creature.getAI().notifyEvent(CtrlEvent.EVT_ATTACKED, this);
