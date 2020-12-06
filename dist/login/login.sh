@@ -1,5 +1,5 @@
 #!/bin/bash
-NAME=login
+NAME=`basename "$0" ".sh"`
 JAVA=`which java`
 USER=`whoami`
 MIN=64m
@@ -22,6 +22,8 @@ while :; do
 	-XX:+UseG1GC \
 	-Djava.net.preferIPv4Stack=true \
 	-Djava.net.preferIPv4Addresses=true \
+	-Dcom.sun.management.config.file=jmx.cfg \
+	-Djava.rmi.server.hostname=loginserver.lan \
 	-jar l2jlogin.jar > log/stdout.log 2>&1 &
 	LS_PID=$!
 	echo $LS_PID > $NAME.pid

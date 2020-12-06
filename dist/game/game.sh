@@ -26,6 +26,8 @@ while :; do
 	-Dpython.cachedir=../cachedir \
 	-Djava.net.preferIPv4Stack=true \
 	-Djava.net.preferIPv4Addresses=true \
+	-Dcom.sun.management.config.file=jmx.cfg \
+	-Djava.rmi.server.hostname=gameserver.lan \
 	-jar l2jserver.jar > log/stdout.log 2>&1 &
 	GS_PID=$!
 	echo $GS_PID > $NAME.pid
