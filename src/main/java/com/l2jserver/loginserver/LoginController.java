@@ -46,6 +46,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -222,15 +223,15 @@ public class LoginController
 	}
 	
 	public ForumInfo retrieveForumInfo(InetAddress addr, String login, String password) {
-		try (CloseableHttpClient httpclient = HttpClients.createDefault()) {
+		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
 
-			HttpPost httpPost = new HttpPost("https://forum.vae-soli.fr/api/auth.php");
+			HttpPost httpPost = new HttpPost("https://api.vae-soli.fr/auth.php");
 			List<NameValuePair> nvps = new ArrayList<>();
 			nvps.add(new BasicNameValuePair("username", login));
 			nvps.add(new BasicNameValuePair("password", password));
+			nvps.add(new BasicNameValuePair("secret", Config.API_SECRET));
 			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 			httpPost.setHeader(HttpHeaders.X_FORWARDED_FOR, addr.getHostAddress());
-
 
 			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
 

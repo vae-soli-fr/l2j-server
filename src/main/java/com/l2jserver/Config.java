@@ -946,6 +946,7 @@ public final class Config
 	public static List<Integer> PROTOCOL_LIST;
 	public static boolean LOGIN_SERVER_SCHEDULE_RESTART;
 	public static long LOGIN_SERVER_SCHEDULE_RESTART_TIME;
+	public static String API_SECRET;
 	
 	// --------------------------------------------------
 	// MMO Settings
@@ -2800,7 +2801,9 @@ public final class Config
 				_log.warn("Error setting datapack root!", e);
 				DATAPACK_ROOT = new File(".");
 			}
-			
+
+			API_SECRET = ServerSettings.getString("ApiSecret", "");
+
 			DEBUG = ServerSettings.getBoolean("Debug", false);
 			
 			ACCEPT_NEW_GAMESERVER = ServerSettings.getBoolean("AcceptNewGameServer", true);
