@@ -3,9 +3,19 @@ package com.l2jserver.gameserver.taskmanager.tasks;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.message.BasicNameValuePair;
+
+import com.l2jserver.Config;
 import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
 import com.l2jserver.gameserver.model.L2World;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
@@ -25,7 +35,6 @@ public class TaskAnalytics extends Task
 	private static final String INTERVAL = "900000";
 
 	private static final String NAME = "analytics";
-	private static final String QUERY = "INSERT INTO analytics VALUES (?,?,?)";
 	private static final String ITEM_TOTAL = "SELECT SUM(count) as total FROM items i JOIN characters c ON i.owner_id = c.charId WHERE c.accesslevel = 0 AND i.item_id = ?";
 
 	@Override
@@ -42,17 +51,25 @@ public class TaskAnalytics extends Task
 
 	private void saveAnalytics()
 	{
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(QUERY))
-		{
-			ps.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-			ps.setInt(2, getOnlinePlayers());
-			ps.setInt(3, getItemTotal(BLUE_EVA));
-			ps.execute();
-		}
-		catch (SQLException e)
-		{
-			_log.warning("Error saving analytics: " + e.getMessage());
+		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
+
+			HttpPost httpPost = new HttpPost("https://api.vae-soli.fr/stats.php");
+			List<NameValuePair> nvps = new ArrayList<>();
+			nvps.add(new BasicNameValuePair("onlinePlayers", String.valueOf(getOnlinePlayers())));
+			nvps.add(new BasicNameValuePair("blueEvas", String.valueOf(getItemTotal(BLUE_EVA))));
+			nvps.add(new BasicNameValuePair("secret", Config.API_SECRET));
+			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+
+			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
+
+				if (response.getStatusLine().getStatusCode() != 200) {
+					_log.info("API: " + response.getStatusLine() + " for stats.");
+				}
+
+			}
+
+		} catch (Exception e) {
+			_log.log(Level.WARNING, "Exception while calling API stats.", e);
 		}
 	}
 

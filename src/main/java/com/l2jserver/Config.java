@@ -2780,6 +2780,8 @@ public final class Config
 			{
 				_log.warn("Unable to load logged channels!", nfe);
 			}
+
+			API_SECRET = customsSettings.getString("ApiSecret", "");
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
