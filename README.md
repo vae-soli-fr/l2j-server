@@ -1,10 +1,10 @@
-Vae Soli Lineage II Source code
+Vae Soli Server
 ==============
 
-Vae Soli uses an open-source server emulator fully written in Java by L2J Server for the MMORPG Lineage II.
+Vae Soli uses an open-source server emulator fully written in Java by L2J Server for the famous Korean MMORPG
 --------------
-- develop branch is currently High Five from L2J 1.4
-- upstream branch is currently master from L2J
+- develop branch is currently a customized High Five `1.4` from L2J release
+- upstream branch is currently the pristine High Five `master` from L2J development
 
 Contributing
 --------------
@@ -23,4 +23,4 @@ Links
 - <a href="https://support.vae-soli.fr">Support</a>
 - <a href="https://www.l2jserver.com">L2J Server</a>
 
-For the detailed information about building and developing L2J Server, please visit the official forums. This page only about Vae Soli.
+This page only about Vae Soli, for the detailed information about building and developing L2J Server, please visit the official forums.
