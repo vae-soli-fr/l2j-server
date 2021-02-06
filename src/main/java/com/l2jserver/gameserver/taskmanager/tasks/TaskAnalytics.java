@@ -83,6 +83,7 @@ public class TaskAnalytics extends Task
 
 			HttpPost httpPost = new HttpPost("https://api.vae-soli.fr/stats.php");
 			List<NameValuePair> nvps = new ArrayList<>();
+			nvps.add(new BasicNameValuePair("serverId", String.valueOf(Config.SERVER_ID)));
 			nvps.add(new BasicNameValuePair("onlinePlayers", String.valueOf(onlinePlayers)));
 			nvps.add(new BasicNameValuePair("blueEvas", String.valueOf(blueEvas)));
 			nvps.add(new BasicNameValuePair("onlineChars", String.join(";", onlineChars)));
