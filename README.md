@@ -1,17 +1,26 @@
-L2J Server Project [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/L2J/L2J_Server?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+Vae Soli Lineage II Source code
 ==============
 
-L2J Server is an open-source server emulator fully written in Java for the MMORPG Lineage II.
+Vae Soli uses an open-source server emulator fully written in Java by L2J Server for the MMORPG Lineage II.
 --------------
-- master branch is currently High Five
-- stable branch is currently High Five
+- develop branch is currently High Five from L2J 1.4
+- upstream branch is currently master from L2J
+
+Contributing
+--------------
+Any contributions you make are greatly appreciated.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 Links
 --------------
-- <a href="http://www.l2jserver.com/">Web Site</a>
-- <a href="http://www.l2jserver.com/forum/">Forums</a>
-- <a href="http://www.l2jserver.com/#downloads">Downloads</a>
-- <a href="https://github.com/L2J/L2J_Server/wiki">Documentation</a>
-- <a href="https://twitter.com/l2jserver">@l2jserver</a>
+- <a href="https://vae-soli.fr">Web Site</a>
+- <a href="https://forum.vae-soli.fr">Forum</a>
+- <a href="https://support.vae-soli.fr">Support</a>
+- <a href="https://www.l2jserver.com">L2J Server</a>
 
-For the detailed information about building and developing L2J Server, please visit the developers forums. This page only gives very basic information.
+For the detailed information about building and developing L2J Server, please visit the official forums. This page only about Vae Soli.
