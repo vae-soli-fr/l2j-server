@@ -28,12 +28,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -774,7 +772,7 @@ public final class Config
 	public static int L2JMOD_DUALBOX_CHECK_MAX_PLAYERS_PER_IP;
 	public static int L2JMOD_DUALBOX_CHECK_MAX_OLYMPIAD_PARTICIPANTS_PER_IP;
 	public static int L2JMOD_DUALBOX_CHECK_MAX_L2EVENT_PARTICIPANTS_PER_IP;
-	public static Map<Integer, Integer> L2JMOD_DUALBOX_CHECK_WHITELIST;
+	public static Map<String, Integer> L2JMOD_DUALBOX_CHECK_WHITELIST;
 	public static boolean L2JMOD_ALLOW_CHANGE_PASSWORD;
 	// --------------------------------------------------
 	// NPC Settings
@@ -2519,13 +2517,10 @@ public final class Config
 				{
 					try
 					{
+						String account = entrySplit[0];
 						int num = Integer.parseInt(entrySplit[1]);
 						num = num == 0 ? -1 : num;
-						L2JMOD_DUALBOX_CHECK_WHITELIST.put(InetAddress.getByName(entrySplit[0]).hashCode(), num);
-					}
-					catch (UnknownHostException e)
-					{
-						_log.warn("DualboxCheck[Config.load()]: invalid address -> DualboxCheckWhitelist {}", entrySplit[0]);
+						L2JMOD_DUALBOX_CHECK_WHITELIST.put(account, num);
 					}
 					catch (NumberFormatException e)
 					{

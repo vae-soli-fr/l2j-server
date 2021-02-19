@@ -155,9 +155,11 @@ public final class AntiFeedManager
 		
 		final Integer addrHash = Integer.valueOf(client.getConnectionAddress().hashCode());
 		
+		final String account = client.getAccountName();
+
 		final AtomicInteger connectionCount = event.computeIfAbsent(addrHash, k -> new AtomicInteger());
 		
-		if ((connectionCount.get() + 1) <= (max + Config.L2JMOD_DUALBOX_CHECK_WHITELIST.getOrDefault(addrHash, 0)))
+		if ((connectionCount.get() + 1) <= (max + Config.L2JMOD_DUALBOX_CHECK_WHITELIST.getOrDefault(account, 0)))
 		{
 			connectionCount.incrementAndGet();
 			return true;
@@ -259,11 +261,11 @@ public final class AntiFeedManager
 			return max;
 		}
 		
-		final Integer addrHash = Integer.valueOf(client.getConnectionAddress().hashCode());
+		final String account = client.getAccountName();
 		int limit = max;
-		if (Config.L2JMOD_DUALBOX_CHECK_WHITELIST.containsKey(addrHash))
+		if (Config.L2JMOD_DUALBOX_CHECK_WHITELIST.containsKey(account))
 		{
-			limit += Config.L2JMOD_DUALBOX_CHECK_WHITELIST.get(addrHash);
+			limit += Config.L2JMOD_DUALBOX_CHECK_WHITELIST.get(account);
 		}
 		return limit;
 	}
