@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -263,13 +263,6 @@ public final class BuffInfo
 			_effected.sendPacket(sm);
 		}
 		
-		// Creates a task that will stop all the effects.
-		if (_abnormalTime > 0)
-		{
-			_scheduledFutureTimeTask = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(new BuffTimeTask(this), 0, 1000L);
-		}
-		
-		boolean update = false;
 		for (AbstractEffect effect : _effects)
 		{
 			if (effect.isInstant() || (_effected.isDead() && !_skill.isPassive()))
@@ -292,14 +285,14 @@ public final class BuffInfo
 			
 			// Add stats.
 			_effected.addStatFuncs(effect.getStatFuncs(_effector, _effected, _skill));
-			
-			update = true;
 		}
 		
-		if (update)
+		addAbnormalVisualEffects();
+		
+		// Creates a task that will stop all the effects
+		if (_abnormalTime > 0)
 		{
-			// Add abnormal visual effects.
-			addAbnormalVisualEffects();
+			_scheduledFutureTimeTask = ThreadPoolManager.getInstance().scheduleEffectAtFixedRate(new BuffTimeTask(this), 0, 1000L);
 		}
 	}
 	
@@ -476,6 +469,7 @@ public final class BuffInfo
 	@Override
 	public String toString()
 	{
-		return "BuffInfo [effector=" + _effector + ", effected=" + _effected + ", skill=" + _skill + ", effects=" + _effects + ", tasks=" + _tasks + ", scheduledFutureTimeTask=" + _scheduledFutureTimeTask + ", abnormalTime=" + _abnormalTime + ", periodStartTicks=" + _periodStartTicks + ", isRemoved=" + _isRemoved + ", isInUse=" + _isInUse + "]";
+		return "BuffInfo [effector=" + _effector + ", effected=" + _effected + ", skill=" + _skill + ", effects=" + _effects + ", tasks=" + _tasks + ", scheduledFutureTimeTask=" + _scheduledFutureTimeTask + ", abnormalTime=" + _abnormalTime + ", periodStartTicks=" + _periodStartTicks
+			+ ", isRemoved=" + _isRemoved + ", isInUse=" + _isInUse + "]";
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -107,7 +107,10 @@ public class L2MerchantInstance extends L2NpcInstance
 		final double taxRate = (applyTax) ? getMpc().getTotalTaxRate() : 0;
 		
 		player.setInventoryBlockingStatus(true);
-		
+		if (player.isGM())
+		{
+			player.sendMessage("Buy List [" + buyList.getListId() + "]");
+		}
 		player.sendPacket(new BuyList(buyList, player.getAdena(), taxRate));
 		player.sendPacket(new ExBuySellList(player, false));
 		player.sendPacket(ActionFailed.STATIC_PACKET);

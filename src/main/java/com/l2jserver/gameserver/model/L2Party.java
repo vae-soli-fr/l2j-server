@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -20,12 +20,16 @@ package com.l2jserver.gameserver.model;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +39,6 @@ import com.l2jserver.gameserver.SevenSignsFestival;
 import com.l2jserver.gameserver.ThreadPoolManager;
 import com.l2jserver.gameserver.datatables.ItemTable;
 import com.l2jserver.gameserver.enums.PartyDistributionType;
-import com.l2jserver.gameserver.instancemanager.DuelManager;
 import com.l2jserver.gameserver.model.actor.L2Attackable;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.L2Summon;
@@ -368,7 +371,7 @@ public class L2Party extends AbstractPlayerGroup
 					_positionPacket.reuse(this);
 				}
 				broadcastPacket(_positionPacket);
-			}, PARTY_POSITION_BROADCAST_INTERVAL.toMillis() / 2, PARTY_POSITION_BROADCAST_INTERVAL.toMillis());
+			} , PARTY_POSITION_BROADCAST_INTERVAL.toMillis() / 2, PARTY_POSITION_BROADCAST_INTERVAL.toMillis());
 		}
 	}
 	
@@ -407,11 +410,6 @@ public class L2Party extends AbstractPlayerGroup
 			if (player.isFestivalParticipant())
 			{
 				SevenSignsFestival.getInstance().updateParticipants(player, this);
-			}
-			
-			if (player.isInDuel())
-			{
-				DuelManager.getInstance().onRemoveFromParty(player);
 			}
 			
 			try
@@ -491,11 +489,8 @@ public class L2Party extends AbstractPlayerGroup
 				if (getLeader() != null)
 				{
 					getLeader().setParty(null);
-					if (getLeader().isInDuel())
-					{
-						DuelManager.getInstance().onRemoveFromParty(getLeader());
-					}
 				}
+				
 				if (_changeDistributionTypeRequestTask != null)
 				{
 					_changeDistributionTypeRequestTask.cancel(true);
@@ -692,32 +687,53 @@ public class L2Party extends AbstractPlayerGroup
 	}
 	
 	/**
-	 * distribute adena to party members
-	 * @param player
-	 * @param adena
-	 * @param target
+	 * Distribute adena to party members. <BR>
+	 * Check the number of party members that must be rewarded <BR>
+	 * (The party member must be in range to receive its reward)<BR>
+	 * @param player owner (picker)
+	 * @param adena the amount of adena to split
+	 * @param target the target who drop / pick the adena
 	 */
 	public void distributeAdena(L2PcInstance player, long adena, L2Character target)
 	{
-		// Check the number of party members that must be rewarded
-		// (The party member must be in range to receive its reward)
-		final List<L2PcInstance> toReward = new LinkedList<>();
-		for (L2PcInstance member : getMembers())
+		final Map<L2PcInstance, AtomicLong> toReward = new HashMap<>(9);
+		
+		for (final L2PcInstance member : getMembers())
 		{
 			if (Util.checkIfInRange(Config.ALT_PARTY_RANGE2, target, member, true))
 			{
-				toReward.add(member);
+				toReward.put(member, new AtomicLong());
 			}
 		}
-		
 		if (!toReward.isEmpty())
 		{
-			// Now we can actually distribute the adena reward
-			// (Total adena splitted by the number of party members that are in range and must be rewarded)
-			long count = adena / toReward.size();
-			for (L2PcInstance member : toReward)
+			long leftOver = adena % toReward.size();
+			final long count = adena / toReward.size();
+			
+			if (count > 0)
 			{
-				member.addAdena("Party", count, player, true);
+				for (AtomicLong member : toReward.values())
+				{
+					member.addAndGet(count);
+				}
+			}
+			
+			if (leftOver > 0)
+			{
+				List<L2PcInstance> keys = new ArrayList<>(toReward.keySet());
+				
+				while (leftOver-- > 0)
+				{
+					Collections.shuffle(keys);
+					toReward.get(keys.get(0)).incrementAndGet();
+				}
+			}
+			for (Entry<L2PcInstance, AtomicLong> member : toReward.entrySet())
+			{
+				if (member.getValue().get() > 0)
+				{
+					member.getKey().addAdena("Party", member.getValue().get(), player, true);
+				}
 			}
 		}
 	}
@@ -725,7 +741,10 @@ public class L2Party extends AbstractPlayerGroup
 	/**
 	 * Distribute Experience and SP rewards to L2PcInstance Party members in the known area of the last attacker.<BR>
 	 * <BR>
-	 * <B><U> Actions</U> :</B> <li>Get the L2PcInstance owner of the L2ServitorInstance (if necessary)</li> <li>Calculate the Experience and SP reward distribution rate</li> <li>Add Experience and SP to the L2PcInstance</li><BR>
+	 * <B><U> Actions</U> :</B>
+	 * <li>Get the L2PcInstance owner of the L2ServitorInstance (if necessary)</li>
+	 * <li>Calculate the Experience and SP reward distribution rate</li>
+	 * <li>Add Experience and SP to the L2PcInstance</li><BR>
 	 * @param xpReward The Experience reward to distribute
 	 * @param spReward The SP reward to distribute
 	 * @param rewardedMembers The list of L2PcInstance to reward

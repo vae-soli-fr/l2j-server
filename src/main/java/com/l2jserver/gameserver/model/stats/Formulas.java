@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -1182,20 +1182,30 @@ public final class Formulas
 		return (int) (470000 / rate);
 	}
 	
-	/**
-	 * Calculate delay (in milliseconds) for skills cast
-	 * @param attacker
-	 * @param skill
-	 * @param skillTime
-	 * @return
-	 */
-	public static final int calcAtkSpd(L2Character attacker, Skill skill, double skillTime)
+	public static double calcCastTime(L2Character character, Skill skill)
 	{
-		if (skill.isMagic())
+		double skillAnimTime = skill.getHitTime();
+		if (!skill.isChanneling() || (skill.getChannelingSkillId() == 0))
 		{
-			return (int) ((skillTime / attacker.getMAtkSpd()) * 333);
+			// Calculate the Casting Time of the "Non-Static" Skills (with caster PAtk/MAtkSpd).
+			if (!skill.isStatic())
+			{
+				final double speed = skill.isMagic() ? character.getMAtkSpd() : character.getPAtkSpd();
+				skillAnimTime = (skillAnimTime / speed) * 333;
+			}
+			
+			// Calculate the Casting Time of Magic Skills (reduced in 40% if using SPS/BSPS)
+			if (skill.isMagic() && (character.isChargedShot(ShotType.SPIRITSHOTS) || character.isChargedShot(ShotType.BLESSED_SPIRITSHOTS)))
+			{
+				skillAnimTime = (int) (skillAnimTime / 1.4);
+			}
+			
+			if ((skillAnimTime < 500) && (skill.getHitTime() > 500))
+			{
+				skillAnimTime = 500.0;
+			}
 		}
-		return (int) ((skillTime / attacker.getPAtkSpd()) * 300);
+		return skillAnimTime;
 	}
 	
 	/**
@@ -1311,12 +1321,9 @@ public final class Formulas
 		double attack = 2 * actor.getMAtk(target, skill) * calcGeneralTraitBonus(actor, target, skill.getTraitType(), false);
 		double d = (attack - defence) / (attack + defence);
 		
-		if (skill.isDebuff())
+		if (skill.isDebuff() && target.isDebuffBlocked())
 		{
-			if (target.calcStat(Stats.DEBUFF_IMMUNITY, 0, null, skill) > 0)
-			{
-				return false;
-			}
+			return false;
 		}
 		
 		d += 0.5 * Rnd.nextGaussian();
@@ -1346,7 +1353,7 @@ public final class Formulas
 			return false;
 		}
 		
-		if (skill.isDebuff() && (target.calcStat(Stats.DEBUFF_IMMUNITY, 0, attacker, skill) > 0))
+		if (skill.isDebuff() && target.isDebuffBlocked())
 		{
 			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_RESISTED_YOUR_S2);
 			sm.addCharName(target);
@@ -1444,7 +1451,7 @@ public final class Formulas
 			{
 				return true;
 			}
-			else if (target.calcStat(Stats.DEBUFF_IMMUNITY, 0, null, skill) > 0)
+			else if (target.isDebuffBlocked())
 			{
 				return false;
 			}
@@ -1722,6 +1729,11 @@ public final class Formulas
 		
 		int defence_attribute = target.getDefenseElementValue(attacker.getAttackElement());
 		
+		if (attack_attribute <= defence_attribute)
+		{
+			return 1;
+		}
+		
 		double attack_attribute_mod = 0;
 		double defence_attribute_mod = 0;
 		
@@ -1970,6 +1982,7 @@ public final class Formulas
 				int cancelMagicLvl = skill.getMagicLevel();
 				final double vuln = target.calcStat(Stats.CANCEL_VULN, 0, target, null);
 				final double prof = activeChar.calcStat(Stats.CANCEL_PROF, 0, target, null);
+				
 				double resMod = 1 + (((vuln + prof) * -1) / 100);
 				double finalRate = rate / resMod;
 				

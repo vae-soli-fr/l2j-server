@@ -6,3 +6,4 @@
 *.log
 .project
 .classpath
+/test-output/

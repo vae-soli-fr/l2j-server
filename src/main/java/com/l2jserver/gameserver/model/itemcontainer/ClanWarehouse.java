@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -82,9 +82,9 @@ public final class ClanWarehouse extends Warehouse
 	}
 	
 	@Override
-	public L2ItemInstance addItem(String process, int itemId, long count, L2PcInstance actor, Object reference)
+	public L2ItemInstance addItem(String process, int itemId, long count, int enchantLevel, L2PcInstance actor, Object reference)
 	{
-		final L2ItemInstance item = super.addItem(process, itemId, count, actor, reference);
+		final L2ItemInstance item = super.addItem(process, itemId, count, enchantLevel, actor, reference);
 		
 		// Notify to scripts
 		EventDispatcher.getInstance().notifyEventAsync(new OnPlayerClanWHItemAdd(process, actor, item, this), item.getItem());

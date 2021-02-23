@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -158,8 +158,8 @@ public final class AntiFeedManager
 		final String account = client.getAccountName();
 
 		final AtomicInteger connectionCount = event.computeIfAbsent(addrHash, k -> new AtomicInteger());
-		
-		if ((connectionCount.get() + 1) <= (max + Config.L2JMOD_DUALBOX_CHECK_WHITELIST.getOrDefault(account, 0)))
+		int whiteListCount = Config.L2JMOD_DUALBOX_CHECK_WHITELIST.getOrDefault(account, 0);
+		if ((whiteListCount < 0) || ((connectionCount.get() + 1) <= (max + whiteListCount)))
 		{
 			connectionCount.incrementAndGet();
 			return true;

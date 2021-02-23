@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -186,6 +186,7 @@ public class OfflineTradersTable
 					client.setActiveChar(player);
 					player.setOnlineStatus(true, false);
 					client.setAccountName(player.getAccountNamePlayer());
+					L2World.getInstance().addPlayerToWorld(player);
 					client.setState(GameClientState.IN_GAME);
 					player.setClient(client);
 					player.setOfflineStartTime(time);

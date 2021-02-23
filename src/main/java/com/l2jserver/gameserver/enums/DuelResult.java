@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -18,13 +18,16 @@
  */
 package com.l2jserver.gameserver.enums;
 
+/**
+ * @author Zealar
+ */
 public enum DuelResult
 {
-	Continue,
-	Team1Win,
-	Team2Win,
-	Team1Surrender,
-	Team2Surrender,
-	Canceled,
-	Timeout
+	CONTINUE,
+	TEAM_1_WIN,
+	TEAM_2_WIN,
+	TEAM_1_SURRENDER,
+	TEAM_2_SURRENDER,
+	CANCELED,
+	TIMEOUT
 }

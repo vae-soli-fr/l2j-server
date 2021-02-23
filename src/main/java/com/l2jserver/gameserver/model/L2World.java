@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -36,7 +36,6 @@ import com.l2jserver.gameserver.data.xml.impl.AdminData;
 import com.l2jserver.gameserver.model.actor.L2Playable;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PetInstance;
-import com.l2jserver.util.StringUtil;
 
 public final class L2World
 {
@@ -77,8 +76,6 @@ public final class L2World
 	private final Map<Integer, L2PcInstance> _allPlayers = new ConcurrentHashMap<>();
 	/** Map containing all visible objects. */
 	private final Map<Integer, L2Object> _allObjects = new ConcurrentHashMap<>();
-	/** Map used for debug. */
-	private final Map<Integer, String> _allObjectsDebug = new ConcurrentHashMap<>();
 	/** Map with the pets instances and their owner ID. */
 	private final Map<Integer, L2PetInstance> _petsInstance = new ConcurrentHashMap<>();
 	
@@ -104,15 +101,10 @@ public final class L2World
 		if (_allObjects.containsKey(object.getObjectId()))
 		{
 			LOG.warn("Current object: {} already exist in OID map!", object);
-			LOG.warn(StringUtil.getTraceString(Thread.currentThread().getStackTrace()));
-			LOG.warn("Previous object: {} already exist in OID map!", _allObjects.get(object.getObjectId()));
-			LOG.warn(_allObjectsDebug.get(object.getObjectId()));
 			LOG.warn("---------------------- End ---------------------");
 			return;
 		}
-		
 		_allObjects.put(object.getObjectId(), object);
-		_allObjectsDebug.put(object.getObjectId(), StringUtil.getTraceString(Thread.currentThread().getStackTrace()));
 	}
 	
 	/**
@@ -128,7 +120,6 @@ public final class L2World
 	public void removeObject(L2Object object)
 	{
 		_allObjects.remove(object.getObjectId());
-		_allObjectsDebug.remove(object.getObjectId());
 	}
 	
 	/**
@@ -254,32 +245,16 @@ public final class L2World
 	 * <li>Add object in _knownObjects and _knownPlayer* of all surrounding L2WorldRegion L2Characters</li><BR>
 	 * <li>If object is a L2Character, add all surrounding L2Object in its _knownObjects and all surrounding L2PcInstance in its _knownPlayer</li><BR>
 	 * <I>* only if object is a L2PcInstance</I><BR>
-	 * <I>** only if object is a GM L2PcInstance</I>
-	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T ADD the object in _visibleObjects and _allPlayers* of L2WorldRegion (need synchronisation)</B></FONT><BR> <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T ADD the object to _allObjects and _allPlayers* of L2World (need
-	 * synchronisation)</B></FONT> <B><U> Example of use </U> :</B> <li>Drop an Item</li> <li>Spawn a L2Character</li> <li>Apply Death Penalty of a L2PcInstance</li>
+	 * <I>** only if object is a GM L2PcInstance</I> <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T ADD the object in _visibleObjects and _allPlayers* of L2WorldRegion (need synchronisation)</B></FONT><BR>
+	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T ADD the object to _allObjects and _allPlayers* of L2World (need synchronisation)</B></FONT> <B><U> Example of use </U> :</B>
+	 * <li>Drop an Item</li>
+	 * <li>Spawn a L2Character</li>
+	 * <li>Apply Death Penalty of a L2PcInstance</li>
 	 * @param object L2object to add in the world
 	 * @param newRegion L2WorldRegion in wich the object will be add (not used)
 	 */
 	public void addVisibleObject(L2Object object, L2WorldRegion newRegion)
 	{
-		// TODO: this code should be obsoleted by protection in putObject func...
-		if (object.isPlayer())
-		{
-			L2PcInstance player = object.getActingPlayer();
-			if (!player.isTeleporting())
-			{
-				final L2PcInstance old = getPlayer(player.getObjectId());
-				if (old != null)
-				{
-					LOG.warn("Duplicate character!? Closing both characters ({})", player.getName());
-					player.logout();
-					old.logout();
-					return;
-				}
-				addPlayerToWorld(player);
-			}
-		}
-		
 		if (!newRegion.isActive())
 		{
 			return;
@@ -333,59 +308,51 @@ public final class L2World
 	}
 	
 	/**
-	 * Remove a L2Object from the world. <B><U> Concept</U> :</B> L2Object (including L2PcInstance) are identified in <B>_visibleObjects</B> of his current L2WorldRegion and in <B>_knownObjects</B> of other surrounding L2Characters <BR>
+	 * Remove an object from the world.<br>
+	 * <B><U> Concept</U> :</B> L2Object (including L2PcInstance) are identified in <B>_visibleObjects</B> of his current L2WorldRegion and in <B>_knownObjects</B> of other surrounding L2Characters <BR>
 	 * L2PcInstance are identified in <B>_allPlayers</B> of L2World, in <B>_allPlayers</B> of his current L2WorldRegion and in <B>_knownPlayer</B> of other surrounding L2Characters <B><U> Actions</U> :</B>
 	 * <li>Remove the L2Object object from _allPlayers* of L2World</li>
 	 * <li>Remove the L2Object object from _visibleObjects and _allPlayers* of L2WorldRegion</li>
 	 * <li>Remove the L2Object object from _gmList** of GmListTable</li>
 	 * <li>Remove object from _knownObjects and _knownPlayer* of all surrounding L2WorldRegion L2Characters</li><BR>
-	 * <li>If object is a L2Character, remove all L2Object from its _knownObjects and all L2PcInstance from its _knownPlayer</li>
-	 * <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T REMOVE the object from _allObjects of L2World</B></FONT> <I>* only if object is a L2PcInstance</I><BR> <I>** only if object is a GM L2PcInstance</I> <B><U> Example of use </U> :</B> <li>Pickup an Item</li> <li>Decay a
-	 * L2Character</li>
+	 * <li>If object is a L2Character, remove all L2Object from its _knownObjects and all L2PcInstance from its _knownPlayer</li> <FONT COLOR=#FF0000><B> <U>Caution</U> : This method DOESN'T REMOVE the object from _allObjects of L2World</B></FONT> <I>* only if object is a L2PcInstance</I><BR>
+	 * <I>** only if object is a GM L2PcInstance</I> <B><U> Example of use </U> :</B>
+	 * <li>Pickup an Item</li>
+	 * <li>Decay a L2Character</li>
 	 * @param object L2object to remove from the world
-	 * @param oldRegion L2WorldRegion in which the object was before removing
+	 * @param oldWorldRegion L2WorldRegion in which the object was before removing
 	 */
-	public void removeVisibleObject(L2Object object, L2WorldRegion oldRegion)
+	public void removeVisibleObject(L2Object object, L2WorldRegion oldWorldRegion)
 	{
 		if (object == null)
 		{
 			return;
 		}
 		
-		if (oldRegion != null)
+		if (oldWorldRegion == null)
 		{
-			// Remove the object from the L2ObjectHashSet(L2Object) _visibleObjects of L2WorldRegion
-			// If object is a L2PcInstance, remove it from the L2ObjectHashSet(L2PcInstance) _allPlayers of this L2WorldRegion
-			oldRegion.removeVisibleObject(object);
-			
-			// Go through all surrounding L2WorldRegion L2Characters
-			for (L2WorldRegion reg : oldRegion.getSurroundingRegions())
+			return;
+		}
+		
+		// Removes the object from the visible objects of world region.
+		// If object is a player, removes it from the players map of this world region.
+		oldWorldRegion.removeVisibleObject(object);
+		
+		// Goes through all surrounding world region's creatures.
+		// And removes the object from their known lists.
+		for (L2WorldRegion worldRegion : oldWorldRegion.getSurroundingRegions())
+		{
+			for (L2Object obj : worldRegion.getVisibleObjects().values())
 			{
-				final Collection<L2Object> vObj = reg.getVisibleObjects().values();
-				for (L2Object obj : vObj)
+				if (obj != null)
 				{
-					if (obj != null)
-					{
-						obj.getKnownList().removeKnownObject(object);
-					}
-				}
-			}
-			
-			// If object is a L2Character :
-			// Remove all L2Object from L2ObjectHashSet(L2Object) containing all L2Object detected by the L2Character
-			// Remove all L2PcInstance from L2ObjectHashSet(L2PcInstance) containing all player ingame detected by the L2Character
-			object.getKnownList().removeAllKnownObjects();
-			
-			// If selected L2Object is a L2PcIntance, remove it from L2ObjectHashSet(L2PcInstance) _allPlayers of L2World
-			if (object.isPlayer())
-			{
-				final L2PcInstance player = object.getActingPlayer();
-				if (!player.isTeleporting())
-				{
-					removeFromAllPlayers(player);
+					obj.getKnownList().removeKnownObject(object);
 				}
 			}
 		}
+		
+		// Removes all objects from the object's known list.
+		object.getKnownList().removeAllKnownObjects();
 	}
 	
 	/**

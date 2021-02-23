@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -18,31 +18,19 @@
  */
 package com.l2jserver.gameserver.model.actor.instance;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.Future;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.l2jserver.Config;
-import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
 import com.l2jserver.gameserver.ThreadPoolManager;
+import com.l2jserver.gameserver.dao.factory.impl.DAOFactory;
 import com.l2jserver.gameserver.data.sql.impl.CharSummonTable;
 import com.l2jserver.gameserver.data.sql.impl.SummonEffectsTable;
-import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.InstanceType;
 import com.l2jserver.gameserver.model.L2Object;
 import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.L2Summon;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
-import com.l2jserver.gameserver.model.skills.AbnormalType;
-import com.l2jserver.gameserver.model.skills.BuffInfo;
-import com.l2jserver.gameserver.model.skills.EffectScope;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.model.stats.Stats;
 import com.l2jserver.gameserver.network.SystemMessageId;
@@ -54,11 +42,6 @@ import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
  */
 public class L2ServitorInstance extends L2Summon implements Runnable
 {
-	private static final Logger LOG = LoggerFactory.getLogger(L2ServitorInstance.class);
-	private static final String ADD_SKILL_SAVE = "INSERT INTO character_summon_skills_save (ownerId,ownerClassIndex,summonSkillId,skill_id,skill_level,remaining_time,buff_index) VALUES (?,?,?,?,?,?,?)";
-	private static final String RESTORE_SKILL_SAVE = "SELECT skill_id,skill_level,remaining_time,buff_index FROM character_summon_skills_save WHERE ownerId=? AND ownerClassIndex=? AND summonSkillId=? ORDER BY buff_index ASC";
-	private static final String DELETE_SKILL_SAVE = "DELETE FROM character_summon_skills_save WHERE ownerId=? AND ownerClassIndex=? AND summonSkillId=?";
-	
 	private float _expMultiplier = 0;
 	private ItemHolder _itemConsume;
 	private int _lifeTime;
@@ -181,41 +164,7 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 	@Override
 	public void doPickupItem(L2Object object)
 	{
-	
-	}
-	
-	/**
-	 * Servitors' skills automatically change their level based on the servitor's level.<br>
-	 * Until level 70, the servitor gets 1 lv of skill per 10 levels.<br>
-	 * After that, it is 1 skill level per 5 servitor levels.<br>
-	 * If the resulting skill level doesn't exist use the max that does exist!
-	 */
-	@Override
-	public void doCast(Skill skill)
-	{
-		final int petLevel = getLevel();
-		int skillLevel = petLevel / 10;
-		if (petLevel >= 70)
-		{
-			skillLevel += (petLevel - 65) / 10;
-		}
 		
-		// Adjust the level for servitors less than level 1.
-		if (skillLevel < 1)
-		{
-			skillLevel = 1;
-		}
-		
-		final Skill skillToCast = SkillData.getInstance().getSkill(skill.getId(), skillLevel);
-		
-		if (skillToCast != null)
-		{
-			super.doCast(skillToCast);
-		}
-		else
-		{
-			super.doCast(skill);
-		}
 	}
 	
 	@Override
@@ -261,74 +210,7 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 		// Clear list for overwrite
 		SummonEffectsTable.getInstance().clearServitorEffects(getOwner(), getReferenceSkill());
 		
-		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement ps = con.prepareStatement(DELETE_SKILL_SAVE))
-		{
-			// Delete all current stored effects for summon to avoid dupe
-			ps.setInt(1, getOwner().getObjectId());
-			ps.setInt(2, getOwner().getClassIndex());
-			ps.setInt(3, getReferenceSkill());
-			ps.execute();
-			
-			int buff_index = 0;
-			
-			final List<Integer> storedSkills = new LinkedList<>();
-			
-			// Store all effect data along with calculated remaining
-			if (storeEffects)
-			{
-				try (PreparedStatement ps2 = con.prepareStatement(ADD_SKILL_SAVE))
-				{
-					for (BuffInfo info : getEffectList().getEffects())
-					{
-						if (info == null)
-						{
-							continue;
-						}
-						
-						final Skill skill = info.getSkill();
-						// Do not save heals.
-						if (skill.getAbnormalType() == AbnormalType.LIFE_FORCE_OTHERS)
-						{
-							continue;
-						}
-						
-						if (skill.isToggle())
-						{
-							continue;
-						}
-						
-						// Dances and songs are not kept in retail.
-						if (skill.isDance() && !Config.ALT_STORE_DANCES)
-						{
-							continue;
-						}
-						
-						if (storedSkills.contains(skill.getReuseHashCode()))
-						{
-							continue;
-						}
-						
-						storedSkills.add(skill.getReuseHashCode());
-						
-						ps2.setInt(1, getOwner().getObjectId());
-						ps2.setInt(2, getOwner().getClassIndex());
-						ps2.setInt(3, getReferenceSkill());
-						ps2.setInt(4, skill.getId());
-						ps2.setInt(5, skill.getLevel());
-						ps2.setInt(6, info.getTime());
-						ps2.setInt(7, ++buff_index);
-						ps2.execute();
-						
-						SummonEffectsTable.getInstance().addServitorEffect(getOwner(), getReferenceSkill(), skill, info.getTime());
-					}
-				}
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not store summon effect data: {}", e);
-		}
+		DAOFactory.getInstance().getServitorSkillSaveDAO().insert(this, storeEffects);
 	}
 	
 	@Override
@@ -339,52 +221,9 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 			return;
 		}
 		
-		try (Connection con = ConnectionFactory.getInstance().getConnection())
-		{
-			if (!SummonEffectsTable.getInstance().containsSkill(getOwner(), getReferenceSkill()))
-			{
-				try (PreparedStatement ps = con.prepareStatement(RESTORE_SKILL_SAVE))
-				{
-					ps.setInt(1, getOwner().getObjectId());
-					ps.setInt(2, getOwner().getClassIndex());
-					ps.setInt(3, getReferenceSkill());
-					try (ResultSet rset = ps.executeQuery())
-					{
-						while (rset.next())
-						{
-							int effectCurTime = rset.getInt("remaining_time");
-							
-							final Skill skill = SkillData.getInstance().getSkill(rset.getInt("skill_id"), rset.getInt("skill_level"));
-							if (skill == null)
-							{
-								continue;
-							}
-							
-							if (skill.hasEffects(EffectScope.GENERAL))
-							{
-								SummonEffectsTable.getInstance().addServitorEffect(getOwner(), getReferenceSkill(), skill, effectCurTime);
-							}
-						}
-					}
-				}
-			}
-			
-			try (PreparedStatement ps = con.prepareStatement(DELETE_SKILL_SAVE))
-			{
-				ps.setInt(1, getOwner().getObjectId());
-				ps.setInt(2, getOwner().getClassIndex());
-				ps.setInt(3, getReferenceSkill());
-				ps.executeUpdate();
-			}
-		}
-		catch (Exception e)
-		{
-			LOG.error("Could not restore {} active effect data: {}", this, e);
-		}
-		finally
-		{
-			SummonEffectsTable.getInstance().applyServitorEffects(this, getOwner(), getReferenceSkill());
-		}
+		DAOFactory.getInstance().getServitorSkillSaveDAO().load(this);
+		
+		SummonEffectsTable.getInstance().applyServitorEffects(this, getOwner(), getReferenceSkill());
 	}
 	
 	@Override
@@ -539,6 +378,12 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 	}
 	
 	@Override
+	public int getMaxMp()
+	{
+		return (int) (super.getMaxMp() + (getActingPlayer().getMaxMp() * (getActingPlayer().getServitorShareBonus(Stats.MAX_MP) - 1.0)));
+	}
+	
+	@Override
 	public int getCriticalHit(L2Character target, Skill skill)
 	{
 		return (int) (super.getCriticalHit(target, skill) + ((getActingPlayer().getCriticalHit(target, skill)) * (getActingPlayer().getServitorShareBonus(Stats.CRITICAL_RATE) - 1.0)));
@@ -548,5 +393,17 @@ public class L2ServitorInstance extends L2Summon implements Runnable
 	public double getPAtkSpd()
 	{
 		return super.getPAtkSpd() + (getActingPlayer().getPAtkSpd() * (getActingPlayer().getServitorShareBonus(Stats.POWER_ATTACK_SPEED) - 1.0));
+	}
+	
+	@Override
+	public int getMaxRecoverableHp()
+	{
+		return (int) calcStat(Stats.MAX_RECOVERABLE_HP, getMaxHp());
+	}
+	
+	@Override
+	public int getMaxRecoverableMp()
+	{
+		return (int) calcStat(Stats.MAX_RECOVERABLE_MP, getMaxMp());
 	}
 }

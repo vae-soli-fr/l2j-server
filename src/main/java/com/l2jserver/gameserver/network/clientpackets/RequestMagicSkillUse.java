@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -50,6 +50,19 @@ public final class RequestMagicSkillUse extends L2GameClientPacket
 		final L2PcInstance activeChar = getActiveChar();
 		if (activeChar == null)
 		{
+			return;
+		}
+		
+		if (activeChar.isDead())
+		{
+			activeChar.sendPacket(ActionFailed.STATIC_PACKET);
+			return;
+		}
+		
+		if (activeChar.isFakeDeath())
+		{
+			activeChar.sendPacket(SystemMessageId.CANT_MOVE_SITTING);
+			activeChar.sendPacket(ActionFailed.STATIC_PACKET);
 			return;
 		}
 		

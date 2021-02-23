@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -20,6 +20,7 @@ package com.l2jserver.gameserver.model.actor.status;
 
 import com.l2jserver.Config;
 import com.l2jserver.gameserver.ai.CtrlIntention;
+import com.l2jserver.gameserver.enums.DuelState;
 import com.l2jserver.gameserver.enums.PrivateStoreType;
 import com.l2jserver.gameserver.instancemanager.DuelManager;
 import com.l2jserver.gameserver.model.actor.L2Character;
@@ -27,7 +28,7 @@ import com.l2jserver.gameserver.model.actor.L2Playable;
 import com.l2jserver.gameserver.model.actor.L2Summon;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.stat.PcStat;
-import com.l2jserver.gameserver.model.entity.Duel;
+import com.l2jserver.gameserver.model.quest.Quest;
 import com.l2jserver.gameserver.model.quest.QuestState;
 import com.l2jserver.gameserver.model.stats.Formulas;
 import com.l2jserver.gameserver.model.stats.Stats;
@@ -79,12 +80,13 @@ public class PcStatus extends PlayableStatus
 		}
 		
 		// If OFFLINE_MODE_NO_DAMAGE is enabled and player is offline and he is in store/craft mode, no damage is taken.
-		if (Config.OFFLINE_MODE_NO_DAMAGE && (getActiveChar().getClient() != null) && getActiveChar().getClient().isDetached() && ((Config.OFFLINE_TRADE_ENABLE && ((getActiveChar().getPrivateStoreType() == PrivateStoreType.SELL) || (getActiveChar().getPrivateStoreType() == PrivateStoreType.BUY))) || (Config.OFFLINE_CRAFT_ENABLE && (getActiveChar().isInCraftMode() || (getActiveChar().getPrivateStoreType() == PrivateStoreType.MANUFACTURE)))))
+		if (Config.OFFLINE_MODE_NO_DAMAGE && (getActiveChar().getClient() != null) && getActiveChar().getClient().isDetached() && ((Config.OFFLINE_TRADE_ENABLE && ((getActiveChar().getPrivateStoreType() == PrivateStoreType.SELL) || (getActiveChar().getPrivateStoreType() == PrivateStoreType.BUY)))
+			|| (Config.OFFLINE_CRAFT_ENABLE && (getActiveChar().isInCraftMode() || (getActiveChar().getPrivateStoreType() == PrivateStoreType.MANUFACTURE)))))
 		{
 			return;
 		}
 		
-		if (getActiveChar().isInvul() && !(isDOT || isHPConsumption))
+		if ((getActiveChar().isInvul() || getActiveChar().isHpBlocked()) && !(isDOT || isHPConsumption))
 		{
 			return;
 		}
@@ -130,11 +132,11 @@ public class PcStatus extends PlayableStatus
 				
 				if (getActiveChar().isInDuel())
 				{
-					if (getActiveChar().getDuelState() == Duel.DUELSTATE_DEAD)
+					if (getActiveChar().getDuelState() == DuelState.DEAD)
 					{
 						return;
 					}
-					else if (getActiveChar().getDuelState() == Duel.DUELSTATE_WINNER)
+					else if (getActiveChar().getDuelState() == DuelState.WINNER)
 					{
 						return;
 					}
@@ -142,7 +144,7 @@ public class PcStatus extends PlayableStatus
 					// cancel duel if player got hit by another player, that is not part of the duel
 					if (attackerPlayer.getDuelId() != getActiveChar().getDuelId())
 					{
-						getActiveChar().setDuelState(Duel.DUELSTATE_INTERRUPTED);
+						getActiveChar().setDuelState(DuelState.INTERRUPTED);
 					}
 				}
 			}
@@ -271,7 +273,10 @@ public class PcStatus extends PlayableStatus
 					{
 						attacker.getAI().setIntention(CtrlIntention.AI_INTENTION_ACTIVE);
 						attacker.sendPacket(ActionFailed.STATIC_PACKET);
+						attacker.setTarget(null);
+						attacker.abortAttack();
 					}
+					
 					// let the DuelManager know of his defeat
 					DuelManager.getInstance().onPlayerDefeat(getActiveChar());
 					value = 1;
@@ -304,7 +309,7 @@ public class PcStatus extends PlayableStatus
 			getActiveChar().doDie(attacker);
 			if (!Config.DISABLE_TUTORIAL)
 			{
-				QuestState qs = getActiveChar().getQuestState("255_Tutorial");
+				final QuestState qs = getActiveChar().getQuestState(Quest.TUTORIAL);
 				if (qs != null)
 				{
 					qs.getQuest().notifyEvent("CE30", null, getActiveChar());
@@ -320,7 +325,7 @@ public class PcStatus extends PlayableStatus
 		
 		if (!Config.DISABLE_TUTORIAL && (getCurrentHp() <= (getActiveChar().getStat().getMaxHp() * .3)))
 		{
-			QuestState qs = getActiveChar().getQuestState("255_Tutorial");
+			final QuestState qs = getActiveChar().getQuestState(Quest.TUTORIAL);
 			if (qs != null)
 			{
 				qs.getQuest().notifyEvent("CE45", null, getActiveChar());

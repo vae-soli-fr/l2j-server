@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -74,7 +74,7 @@ import com.l2jserver.util.Rnd;
  */
 public class SevenSignsFestival implements SpawnListener
 {
-	protected static final Logger _log = LoggerFactory.getLogger(SevenSignsFestival.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(SevenSignsFestival.class);
 	
 	private static final String GET_CLAN_NAME = "SELECT clan_name FROM clan_data WHERE clan_id = (SELECT clanid FROM characters WHERE char_name = ?)";
 	
@@ -795,7 +795,7 @@ public class SevenSignsFestival implements SpawnListener
 		
 		if (SevenSigns.getInstance().isSealValidationPeriod())
 		{
-			_log.info("SevenSignsFestival: Initialization bypassed due to Seal Validation in effect.");
+			LOG.info("SevenSignsFestival: Initialization bypassed due to Seal Validation in effect.");
 			return;
 		}
 		
@@ -914,11 +914,15 @@ public class SevenSignsFestival implements SpawnListener
 	{
 		// Start the Festival Manager for the first time after the server has started
 		// at the specified time, then invoke it automatically after every cycle.
+		if (_managerInstance != null)
+		{
+			return; // already started
+		}
 		_managerInstance = new FestivalManager();
 		setNextFestivalStart(Config.ALT_FESTIVAL_MANAGER_START + FESTIVAL_SIGNUP_TIME);
 		_managerScheduledTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(_managerInstance, Config.ALT_FESTIVAL_MANAGER_START, Config.ALT_FESTIVAL_CYCLE_LENGTH);
 		
-		_log.info("SevenSignsFestival: The first Festival of Darkness cycle begins in {} minute(s).", TimeUnit.MILLISECONDS.toMinutes(Config.ALT_FESTIVAL_MANAGER_START));
+		LOG.info("SevenSignsFestival: The first Festival of Darkness cycle begins in {} minute(s).", TimeUnit.MILLISECONDS.toMinutes(Config.ALT_FESTIVAL_MANAGER_START));
 	}
 	
 	/**
@@ -956,7 +960,7 @@ public class SevenSignsFestival implements SpawnListener
 		}
 		catch (SQLException e)
 		{
-			_log.error("SevenSignsFestival: Failed to load configuration!", e);
+			LOG.error("SevenSignsFestival: Failed to load configuration!", e);
 		}
 		
 		StringBuilder query = new StringBuilder();
@@ -990,7 +994,7 @@ public class SevenSignsFestival implements SpawnListener
 		}
 		catch (SQLException e)
 		{
-			_log.error("SevenSignsFestival: Failed to load configuration!", e);
+			LOG.error("SevenSignsFestival: Failed to load configuration!", e);
 		}
 	}
 	
@@ -1001,46 +1005,26 @@ public class SevenSignsFestival implements SpawnListener
 	public void saveFestivalData(boolean updateSettings)
 	{
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
-			PreparedStatement psUpdate = con.prepareStatement("UPDATE seven_signs_festival SET date=?, score=?, members=? WHERE cycle=? AND cabal=? AND festivalId=?");
-			PreparedStatement psInsert = con.prepareStatement("INSERT INTO seven_signs_festival (festivalId, cabal, cycle, date, score, members) VALUES (?,?,?,?,?,?)"))
+			PreparedStatement psInsert = con.prepareStatement("REPLACE INTO seven_signs_festival (festivalId, cabal, cycle, date, score, members) VALUES (?,?,?,?,?,?)"))
 		{
 			for (Map<Integer, StatsSet> currCycleData : _festivalData.values())
 			{
 				for (StatsSet festivalDat : currCycleData.values())
 				{
-					int festivalCycle = festivalDat.getInt("cycle");
-					int festivalId = festivalDat.getInt("festivalId");
-					String cabal = festivalDat.getString("cabal");
-					
-					// Try to update an existing record.
-					psUpdate.setLong(1, Long.valueOf(festivalDat.getString("date")));
-					psUpdate.setInt(2, festivalDat.getInt("score"));
-					psUpdate.setString(3, festivalDat.getString("members"));
-					psUpdate.setInt(4, festivalCycle);
-					psUpdate.setString(5, cabal);
-					psUpdate.setInt(6, festivalId);
-					
-					// If there was no record to update, assume it doesn't exist and add a new one,
-					// otherwise continue with the next record to store.
-					if (psUpdate.executeUpdate() > 0)
-					{
-						continue;
-					}
-					
-					psInsert.setInt(1, festivalId);
-					psInsert.setString(2, cabal);
-					psInsert.setInt(3, festivalCycle);
+					psInsert.setInt(1, festivalDat.getInt("festivalId"));
+					psInsert.setString(2, festivalDat.getString("cabal"));
+					psInsert.setInt(3, festivalDat.getInt("cycle"));
 					psInsert.setLong(4, Long.valueOf(festivalDat.getString("date")));
 					psInsert.setInt(5, festivalDat.getInt("score"));
 					psInsert.setString(6, festivalDat.getString("members"));
-					psInsert.execute();
-					psInsert.clearParameters();
+					psInsert.addBatch();
 				}
 			}
+			psInsert.executeBatch();
 		}
 		catch (SQLException e)
 		{
-			_log.error("SevenSignsFestival: Failed to save configuration!", e);
+			LOG.error("SevenSignsFestival: Failed to save configuration!", e);
 		}
 		
 		// Updates Seven Signs DB data also, so call only if really necessary.
@@ -1149,7 +1133,7 @@ public class SevenSignsFestival implements SpawnListener
 			}
 			catch (Exception e)
 			{
-				_log.warn("Could not get clan name of {}!", partyMemberName, e);
+				LOG.warn("Could not get clan name of {}!", partyMemberName, e);
 			}
 		}
 	}
@@ -1225,7 +1209,7 @@ public class SevenSignsFestival implements SpawnListener
 			}
 		}
 		
-		_log.info("SevenSignsFestival: Reinitialized engine for next competition period.");
+		LOG.info("SevenSignsFestival: Reinitialized engine for next competition period.");
 	}
 	
 	public final int getCurrentFestivalCycle()
@@ -2003,7 +1987,7 @@ public class SevenSignsFestival implements SpawnListener
 			}
 			catch (Exception e)
 			{
-				_log.warn("Could not run featival task!", e);
+				LOG.warn("Could not run featival task!", e);
 			}
 		}
 		
@@ -2152,7 +2136,7 @@ public class SevenSignsFestival implements SpawnListener
 			}
 			catch (Exception e)
 			{
-				_log.warn("SevenSignsFestival: Error while spawning Festival Witch ID {}!", _witchSpawn._npcId, e);
+				LOG.warn("SevenSignsFestival: Error while spawning Festival Witch ID {}!", _witchSpawn._npcId, e);
 			}
 			
 			// Make it appear as though the Witch has appeared there.
@@ -2287,7 +2271,7 @@ public class SevenSignsFestival implements SpawnListener
 				}
 				catch (Exception e)
 				{
-					_log.warn("SevenSignsFestival: Error while spawning NPC ID {}!", currSpawn._npcId, e);
+					LOG.warn("SevenSignsFestival: Error while spawning NPC ID {}!", currSpawn._npcId, e);
 				}
 			}
 		}

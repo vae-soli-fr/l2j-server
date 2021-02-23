@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -78,9 +78,6 @@ public class L2MonsterInstance extends L2Attackable
 		return super.isAutoAttackable(attacker) && !isEventMob();
 	}
 	
-	/**
-	 * Return True if the L2MonsterInstance is Aggressive (aggroRange > 0).
-	 */
 	@Override
 	public boolean isAggressive()
 	{

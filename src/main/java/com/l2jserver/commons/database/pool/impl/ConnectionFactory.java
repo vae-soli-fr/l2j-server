@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -30,6 +30,11 @@ import com.l2jserver.commons.database.pool.IConnectionFactory;
  */
 public class ConnectionFactory
 {
+	private ConnectionFactory()
+	{
+		// Hide constructor.
+	}
+	
 	public static IConnectionFactory getInstance()
 	{
 		return SingletonHolder.INSTANCE;
@@ -48,17 +53,17 @@ public class ConnectionFactory
 				default:
 				case "HikariCP":
 				{
-					INSTANCE = new HikariCPConnectionFactory();
+					INSTANCE = HikariCPConnectionFactory.INSTANCE;
 					break;
 				}
 				case "C3P0":
 				{
-					INSTANCE = new C3P0ConnectionFactory();
+					INSTANCE = C3P0ConnectionFactory.INSTANCE;
 					break;
 				}
 				case "BoneCP":
 				{
-					INSTANCE = new BoneCPConnectionFactory();
+					INSTANCE = BoneCPConnectionFactory.INSTANCE;
 					break;
 				}
 			}

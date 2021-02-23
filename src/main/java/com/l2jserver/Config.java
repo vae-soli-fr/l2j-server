@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  *
  * This file is part of L2J Server.
  *
@@ -40,10 +40,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -71,7 +74,7 @@ import com.l2jserver.util.data.xml.IXmlReader;
  */
 public final class Config
 {
-	private static final Logger _log = LoggerFactory.getLogger(Config.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Config.class);
 	
 	// --------------------------------------------------
 	// Constants
@@ -118,7 +121,6 @@ public final class Config
 	public static double RESPAWN_RESTORE_CP;
 	public static double RESPAWN_RESTORE_HP;
 	public static double RESPAWN_RESTORE_MP;
-	public static boolean ALT_GAME_TIREDNESS;
 	public static boolean ENABLE_MODIFY_SKILL_DURATION;
 	public static Map<Integer, Integer> SKILL_DURATION_LIST;
 	public static boolean ENABLE_MODIFY_SKILL_REUSE;
@@ -256,7 +258,7 @@ public final class Config
 	public static boolean EXPERTISE_PENALTY;
 	public static boolean STORE_RECIPE_SHOPLIST;
 	public static boolean STORE_UI_SETTINGS;
-	public static String[] FORBIDDEN_NAMES;
+	public static Set<String> FORBIDDEN_NAMES;
 	public static boolean SILENCE_MODE_EXCLUDE;
 	public static boolean ALT_VALIDATE_TRIGGER_SKILLS;
 	
@@ -925,6 +927,7 @@ public final class Config
 	public static int LOGIN_TRY_BEFORE_BAN;
 	public static int LOGIN_BLOCK_AFTER_BAN;
 	public static String GAMESERVER_HOSTNAME;
+	public static String DATABASE_ENGINE;
 	public static String DATABASE_DRIVER;
 	public static String DATABASE_URL;
 	public static String DATABASE_LOGIN;
@@ -933,9 +936,9 @@ public final class Config
 	public static int DATABASE_MAX_CONNECTIONS;
 	public static int DATABASE_MAX_IDLE_TIME;
 	public static int MAXIMUM_ONLINE_USERS;
-	public static String CNAME_TEMPLATE;
-	public static String PET_NAME_TEMPLATE;
-	public static String CLAN_NAME_TEMPLATE;
+	public static Pattern PLAYER_NAME_TEMPLATE;
+	public static Pattern PET_NAME_TEMPLATE;
+	public static Pattern CLAN_NAME_TEMPLATE;
 	public static int MAX_CHARACTERS_NUMBER_PER_ACCOUNT;
 	public static File DATAPACK_ROOT;
 	public static boolean ACCEPT_ALTERNATE_ID;
@@ -1172,6 +1175,7 @@ public final class Config
 			REQUEST_ID = serverSettings.getInt("RequestServerID", 0);
 			ACCEPT_ALTERNATE_ID = serverSettings.getBoolean("AcceptAlternateID", true);
 			
+			DATABASE_ENGINE = serverSettings.getString("Database", "MySQL");
 			DATABASE_DRIVER = serverSettings.getString("Driver", "com.mysql.jdbc.Driver");
 			DATABASE_URL = serverSettings.getString("URL", "jdbc:mysql://localhost/l2jgs");
 			DATABASE_LOGIN = serverSettings.getString("Login", "root");
@@ -1186,13 +1190,13 @@ public final class Config
 			}
 			catch (IOException e)
 			{
-				_log.warn("Error setting datapack root!", e);
+				LOG.warn("Error setting datapack root!", e);
 				DATAPACK_ROOT = new File(".");
 			}
 			
-			CNAME_TEMPLATE = serverSettings.getString("CnameTemplate", ".*");
-			PET_NAME_TEMPLATE = serverSettings.getString("PetNameTemplate", ".*");
-			CLAN_NAME_TEMPLATE = serverSettings.getString("ClanNameTemplate", ".*");
+			PLAYER_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("PlayerNameTemplate", "[a-zA-Z0-9]*"));
+			PET_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("PetNameTemplate", "[a-zA-Z0-9]*"));
+			CLAN_NAME_TEMPLATE = Pattern.compile(serverSettings.getString("ClanNameTemplate", "[a-zA-Z0-9]*"));
 			
 			MAX_CHARACTERS_NUMBER_PER_ACCOUNT = serverSettings.getInt("CharMaxNumber", 7);
 			MAXIMUM_ONLINE_USERS = serverSettings.getInt("MaximumOnlineUsers", 100);
@@ -1207,7 +1211,7 @@ public final class Config
 				}
 				catch (NumberFormatException e)
 				{
-					_log.warn("Wrong config protocol version: {}, skipped.", protocol);
+					LOG.warn("Wrong config protocol version: {}, skipped.", protocol);
 				}
 			}
 			
@@ -1413,7 +1417,6 @@ public final class Config
 			HP_REGEN_MULTIPLIER = character.getDouble("HpRegenMultiplier", 100) / 100;
 			MP_REGEN_MULTIPLIER = character.getDouble("MpRegenMultiplier", 100) / 100;
 			CP_REGEN_MULTIPLIER = character.getDouble("CpRegenMultiplier", 100) / 100;
-			ALT_GAME_TIREDNESS = character.getBoolean("AltGameTiredness", false);
 			ENABLE_MODIFY_SKILL_DURATION = character.getBoolean("EnableModifySkillDuration", false);
 			
 			// Create Map only if enabled
@@ -1426,7 +1429,7 @@ public final class Config
 					String[] skillSplit = skill.split(",");
 					if (skillSplit.length != 2)
 					{
-						_log.warn("[SkillDurationList]: invalid config property -> SkillDurationList {}", skill);
+						LOG.warn("[SkillDurationList]: invalid config property -> SkillDurationList {}", skill);
 					}
 					else
 					{
@@ -1438,7 +1441,7 @@ public final class Config
 						{
 							if (!skill.isEmpty())
 							{
-								_log.warn("[SkillDurationList]: invalid config property -> SkillList {}", skill);
+								LOG.warn("[SkillDurationList]: invalid config property -> SkillList {}", skill);
 							}
 						}
 					}
@@ -1455,7 +1458,7 @@ public final class Config
 					String[] skillSplit = skill.split(",");
 					if (skillSplit.length != 2)
 					{
-						_log.warn("[SkillReuseList]: invalid config property -> SkillReuseList {}", skill);
+						LOG.warn("[SkillReuseList]: invalid config property -> SkillReuseList {}", skill);
 					}
 					else
 					{
@@ -1467,7 +1470,7 @@ public final class Config
 						{
 							if (!skill.isEmpty())
 							{
-								_log.warn("[SkillReuseList]: invalid config property -> SkillList {}", skill);
+								LOG.warn("[SkillReuseList]: invalid config property -> SkillList {}", skill);
 							}
 						}
 					}
@@ -1627,7 +1630,7 @@ public final class Config
 			ALT_CLAN_LEADER_DATE_CHANGE = character.getInt("AltClanLeaderDateChange", 3);
 			if ((ALT_CLAN_LEADER_DATE_CHANGE < 1) || (ALT_CLAN_LEADER_DATE_CHANGE > 7))
 			{
-				_log.warn("Wrong value specified for AltClanLeaderDateChange: {}", ALT_CLAN_LEADER_DATE_CHANGE);
+				LOG.warn("Wrong value specified for AltClanLeaderDateChange: {}", ALT_CLAN_LEADER_DATE_CHANGE);
 				ALT_CLAN_LEADER_DATE_CHANGE = 3;
 			}
 			ALT_CLAN_LEADER_HOUR_CHANGE = character.getString("AltClanLeaderHourChange", "00:00:00");
@@ -1675,7 +1678,7 @@ public final class Config
 				}
 				catch (NumberFormatException nfe)
 				{
-					_log.warn("Player Spawn Protection: Wrong Item ID passed: {}", item, nfe);
+					LOG.warn("Player Spawn Protection: Wrong Item ID passed: {}", item, nfe);
 				}
 			}
 			
@@ -1713,7 +1716,7 @@ public final class Config
 			EXPERTISE_PENALTY = character.getBoolean("ExpertisePenalty", true);
 			STORE_RECIPE_SHOPLIST = character.getBoolean("StoreRecipeShopList", false);
 			STORE_UI_SETTINGS = character.getBoolean("StoreCharUiSettings", false);
-			FORBIDDEN_NAMES = character.getString("ForbiddenNames", "").split(",");
+			FORBIDDEN_NAMES = new HashSet<>(Arrays.asList(character.getString("ForbiddenNames", "annou,ammou,amnou,anmou,anou,amou,announcements,announce").split(",")));
 			SILENCE_MODE_EXCLUDE = character.getBoolean("SilenceModeExclude", false);
 			ALT_VALIDATE_TRIGGER_SKILLS = character.getBoolean("AltValidateTriggerSkills", false);
 			PLAYER_MOVEMENT_BLOCK_TIME = character.getInt("NpcTalkBlockingTime", 0) * 1000;
@@ -1887,7 +1890,7 @@ public final class Config
 			}
 			catch (NumberFormatException nfe)
 			{
-				_log.warn("Unable to load banned channels!", nfe);
+				LOG.warn("Unable to load banned channels!", nfe);
 			}
 			ALT_MANOR_REFRESH_TIME = General.getInt("AltManorRefreshTime", 20);
 			ALT_MANOR_REFRESH_MIN = General.getInt("AltManorRefreshMin", 0);
@@ -2035,7 +2038,7 @@ public final class Config
 				String[] propSplit = prop.split(",");
 				if (propSplit.length != 2)
 				{
-					_log.warn("[CustomMinionsRespawnTime]: invalid config property -> CustomMinionsRespawnTime {}", prop);
+					LOG.warn("[CustomMinionsRespawnTime]: invalid config property -> CustomMinionsRespawnTime {}", prop);
 				}
 				
 				try
@@ -2046,7 +2049,7 @@ public final class Config
 				{
 					if (!prop.isEmpty())
 					{
-						_log.warn("[CustomMinionsRespawnTime]: invalid config property -> CustomMinionsRespawnTime {}", prop);
+						LOG.warn("[CustomMinionsRespawnTime]: invalid config property -> CustomMinionsRespawnTime {}", prop);
 					}
 				}
 			}
@@ -2135,7 +2138,7 @@ public final class Config
 					String[] itemSplit = item.split(",");
 					if (itemSplit.length != 2)
 					{
-						_log.warn("Config.load(): invalid config property -> RateDropItemsById {}", item);
+						LOG.warn("Config.load(): invalid config property -> RateDropItemsById {}", item);
 					}
 					else
 					{
@@ -2147,7 +2150,7 @@ public final class Config
 						{
 							if (!item.isEmpty())
 							{
-								_log.warn("Config.load(): invalid config property -> RateDropItemsById {}", item);
+								LOG.warn("Config.load(): invalid config property -> RateDropItemsById {}", item);
 							}
 						}
 					}
@@ -2163,7 +2166,7 @@ public final class Config
 					String[] itemSplit = item.split(",");
 					if (itemSplit.length != 2)
 					{
-						_log.warn("Config.load(): invalid config property -> RateDropItemsById {}", item);
+						LOG.warn("Config.load(): invalid config property -> RateDropItemsById {}", item);
 					}
 					else
 					{
@@ -2175,7 +2178,7 @@ public final class Config
 						{
 							if (!item.isEmpty())
 							{
-								_log.warn("Config.load(): invalid config property -> RateDropItemsById {}", item);
+								LOG.warn("Config.load(): invalid config property -> RateDropItemsById {}", item);
 							}
 						}
 					}
@@ -2187,7 +2190,7 @@ public final class Config
 			
 			L2JMOD_CHAMPION_ENABLE = L2JModSettings.getBoolean("ChampionEnable", false);
 			L2JMOD_CHAMPION_PASSIVE = L2JModSettings.getBoolean("ChampionPassive", false);
-			L2JMOD_CHAMPION_FREQUENCY = L2JModSettings.getInt("ChampionFrequency", 0);
+			L2JMOD_CHAMPION_FREQUENCY = L2JModSettings.getInt("ChampionFrequency", -1);
 			L2JMOD_CHAMP_TITLE = L2JModSettings.getString("ChampionTitle", "Champion");
 			L2JMOD_CHAMP_MIN_LVL = L2JModSettings.getInt("ChampionMinLevel", 20);
 			L2JMOD_CHAMP_MAX_LVL = L2JModSettings.getInt("ChampionMaxLevel", 60);
@@ -2231,7 +2234,7 @@ public final class Config
 			if (TVT_EVENT_PARTICIPATION_NPC_ID == 0)
 			{
 				TVT_EVENT_ENABLED = false;
-				_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventParticipationNpcId");
+				LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventParticipationNpcId");
 			}
 			else
 			{
@@ -2239,7 +2242,7 @@ public final class Config
 				if (tvtNpcCoords.length < 3)
 				{
 					TVT_EVENT_ENABLED = false;
-					_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventParticipationNpcCoordinates");
+					LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventParticipationNpcCoordinates");
 				}
 				else
 				{
@@ -2270,7 +2273,7 @@ public final class Config
 					if (tvtNpcCoords.length < 3)
 					{
 						TVT_EVENT_ENABLED = false;
-						_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventTeam1Coordinates");
+						LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventTeam1Coordinates");
 					}
 					else
 					{
@@ -2282,7 +2285,7 @@ public final class Config
 						if (tvtNpcCoords.length < 3)
 						{
 							TVT_EVENT_ENABLED = false;
-							_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventTeam2Coordinates");
+							LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventTeam2Coordinates");
 						}
 						else
 						{
@@ -2299,7 +2302,7 @@ public final class Config
 							{
 								if (tvtNpcCoords.length > 0)
 								{
-									_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventParticipationFee");
+									LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventParticipationFee");
 								}
 							}
 							tvtNpcCoords = L2JModSettings.getString("TvTEventReward", "57,100000").split(";");
@@ -2308,7 +2311,7 @@ public final class Config
 								String[] rewardSplit = reward.split(",");
 								if (rewardSplit.length != 2)
 								{
-									_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventReward {}", reward);
+									LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventReward {}", reward);
 								}
 								else
 								{
@@ -2324,7 +2327,7 @@ public final class Config
 									{
 										if (!reward.isEmpty())
 										{
-											_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventReward {}", reward);
+											LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventReward {}", reward);
 										}
 									}
 								}
@@ -2346,7 +2349,7 @@ public final class Config
 								{
 									if (!door.isEmpty())
 									{
-										_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTDoorsToOpen {}", door);
+										LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTDoorsToOpen {}", door);
 									}
 								}
 							}
@@ -2362,7 +2365,7 @@ public final class Config
 								{
 									if (!door.isEmpty())
 									{
-										_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTDoorsToClose {}", door);
+										LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTDoorsToClose {}", door);
 									}
 								}
 							}
@@ -2376,7 +2379,7 @@ public final class Config
 									String[] skillSplit = skill.split(",");
 									if (skillSplit.length != 2)
 									{
-										_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventFighterBuffs {}", skill);
+										LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventFighterBuffs {}", skill);
 									}
 									else
 									{
@@ -2388,7 +2391,7 @@ public final class Config
 										{
 											if (!skill.isEmpty())
 											{
-												_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventFighterBuffs {}", skill);
+												LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventFighterBuffs {}", skill);
 											}
 										}
 									}
@@ -2404,7 +2407,7 @@ public final class Config
 									String[] skillSplit = skill.split(",");
 									if (skillSplit.length != 2)
 									{
-										_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventMageBuffs {}", skill);
+										LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventMageBuffs {}", skill);
 									}
 									else
 									{
@@ -2416,7 +2419,7 @@ public final class Config
 										{
 											if (!skill.isEmpty())
 											{
-												_log.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventMageBuffs {}", skill);
+												LOG.warn("TvTEventEngine[Config.load()]: invalid config property -> TvTEventMageBuffs {}", skill);
 											}
 										}
 									}
@@ -2472,7 +2475,7 @@ public final class Config
 			
 			if (!L2JMOD_MULTILANG_ALLOWED.contains(L2JMOD_MULTILANG_DEFAULT))
 			{
-				_log.warn("MultiLang[Config.load()]: default language: {} is not in allowed list !", L2JMOD_MULTILANG_DEFAULT);
+				LOG.warn("MultiLang[Config.load()]: default language: {} is not in allowed list !", L2JMOD_MULTILANG_DEFAULT);
 			}
 			
 			L2JMOD_HELLBOUND_STATUS = L2JModSettings.getBoolean("HellboundStatus", false);
@@ -2511,7 +2514,7 @@ public final class Config
 				String[] entrySplit = entry.split(",");
 				if (entrySplit.length != 2)
 				{
-					_log.warn("DualboxCheck[Config.load()]: invalid config property -> DualboxCheckWhitelist {}", entry);
+					LOG.warn("DualboxCheck[Config.load()]: invalid config property -> DualboxCheckWhitelist {}", entry);
 				}
 				else
 				{
@@ -2519,12 +2522,12 @@ public final class Config
 					{
 						String account = entrySplit[0];
 						int num = Integer.parseInt(entrySplit[1]);
-						num = num == 0 ? -1 : num;
+						num = (num == 0) ? -1 : num;
 						L2JMOD_DUALBOX_CHECK_WHITELIST.put(account, num);
 					}
 					catch (NumberFormatException e)
 					{
-						_log.warn("DualboxCheck[Config.load()]: invalid number -> DualboxCheckWhitelist {}", entrySplit[1]);
+						LOG.warn("DualboxCheck[Config.load()]: invalid number -> DualboxCheckWhitelist {}", entrySplit[1]);
 					}
 				}
 			}
@@ -2623,17 +2626,17 @@ public final class Config
 					}
 					catch (Exception e)
 					{
-						_log.warn("Could not load HexID file ({}). Hopefully login will give us one.", HEXID_FILE);
+						LOG.warn("Could not load HexID file ({}). Hopefully login will give us one.", HEXID_FILE);
 					}
 				}
 				else
 				{
-					_log.warn("Could not load HexID file ({}). Hopefully login will give us one.", HEXID_FILE);
+					LOG.warn("Could not load HexID file ({}). Hopefully login will give us one.", HEXID_FILE);
 				}
 			}
 			else
 			{
-				_log.warn("Could not load HexID file ({}). Hopefully login will give us one.", HEXID_FILE);
+				LOG.warn("Could not load HexID file ({}). Hopefully login will give us one.", HEXID_FILE);
 			}
 			
 			// Grand bosses
@@ -2678,11 +2681,11 @@ public final class Config
 					.filter(line -> (!line.isEmpty() && (line.charAt(0) != '#')))
 					.collect(Collectors.toList());
 				//@formatter:on
-				_log.info("Loaded {} filter words.", FILTER_LIST.size());
+				LOG.info("Loaded {} filter words.", FILTER_LIST.size());
 			}
 			catch (IOException ioe)
 			{
-				_log.warn("Error while loading chat filter words!", ioe);
+				LOG.warn("Error while loading chat filter words!", ioe);
 			}
 			
 			final PropertiesParser ClanHallSiege = new PropertiesParser(CH_SIEGE_FILE);
@@ -2702,7 +2705,7 @@ public final class Config
 			}
 			catch (IOException e)
 			{
-				_log.warn("Error setting pathnode directory!", e);
+				LOG.warn("Error setting pathnode directory!", e);
 				PATHNODE_DIR = new File("data/pathnode");
 			}
 			
@@ -2773,7 +2776,7 @@ public final class Config
 			}
 			catch (NumberFormatException nfe)
 			{
-				_log.warn("Unable to load logged channels!", nfe);
+				LOG.warn("Unable to load logged channels!", nfe);
 			}
 
 			API_SECRET = customsSettings.getString("ApiSecret", "");
@@ -2795,7 +2798,7 @@ public final class Config
 			}
 			catch (IOException e)
 			{
-				_log.warn("Error setting datapack root!", e);
+				LOG.warn("Error setting datapack root!", e);
 				DATAPACK_ROOT = new File(".");
 			}
 
@@ -2864,7 +2867,7 @@ public final class Config
 		}
 		else
 		{
-			_log.error("Could not Load Config: server mode was not set!");
+			LOG.error("Could not Load Config: server mode was not set!");
 		}
 	}
 	
@@ -3352,9 +3355,6 @@ public final class Config
 			case "announcemammonspawn":
 				ANNOUNCE_MAMMON_SPAWN = Boolean.parseBoolean(pValue);
 				break;
-			case "altgametiredness":
-				ALT_GAME_TIREDNESS = Boolean.parseBoolean(pValue);
-				break;
 			case "enablefallingdamage":
 				ENABLE_FALLING_DAMAGE = Boolean.parseBoolean(pValue);
 				break;
@@ -3709,7 +3709,7 @@ public final class Config
 				}
 				catch (Exception e)
 				{
-					_log.warn("Unable to set parameter value!", e);
+					LOG.warn("Unable to set parameter value!", e);
 					return false;
 				}
 		}
@@ -3750,7 +3750,7 @@ public final class Config
 		}
 		catch (Exception e)
 		{
-			_log.warn("Failed to save hex id to {} file.", fileName, e);
+			LOG.warn("Failed to save hex id to {} file.", fileName, e);
 		}
 	}
 	
@@ -3801,25 +3801,25 @@ public final class Config
 		{
 			switch (cType.trim().toLowerCase())
 			{
-				case "Normal":
+				case "normal":
 					tType |= 0x01;
 					break;
-				case "Relax":
+				case "relax":
 					tType |= 0x02;
 					break;
-				case "Test":
+				case "test":
 					tType |= 0x04;
 					break;
-				case "NoLabel":
+				case "nolabel":
 					tType |= 0x08;
 					break;
-				case "Restricted":
+				case "restricted":
 					tType |= 0x10;
 					break;
-				case "Event":
+				case "event":
 					tType |= 0x20;
 					break;
-				case "Free":
+				case "free":
 					tType |= 0x40;
 					break;
 				default:
@@ -3952,7 +3952,7 @@ public final class Config
 			valueSplit = value.split(",");
 			if (valueSplit.length != 2)
 			{
-				_log.warn("parseItemsList[Config.load()]: invalid entry -> {}, should be itemId,itemNumber. Skipping to the next entry in the list.", valueSplit[0]);
+				LOG.warn("parseItemsList[Config.load()]: invalid entry -> {}, should be itemId,itemNumber. Skipping to the next entry in the list.", valueSplit[0]);
 				continue;
 			}
 			
@@ -3963,7 +3963,7 @@ public final class Config
 			}
 			catch (NumberFormatException e)
 			{
-				_log.warn("parseItemsList[Config.load()]: invalid itemId -> {}, value must be an integer. Skipping to the next entry in the list.", valueSplit[0]);
+				LOG.warn("parseItemsList[Config.load()]: invalid itemId -> {}, value must be an integer. Skipping to the next entry in the list.", valueSplit[0]);
 				continue;
 			}
 			try
@@ -3972,7 +3972,7 @@ public final class Config
 			}
 			catch (NumberFormatException e)
 			{
-				_log.warn("parseItemsList[Config.load()]: invalid item number -> {}, value must be an integer. Skipping to the next entry in the list.", valueSplit[1]);
+				LOG.warn("parseItemsList[Config.load()]: invalid item number -> {}, value must be an integer. Skipping to the next entry in the list.", valueSplit[1]);
 				continue;
 			}
 			result[i++] = tmp;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -25,6 +25,9 @@ package com.l2jserver.gameserver.model.effects;
 public enum L2EffectType
 {
 	AGGRESSION,
+	BLOCK_BUFF,
+	BLOCK_DAMAGE,
+	BLOCK_DEBUFF,
 	BUFF,
 	CHARM_OF_LUCK,
 	CHAT_BLOCK,
@@ -43,9 +46,11 @@ public enum L2EffectType
 	HEAL,
 	HP_DRAIN,
 	MAGICAL_ATTACK,
+	MAGICAL_ATTACK_MP,
 	MANAHEAL_BY_LEVEL,
 	MANAHEAL_PERCENT,
 	MUTE,
+	NEVIT_HOURGLASS,
 	NOBLESSE_BLESSING,
 	NONE,
 	PARALYZE,
@@ -60,9 +65,10 @@ public enum L2EffectType
 	SLEEP,
 	STEAL_ABNORMAL,
 	STUN,
+	SINGLE_TARGET,
 	SUMMON,
 	SUMMON_PET,
 	SUMMON_NPC,
 	TELEPORT,
-	TELEPORT_TO_TARGET,
+	TELEPORT_TO_TARGET
 }

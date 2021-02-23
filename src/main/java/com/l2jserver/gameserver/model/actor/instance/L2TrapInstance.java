@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -338,7 +338,7 @@ public final class L2TrapInstance extends L2Npc
 			OlympiadGameManager.getInstance().notifyCompetitorDamage(getOwner(), damage);
 		}
 		
-		if (target.isInvul() && !(target instanceof L2NpcInstance))
+		if ((target.isInvul() || target.isHpBlocked()) && !target.isNpc())
 		{
 			_owner.sendPacket(SystemMessageId.ATTACK_WAS_BLOCKED);
 		}

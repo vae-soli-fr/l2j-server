@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -45,6 +45,7 @@ import com.l2jserver.gameserver.data.xml.impl.DoorData;
 import com.l2jserver.gameserver.data.xml.impl.StaticObjectData;
 import com.l2jserver.gameserver.datatables.SpawnTable;
 import com.l2jserver.gameserver.enums.MountType;
+import com.l2jserver.gameserver.enums.audio.Music;
 import com.l2jserver.gameserver.instancemanager.CastleManager;
 import com.l2jserver.gameserver.instancemanager.FortManager;
 import com.l2jserver.gameserver.instancemanager.ZoneManager;
@@ -59,7 +60,6 @@ import com.l2jserver.gameserver.model.itemcontainer.Inventory;
 import com.l2jserver.gameserver.model.zone.type.L2FortZone;
 import com.l2jserver.gameserver.model.zone.type.L2SiegeZone;
 import com.l2jserver.gameserver.network.SystemMessageId;
-import com.l2jserver.gameserver.network.serverpackets.PlaySound;
 import com.l2jserver.gameserver.network.serverpackets.PledgeShowInfoUpdate;
 import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
 
@@ -833,7 +833,7 @@ public final class Fort extends AbstractResidence
 				sm.addCastleId(getResidenceId());
 				L2World.getInstance().getPlayers().forEach(p -> p.sendPacket(sm));
 				clan.broadcastToOnlineMembers(new PledgeShowInfoUpdate(clan));
-				clan.broadcastToOnlineMembers(new PlaySound(1, "Siege_Victory", 0, 0, 0, 0, 0));
+				clan.broadcastToOnlineMembers(Music.SIEGE_VICTORY.getPacket());
 				if (_FortUpdater[0] != null)
 				{
 					_FortUpdater[0].cancel(false);
@@ -1003,7 +1003,7 @@ public final class Fort extends AbstractResidence
 	
 	/**
 	 * @return Returns state of fortress.<BR>
-	 * <BR>
+	 *         <BR>
 	 *         0 - not decided yet<BR>
 	 *         1 - independent<BR>
 	 *         2 - contracted with castle<BR>
@@ -1014,7 +1014,8 @@ public final class Fort extends AbstractResidence
 	}
 	
 	/**
-	 * @param state <ul>
+	 * @param state
+	 *            <ul>
 	 *            <li>0 - not decided yet</li>
 	 *            <li>1 - independent</li>
 	 *            <li>2 - contracted with castle</li>
@@ -1151,7 +1152,6 @@ public final class Fort extends AbstractResidence
 		for (L2Spawn spawnDat : _specialEnvoys)
 		{
 			spawnDat.doSpawn();
-			spawnDat.startRespawn();
 		}
 	}
 	
