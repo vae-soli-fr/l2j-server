@@ -1072,7 +1072,7 @@ public final class L2PcInstance extends L2Playable
 	 */
 	public final L2PcTemplate getBaseTemplate()
 	{
-		return PlayerTemplateData.getInstance().getTemplate(_baseClass);
+		return PlayerTemplateData.getInstance().getTemplate(_visibleClass);
 	}
 	
 	/**
@@ -9614,6 +9614,11 @@ public final class L2PcInstance extends L2Playable
 		getStat().addExpAndSp(addToExp, addToSp, useVitality, true);
 	}
 	
+	public void addExpAndSp(long addToExp, int addToSp, boolean useVitality, boolean sendMessage)
+	{
+		getStat().addExpAndSp(addToExp, addToSp, useVitality, sendMessage);
+	}
+
 	public void removeExpAndSp(long removeExp, int removeSp)
 	{
 		getStat().removeExpAndSp(removeExp, removeSp, true);
