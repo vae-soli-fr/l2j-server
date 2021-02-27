@@ -2553,11 +2553,7 @@ public final class L2PcInstance extends L2Playable
 	@Override
 	public Race getRace()
 	{
-		if (!isSubClassActive())
-		{
-			return getTemplate().getRace();
-		}
-		return PlayerTemplateData.getInstance().getTemplate(_baseClass).getRace();
+		return getBaseTemplate().getRace();
 	}
 	
 	public L2Radar getRadar()
