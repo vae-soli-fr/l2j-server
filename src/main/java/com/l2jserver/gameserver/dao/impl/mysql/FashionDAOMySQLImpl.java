@@ -98,40 +98,51 @@ public class FashionDAOMySQLImpl implements FashionDAO
 	@Override
 	public void load(L2PcInstance player)
 	{
+		int[] paperdoll = load(player.getObjectId());
+		for (int slot = 0; slot < paperdoll.length; slot++) {
+			player.getInventory().setFashionItem(slot, ItemTable.getInstance().getTemplate(paperdoll[slot]));
+		}
+	}
+
+	@Override
+	public int[] load(int objectId)
+	{
+		int[] paperdoll = new int[Inventory.PAPERDOLL_TOTALSLOTS];
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
 			PreparedStatement ps = con.prepareStatement(SELECT))
 		{
-			ps.setInt(1, player.getObjectId());
+			ps.setInt(1, objectId);
 			try (ResultSet rs = ps.executeQuery())
 			{
 				while (rs.next())
 				{
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_UNDER, ItemTable.getInstance().getTemplate(rs.getInt("under")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_HEAD, ItemTable.getInstance().getTemplate(rs.getInt("head")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_RHAND, ItemTable.getInstance().getTemplate(rs.getInt("rhand")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_LHAND, ItemTable.getInstance().getTemplate(rs.getInt("lhand")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_GLOVES, ItemTable.getInstance().getTemplate(rs.getInt("gloves")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_CHEST, ItemTable.getInstance().getTemplate(rs.getInt("chest")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_LEGS, ItemTable.getInstance().getTemplate(rs.getInt("legs")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_FEET, ItemTable.getInstance().getTemplate(rs.getInt("feet")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_CLOAK, ItemTable.getInstance().getTemplate(rs.getInt("cloak")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_HAIR, ItemTable.getInstance().getTemplate(rs.getInt("hair")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_HAIR2, ItemTable.getInstance().getTemplate(rs.getInt("hair2")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_RBRACELET, ItemTable.getInstance().getTemplate(rs.getInt("rbracelet")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_LBRACELET, ItemTable.getInstance().getTemplate(rs.getInt("lbracelet")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_DECO1, ItemTable.getInstance().getTemplate(rs.getInt("deco1")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_DECO2, ItemTable.getInstance().getTemplate(rs.getInt("deco2")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_DECO3, ItemTable.getInstance().getTemplate(rs.getInt("deco3")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_DECO4, ItemTable.getInstance().getTemplate(rs.getInt("deco4")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_DECO5, ItemTable.getInstance().getTemplate(rs.getInt("deco5")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_DECO6, ItemTable.getInstance().getTemplate(rs.getInt("deco6")));
-					player.getInventory().setFashionItem(Inventory.PAPERDOLL_BELT, ItemTable.getInstance().getTemplate(rs.getInt("belt")));
+					paperdoll[Inventory.PAPERDOLL_UNDER] = rs.getInt("under");
+					paperdoll[Inventory.PAPERDOLL_HEAD] = rs.getInt("head");
+					paperdoll[Inventory.PAPERDOLL_RHAND] = rs.getInt("rhand");
+					paperdoll[Inventory.PAPERDOLL_LHAND] = rs.getInt("lhand");
+					paperdoll[Inventory.PAPERDOLL_GLOVES] = rs.getInt("gloves");
+					paperdoll[Inventory.PAPERDOLL_CHEST] = rs.getInt("chest");
+					paperdoll[Inventory.PAPERDOLL_LEGS] = rs.getInt("legs");
+					paperdoll[Inventory.PAPERDOLL_FEET] = rs.getInt("feet");
+					paperdoll[Inventory.PAPERDOLL_CLOAK] = rs.getInt("cloak");
+					paperdoll[Inventory.PAPERDOLL_HAIR] = rs.getInt("hair");
+					paperdoll[Inventory.PAPERDOLL_HAIR2] = rs.getInt("hair2");
+					paperdoll[Inventory.PAPERDOLL_RBRACELET] = rs.getInt("rbracelet");
+					paperdoll[Inventory.PAPERDOLL_LBRACELET] = rs.getInt("lbracelet");
+					paperdoll[Inventory.PAPERDOLL_DECO1] = rs.getInt("deco1");
+					paperdoll[Inventory.PAPERDOLL_DECO2] = rs.getInt("deco2");
+					paperdoll[Inventory.PAPERDOLL_DECO3] = rs.getInt("deco3");
+					paperdoll[Inventory.PAPERDOLL_DECO4] = rs.getInt("deco4");
+					paperdoll[Inventory.PAPERDOLL_DECO5] = rs.getInt("deco5");
+					paperdoll[Inventory.PAPERDOLL_DECO6] = rs.getInt("deco6");
+					paperdoll[Inventory.PAPERDOLL_BELT] = rs.getInt("belt");
 				}
 			}
 		}
 		catch (Exception e)
 		{
-			LOG.error("Could not restore fashion for {} : {}", player, e);
+			LOG.error("Could not restore fashion for {} : {}", objectId, e);
 		}
+		return paperdoll;
 	}
 }

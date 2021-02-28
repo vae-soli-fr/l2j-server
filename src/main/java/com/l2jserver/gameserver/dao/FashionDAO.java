@@ -40,4 +40,6 @@ public interface FashionDAO
 	 * @param player the player
 	 */
 	void load(L2PcInstance player);
+
+	int[] load(int objectId);
 }

@@ -13168,7 +13168,11 @@ public final class L2PcInstance extends L2Playable
 
 		final int itemId = getInventory().getPaperdollItemDisplayId(slot);
 
-		return (itemId == 0 || fashionId == 0) ? itemId : fashionId;
+		if (itemId == 0 || fashionId == 0) {
+			return itemId;
+		}
+
+		return fashionId;
 	}
 
 	public int getCharSlot()
