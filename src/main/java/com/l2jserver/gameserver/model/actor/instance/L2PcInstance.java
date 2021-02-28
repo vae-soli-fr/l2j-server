@@ -8820,6 +8820,13 @@ public final class L2PcInstance extends L2Playable
 					storeSkill(newSkill, prevSkill, classIndex);
 				}
 			}
+
+			// reward player with items
+			for (ItemHolder holder : Config.CLASS_MASTER_SETTINGS.getRewardItems(subTemplate.level()))
+			{
+				addItem("ClassMaster", holder.getId(), holder.getCount(), this, true);
+			}
+
 			return true;
 		}
 		finally
