@@ -1138,6 +1138,7 @@ public final class Config
 	public static int RAID_CRYSTAL_CHANCE;
 	public static int[] LOG_CHAT_CHANNELS;
 	public static boolean DECREASE_BANDWIDTH_USAGE;
+	public static boolean CUSTOM_PETS_LOAD;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2782,6 +2783,7 @@ public final class Config
 
 			API_SECRET = customsSettings.getString("ApiSecret", "");
 			DECREASE_BANDWIDTH_USAGE = customsSettings.getBoolean("DecreaseBandwidthUsage", false);
+			CUSTOM_PETS_LOAD = customsSettings.getBoolean("CustomPetsLoad", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{

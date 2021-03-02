@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
+import com.l2jserver.Config;
 import com.l2jserver.gameserver.enums.MountType;
 import com.l2jserver.gameserver.model.L2PetData;
 import com.l2jserver.gameserver.model.L2PetLevelData;
@@ -53,6 +54,11 @@ public final class PetDataTable implements IXmlReader
 	{
 		_pets.clear();
 		parseDatapackDirectory("data/stats/pets", false);
+		if (Config.CUSTOM_PETS_LOAD)
+		{
+			parseDatapackDirectory("data/stats/pets/custom", false);
+		}
+
 		LOG.info("{}: Loaded {} Pets.", getClass().getSimpleName(), _pets.size());
 	}
 	
