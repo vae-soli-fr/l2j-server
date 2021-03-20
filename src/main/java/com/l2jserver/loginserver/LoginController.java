@@ -224,7 +224,7 @@ public class LoginController
 	public ForumInfo retrieveForumInfo(InetAddress addr, String login, String password) {
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
 
-			HttpPost httpPost = new HttpPost("https://api.vae-soli.fr/auth.php");
+			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/auth.php");
 			List<NameValuePair> nvps = new ArrayList<>();
 			nvps.add(new BasicNameValuePair("username", login));
 			nvps.add(new BasicNameValuePair("password", password));
