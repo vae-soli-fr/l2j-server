@@ -1,16 +1,15 @@
 package com.l2jserver.gameserver.taskmanager.tasks;
 
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -18,6 +17,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 import com.google.common.base.Charsets;
 import com.l2jserver.Config;
@@ -28,6 +28,7 @@ import com.l2jserver.gameserver.taskmanager.Task;
 import com.l2jserver.gameserver.taskmanager.TaskManager;
 import com.l2jserver.gameserver.taskmanager.TaskManager.ExecutedTask;
 import com.l2jserver.gameserver.taskmanager.TaskTypes;
+import com.l2jserver.util.Hmac;
 
 /**
  * Analytics task.
@@ -89,8 +90,9 @@ public class TaskAnalytics extends Task
 			nvps.add(new BasicNameValuePair("onlineChars", String.join(";", onlineChars)));
 			nvps.add(new BasicNameValuePair("offlineChars", String.join(";", offlineChars)));
 			nvps.add(new BasicNameValuePair("onlineGMs", String.join(";", onlineGMs)));
-			nvps.add(new BasicNameValuePair("secret", Config.API_SECRET));
-			httpPost.setEntity(new UrlEncodedFormEntity(nvps, Charsets.UTF_8));
+			HttpEntity entity = new UrlEncodedFormEntity(nvps, Charsets.UTF_8);
+			httpPost.setEntity(entity);
+			httpPost.setHeader("X-Api-Signature", Hmac.sha256(Config.API_SECRET, EntityUtils.toByteArray(entity)));
 
 			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
 

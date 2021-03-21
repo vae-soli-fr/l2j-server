@@ -3,6 +3,7 @@ package com.l2jserver.gameserver;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -14,8 +15,10 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.net.HttpHeaders;
 import com.l2jserver.Config;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.util.Hmac;
 
 /**
  * Description DAO MySQL implementation.
@@ -32,8 +35,9 @@ public class DescriptionManager {
 			List<NameValuePair> nvps = new ArrayList<>();
 			nvps.add(new BasicNameValuePair("login", player.getAccountName()));
 			nvps.add(new BasicNameValuePair("slot", String.valueOf(player.getCharSlot())));
-			nvps.add(new BasicNameValuePair("secret", Config.API_SECRET));
-			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			HttpEntity entity = new UrlEncodedFormEntity(nvps);
+			httpPost.setEntity(entity);
+			httpPost.setHeader("X-Api-Signature", Hmac.sha256(Config.API_SECRET, EntityUtils.toByteArray(entity)));
 
 			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
 
