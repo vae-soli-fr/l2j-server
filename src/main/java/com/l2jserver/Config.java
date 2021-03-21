@@ -948,6 +948,7 @@ public final class Config
 	public static boolean LOGIN_SERVER_SCHEDULE_RESTART;
 	public static long LOGIN_SERVER_SCHEDULE_RESTART_TIME;
 	public static String API_SECRET;
+	public static String API_BASE_URL;
 	
 	// --------------------------------------------------
 	// MMO Settings
@@ -2782,6 +2783,7 @@ public final class Config
 			}
 
 			API_SECRET = customsSettings.getString("ApiSecret", "");
+			API_BASE_URL = customsSettings.getString("ApiBaseUrl", "");
 			DECREASE_BANDWIDTH_USAGE = customsSettings.getBoolean("DecreaseBandwidthUsage", false);
 			CUSTOM_PETS_LOAD = customsSettings.getBoolean("CustomPetsLoad", false);
 		}
@@ -2807,6 +2809,7 @@ public final class Config
 			}
 
 			API_SECRET = ServerSettings.getString("ApiSecret", "");
+			API_BASE_URL = ServerSettings.getString("ApiBaseUrl", "");
 
 			DEBUG = ServerSettings.getBoolean("Debug", false);
 			

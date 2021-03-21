@@ -28,7 +28,7 @@ public class DescriptionManager {
 	public static void load(L2PcInstance player) {
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
 
-			HttpPost httpPost = new HttpPost("https://api.vae-soli.fr/desc.php");
+			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/desc.php");
 			List<NameValuePair> nvps = new ArrayList<>();
 			nvps.add(new BasicNameValuePair("login", player.getAccountName()));
 			nvps.add(new BasicNameValuePair("slot", String.valueOf(player.getCharSlot())));

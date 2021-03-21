@@ -81,7 +81,7 @@ public class TaskAnalytics extends Task
 
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
 
-			HttpPost httpPost = new HttpPost("https://api.vae-soli.fr/stats.php");
+			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/stats.php");
 			List<NameValuePair> nvps = new ArrayList<>();
 			nvps.add(new BasicNameValuePair("serverId", String.valueOf(Config.SERVER_ID)));
 			nvps.add(new BasicNameValuePair("onlinePlayers", String.valueOf(onlinePlayers)));
