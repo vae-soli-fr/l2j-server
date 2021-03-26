@@ -482,6 +482,14 @@ public class EnterWorld extends L2GameClientPacket
 						StringUtil.append(list, "<a action=\"link COGG", String.valueOf(visibleClasses[i].getId()), "\">", ClassListData.getInstance().getClass(visibleClasses[i]).getEscapedClientCode(), "</a><br>");
 					}
 				}
+				if (Race.KAMAEL.equals(activeChar.getRace())) {
+					if (!activeChar.getClassId().equals(ClassId.maleSoldier)) {
+						StringUtil.append(list, "<a action=\"link COGG", String.valueOf(ClassId.maleSoldier.getId()), "\">Kamael Male</a><br>");
+					}
+					if (!activeChar.getClassId().equals(ClassId.femaleSoldier)) {
+						StringUtil.append(list, "<a action=\"link COGG", String.valueOf(ClassId.femaleSoldier.getId()), "\">Kamael Female</a><br>");
+					}
+				}
 				html = html.replaceAll("%list%", list.toString());
 				html = html.replaceAll("%class%", ClassListData.getInstance().getClass(activeChar.getClassId()).getEscapedClientCode());
 				html = html.replace("%disclaimer%", activeChar.getRace().equals(Race.KAMAEL) ? "[ Les animations et les equipements des<br1>kamaels sont limites, renseignez-vous<br1>sur le forum avant de choisir ]" : "");
