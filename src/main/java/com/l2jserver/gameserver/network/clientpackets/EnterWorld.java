@@ -19,9 +19,11 @@
 package com.l2jserver.gameserver.network.clientpackets;
 
 import java.util.Base64;
+import java.util.Calendar;
 
 import com.l2jserver.Config;
 import com.l2jserver.gameserver.CustomImage;
+import com.l2jserver.gameserver.GameServer;
 import com.l2jserver.gameserver.LoginServerThread;
 import com.l2jserver.gameserver.SevenSigns;
 import com.l2jserver.gameserver.WhosOnline;
@@ -442,11 +444,11 @@ public class EnterWorld extends L2GameClientPacket
 		}
 		
 		activeChar.sendPacket(SystemMessageId.WELCOME_TO_LINEAGE);
-		
-		activeChar.sendMessage(getText("VGhpcyBTZXJ2ZXIgdXNlcyBMMkosIGEgUHJvamVjdCBmb3VuZGVkIGJ5IEwyQ2hlZg=="));
-		activeChar.sendMessage(getText("YW5kIGRldmVsb3BlZCBieSBMMkogVGVhbSBhdCB3d3cubDJqc2VydmVyLmNvbQ=="));
-		activeChar.sendMessage(getText("Q29weXJpZ2h0IDIwMDQtMjAxNQ=="));
-		activeChar.sendMessage(getText("VGhhbmsgeW91IGZvciAxMSB5ZWFycyE="));
+		int currentYear = GameServer.dateTimeServerStarted.get(Calendar.YEAR);
+		activeChar.sendMessage("Ce serveur utilise L2J, un projet fondé par L2Chef");
+		activeChar.sendMessage("et maintenu par L2J sur bitbucket.org/l2jserver");
+		activeChar.sendMessage("puis adapté par Vae Soli sur github.com/vae-soli-fr");
+		activeChar.sendMessage("©2004-" + currentYear + " L2J  ©2007-" + currentYear + " Vae Soli");
 		
 		SevenSigns.getInstance().sendCurrentPeriodMsg(activeChar);
 		AnnouncementsTable.getInstance().showAnnouncements(activeChar);
