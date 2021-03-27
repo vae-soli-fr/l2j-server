@@ -41,7 +41,11 @@ public class TaskAnalytics extends Task
 	private static final String INTERVAL = "900000";
 
 	private static final String NAME = "analytics";
-	private static final String ITEM_TOTAL = "SELECT SUM(count) as total FROM items i JOIN characters c ON i.owner_id = c.charId WHERE c.accesslevel = 0 AND i.item_id = ?";
+	private static final String ITEM_TOTAL = "SELECT ("
+			+ "SELECT SUM(count) as all FROM items i WHERE i.item_id = ?"
+			+ ") - ("
+			+ "SELECT SUM(count) as subtracted FROM items i JOIN characters c ON i.owner_id = c.charId WHERE c.accesslevel > ? AND i.item_id = ?"
+			+ ") as total FROM DUAL";
 
 	@Override
 	public String getName()
@@ -58,7 +62,7 @@ public class TaskAnalytics extends Task
 	private void saveAnalytics()
 	{
 		int onlinePlayers = 0;
-		int blueEvas = getItemTotal(BLUE_EVA);
+		int blueEvas = getItemTotal(BLUE_EVA, 0);
 
 		List<String> offlineChars = new LinkedList<>();
 		List<String> onlineGMs = new LinkedList<>();
@@ -107,7 +111,14 @@ public class TaskAnalytics extends Task
 		}
 	}
 
-	private int getItemTotal(int itemId) {
+	/**
+	 * Calculate the total number of items from everywhere
+	 * deducting items from owners above the access level
+	 * @param itemId
+	 * @param accessLevel
+	 * @return
+	 */
+	private int getItemTotal(int itemId, int accessLevel) {
 		int total = 0;
 		try
 		{
@@ -115,6 +126,8 @@ public class TaskAnalytics extends Task
 				PreparedStatement ps = con.prepareStatement(ITEM_TOTAL))
 			{
 				ps.setInt(1, itemId);
+				ps.setInt(2, accessLevel);
+				ps.setInt(3, itemId);
 				try (ResultSet rs = ps.executeQuery())
 				{
 					if (rs.next())
