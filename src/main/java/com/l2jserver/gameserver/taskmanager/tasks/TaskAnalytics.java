@@ -42,9 +42,9 @@ public class TaskAnalytics extends Task
 
 	private static final String NAME = "analytics";
 	private static final String ITEM_TOTAL = "SELECT ("
-			+ "SELECT SUM(count) as all FROM items i WHERE i.item_id = ?"
+			+ "SELECT SUM(count) FROM items i WHERE i.item_id = ?"
 			+ ") - ("
-			+ "SELECT SUM(count) as subtracted FROM items i JOIN characters c ON i.owner_id = c.charId WHERE c.accesslevel > ? AND i.item_id = ?"
+			+ "SELECT SUM(count) FROM items i JOIN characters c ON i.owner_id = c.charId WHERE c.accesslevel > ? AND i.item_id = ?"
 			+ ") as total FROM DUAL";
 
 	@Override
