@@ -2526,7 +2526,7 @@ public final class Config
 						String account = entrySplit[0];
 						int num = Integer.parseInt(entrySplit[1]);
 						num = (num == 0) ? -1 : num;
-						L2JMOD_DUALBOX_CHECK_WHITELIST.put(account, num);
+						L2JMOD_DUALBOX_CHECK_WHITELIST.put(account.toLowerCase(), num);
 					}
 					catch (NumberFormatException e)
 					{
