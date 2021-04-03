@@ -20,7 +20,7 @@ package com.l2jserver.gameserver.instancemanager;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import com.l2jserver.Config;
 import com.l2jserver.gameserver.model.actor.L2Character;
@@ -35,7 +35,7 @@ public final class AntiFeedManager
 	public static final int L2EVENT_ID = 3;
 	
 	private final Map<Integer, Long> _lastDeathTimes = new ConcurrentHashMap<>();
-	private final Map<Integer, Map<Integer, AtomicInteger>> _eventIPs = new ConcurrentHashMap<>();
+	private final Map<Integer, Map<Integer, ConcurrentSkipListSet<String>>> _eventIPs = new ConcurrentHashMap<>();
 	
 	protected AntiFeedManager()
 	{
@@ -118,7 +118,7 @@ public final class AntiFeedManager
 	 */
 	public final void registerEvent(int eventId)
 	{
-		_eventIPs.putIfAbsent(eventId, new ConcurrentHashMap<Integer, AtomicInteger>());
+		_eventIPs.putIfAbsent(eventId, new ConcurrentHashMap<>());
 	}
 	
 	/**
@@ -140,28 +140,29 @@ public final class AntiFeedManager
 	 * @return If number of all simultaneous connections from player's IP address lower than max then increment connection count and return true.<br>
 	 *         False if number of all simultaneous connections from player's IP address higher than max.
 	 */
-	public final boolean tryAddClient(int eventId, L2GameClient client, int max)
+	public synchronized final boolean tryAddClient(int eventId, L2GameClient client, int max)
 	{
 		if (client == null)
 		{
 			return false; // unable to determine IP address
 		}
 		
-		final Map<Integer, AtomicInteger> event = _eventIPs.get(eventId);
+		final Map<Integer, ConcurrentSkipListSet<String>> event = _eventIPs.get(eventId);
 		if (event == null)
 		{
 			return false; // no such event registered
 		}
 		
-		final Integer addrHash = Integer.valueOf(client.getConnectionAddress().hashCode());
-		
-		final String account = client.getAccountName();
+		final Integer addrHash = client.getConnectionAddress().hashCode();
+		final String account = client.getAccountName().toLowerCase();
 
-		final AtomicInteger connectionCount = event.computeIfAbsent(addrHash, k -> new AtomicInteger());
-		
-		if ((connectionCount.get() + 1) <= (max + Config.L2JMOD_DUALBOX_CHECK_WHITELIST.getOrDefault(account, 0)))
+		final ConcurrentSkipListSet<String> connectionSet = event.computeIfAbsent(addrHash, k -> new ConcurrentSkipListSet<>());
+		int whiteListCount = Config.L2JMOD_DUALBOX_CHECK_WHITELIST.getOrDefault(account, 0);
+		if ((whiteListCount < 0) // negative number -> bypass count
+				|| connectionSet.contains(account) // account already listed -> bypass count, probably bad disconnection
+				|| ((connectionSet.size() + 1) <= (max + whiteListCount))) // standard use-case -> check accounts count
 		{
-			connectionCount.incrementAndGet();
+			connectionSet.add(account);
 			return true;
 		}
 		return false;
@@ -184,29 +185,27 @@ public final class AntiFeedManager
 	 * @param client
 	 * @return true if success and false if any problem detected.
 	 */
-	public final boolean removeClient(int eventId, L2GameClient client)
+	public synchronized final boolean removeClient(int eventId, L2GameClient client)
 	{
 		if (client == null)
 		{
 			return false; // unable to determine IP address
 		}
 		
-		final Map<Integer, AtomicInteger> event = _eventIPs.get(eventId);
+		final Map<Integer, ConcurrentSkipListSet<String>> event = _eventIPs.get(eventId);
 		if (event == null)
 		{
 			return false; // no such event registered
 		}
 		
-		final Integer addrHash = Integer.valueOf(client.getConnectionAddress().hashCode());
-		
-		return event.computeIfPresent(addrHash, (k, v) ->
-		{
-			if ((v == null) || (v.decrementAndGet() == 0))
-			{
-				return null;
-			}
-			return v;
-		}) != null;
+		final Integer addrHash = client.getConnectionAddress().hashCode();
+		final String account = client.getAccountName().toLowerCase();
+
+		if(event.containsKey(addrHash)) {
+			ConcurrentSkipListSet<String> accountsOnAddr = event.get(addrHash);
+			return accountsOnAddr.remove(account);
+		}
+		return false; // no account registered for this ip
 	}
 	
 	/**
@@ -232,10 +231,9 @@ public final class AntiFeedManager
 	 */
 	public final void clear(int eventId)
 	{
-		final Map<Integer, AtomicInteger> event = _eventIPs.get(eventId);
-		if (event != null)
+		if (_eventIPs.containsKey(eventId))
 		{
-			event.clear();
+			_eventIPs.get(eventId).clear();
 		}
 	}
 	
@@ -270,7 +268,7 @@ public final class AntiFeedManager
 		return limit;
 	}
 	
-	public static final AntiFeedManager getInstance()
+	public static AntiFeedManager getInstance()
 	{
 		return SingletonHolder._instance;
 	}
