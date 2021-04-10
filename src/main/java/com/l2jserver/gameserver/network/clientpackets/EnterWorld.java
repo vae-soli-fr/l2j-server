@@ -386,6 +386,9 @@ public class EnterWorld extends L2GameClientPacket
 		// Send Skill list
 		activeChar.sendSkillList();
 		
+		// Apply Dye
+		activeChar.recalcHennaStats();
+
 		// Send Dye Information
 		activeChar.sendPacket(new HennaInfo(activeChar));
 		
