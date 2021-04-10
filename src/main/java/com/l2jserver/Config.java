@@ -1140,6 +1140,8 @@ public final class Config
 	public static int[] LOG_CHAT_CHANNELS;
 	public static boolean DECREASE_BANDWIDTH_USAGE;
 	public static boolean CUSTOM_PETS_LOAD;
+	public static boolean ENABLE_HELP;
+	public static boolean ENABLE_DICE;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2786,6 +2788,8 @@ public final class Config
 			API_BASE_URL = customsSettings.getString("ApiBaseUrl", "");
 			DECREASE_BANDWIDTH_USAGE = customsSettings.getBoolean("DecreaseBandwidthUsage", false);
 			CUSTOM_PETS_LOAD = customsSettings.getBoolean("CustomPetsLoad", false);
+			ENABLE_HELP = customsSettings.getBoolean("EnableHelp", false);
+			ENABLE_DICE = customsSettings.getBoolean("EnableDice", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{

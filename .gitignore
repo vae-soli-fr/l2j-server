@@ -7,3 +7,7 @@
 .project
 .classpath
 /test-output/
+.idea/*
+/dist/game/log/*
+/dist/login/log/*
+/dumps
