@@ -6963,7 +6963,7 @@ public final class L2PcInstance extends L2Playable
 	/**
 	 * Calculate Henna modifiers of this L2PcInstance.
 	 */
-	private void recalcHennaStats()
+	public void recalcHennaStats()
 	{
 		_hennaINT = 0;
 		_hennaSTR = 0;
