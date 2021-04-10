@@ -119,10 +119,10 @@ public final class WhosOnline {
 
 			htmlCode.append("<td align=left valign=top fixwidth=70>");
 
-			if (player.isGM()) {
-				htmlCode.append("<font color=\"" + CBCOLOR_GM + "\">" + player.getName() + "</font>");
-			} else if (player.isInOfflineMode()) {
+			if (player.isInOfflineMode()) {
 				htmlCode.append("<font color=\"" + CBCOLOR_OFFLINE + "\">" + player.getName() + "</font>");
+			} else if (player.isGM()) {
+				htmlCode.append("<font color=\"" + CBCOLOR_GM + "\">" + player.getName() + "</font>");
 			} else {
 				switch (player.getRace()) {
 				case DARK_ELF:
