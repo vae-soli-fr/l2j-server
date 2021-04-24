@@ -1142,6 +1142,7 @@ public final class Config
 	public static boolean CUSTOM_PETS_LOAD;
 	public static boolean ENABLE_HELP;
 	public static boolean ENABLE_DICE;
+	public static boolean VARKA_KETRA_RELAXED_ALLIANCE;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2790,6 +2791,7 @@ public final class Config
 			CUSTOM_PETS_LOAD = customsSettings.getBoolean("CustomPetsLoad", false);
 			ENABLE_HELP = customsSettings.getBoolean("EnableHelp", false);
 			ENABLE_DICE = customsSettings.getBoolean("EnableDice", false);
+			VARKA_KETRA_RELAXED_ALLIANCE = customsSettings.getBoolean("VarkaKetraRelaxedAlliance", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
