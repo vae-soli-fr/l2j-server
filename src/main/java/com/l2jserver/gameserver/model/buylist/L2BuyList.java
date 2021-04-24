@@ -71,7 +71,7 @@ public final class L2BuyList
 	{
 		if (_allowedNpcs == null)
 		{
-			return false;
+			return true;
 		}
 		return _allowedNpcs.contains(npcId);
 	}
