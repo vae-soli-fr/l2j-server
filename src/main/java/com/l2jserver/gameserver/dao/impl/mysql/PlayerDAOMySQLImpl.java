@@ -49,7 +49,7 @@ public class PlayerDAOMySQLImpl implements PlayerDAO
 	
 	private static final String INSERT = "INSERT INTO characters (account_name,charId,char_name,level,maxHp,curHp,maxCp,curCp,maxMp,curMp,face,hairStyle,hairColor,sex,exp,sp,karma,fame,pvpkills,pkkills,clanid,race,classid,deletetime,cancraft,title,title_color,accesslevel,online,isin7sdungeon,clan_privs,wantspeace,base_class,newbie,nobless,power_grade,createDate,visible_class) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	private static final String SELECT = "SELECT * FROM characters WHERE charId=?";
-	private static final String UPDATE = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,language=? WHERE charId=?";
+	private static final String UPDATE = "UPDATE characters SET level=?,maxHp=?,curHp=?,maxCp=?,curCp=?,maxMp=?,curMp=?,face=?,hairStyle=?,hairColor=?,sex=?,heading=?,x=?,y=?,z=?,exp=?,expBeforeDeath=?,sp=?,karma=?,fame=?,pvpkills=?,pkkills=?,clanid=?,race=?,classid=?,deletetime=?,title=?,title_color=?,accesslevel=?,online=?,isin7sdungeon=?,clan_privs=?,wantspeace=?,base_class=?,onlinetime=?,newbie=?,nobless=?,power_grade=?,subpledge=?,lvl_joined_academy=?,apprentice=?,sponsor=?,clan_join_expiry_time=?,clan_create_expiry_time=?,char_name=?,death_penalty_level=?,bookmarkslot=?,vitality_points=?,language=?,char_slot=?,visible_class=? WHERE charId=?";
 	private static final String UPDATE_ONLINE = "UPDATE characters SET online=?, lastAccess=? WHERE charId=?";
 	private static final String SELECT_CHARACTERS = "SELECT charId, char_name, createDate FROM characters WHERE account_name=? AND charId<>?";
 	
@@ -356,7 +356,9 @@ public class PlayerDAOMySQLImpl implements PlayerDAO
 			ps.setInt(47, player.getBookMarkSlot());
 			ps.setInt(48, player.getVitalityPoints());
 			ps.setString(49, player.getLang());
-			ps.setInt(50, player.getObjectId());
+			ps.setInt(50, player.getCharSlot());
+			ps.setInt(51, player.getVisibleClass());
+			ps.setInt(52, player.getObjectId());
 			
 			ps.execute();
 		}
