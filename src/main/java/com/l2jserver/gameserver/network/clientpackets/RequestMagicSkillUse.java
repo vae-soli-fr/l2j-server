@@ -59,13 +59,6 @@ public final class RequestMagicSkillUse extends L2GameClientPacket
 			return;
 		}
 		
-		if (activeChar.isFakeDeath())
-		{
-			activeChar.sendPacket(SystemMessageId.CANT_MOVE_SITTING);
-			activeChar.sendPacket(ActionFailed.STATIC_PACKET);
-			return;
-		}
-		
 		// Get the level of the used skill
 		Skill skill = activeChar.getKnownSkill(_magicId);
 		if (skill == null)
@@ -84,6 +77,19 @@ public final class RequestMagicSkillUse extends L2GameClientPacket
 			}
 		}
 		
+		if (activeChar.isFakeDeath())
+		{
+			// Toggle off
+			if (skill.hasEffectType(L2EffectType.FAKE_DEATH))
+			{
+				activeChar.stopEffects(L2EffectType.FAKE_DEATH);
+				return;
+			}
+			activeChar.sendPacket(SystemMessageId.CANT_MOVE_SITTING);
+			activeChar.sendPacket(ActionFailed.STATIC_PACKET);
+			return;
+		}
+
 		// Avoid Use of Skills in AirShip.
 		if (activeChar.isPlayable() && activeChar.isInAirShip())
 		{
