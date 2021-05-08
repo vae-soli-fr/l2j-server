@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -97,11 +97,11 @@ public final class PlayerTemplateData implements IXmlReader
 									{
 										if (cnd.getNodeName().equalsIgnoreCase("radius"))
 										{
-											set.set("collision_radius", cnd.getTextContent());
+											set.set("collisionRadius", cnd.getTextContent());
 										}
 										else if (cnd.getNodeName().equalsIgnoreCase("height"))
 										{
-											set.set("collision_height", cnd.getTextContent());
+											set.set("collisionHeight", cnd.getTextContent());
 										}
 									}
 									if ("node".equalsIgnoreCase(cnd.getNodeName()))

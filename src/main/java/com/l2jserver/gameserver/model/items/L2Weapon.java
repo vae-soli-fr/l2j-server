@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -452,5 +452,20 @@ public final class L2Weapon extends L2Item
 			sm.addSkillName(onMagicSkill);
 			caster.sendPacket(sm);
 		}
+	}
+	
+	public boolean isRange()
+	{
+		return isBow() || isCrossBow();
+	}
+	
+	public boolean isBow()
+	{
+		return _type == WeaponType.BOW;
+	}
+	
+	public boolean isCrossBow()
+	{
+		return _type == WeaponType.CROSSBOW;
 	}
 }

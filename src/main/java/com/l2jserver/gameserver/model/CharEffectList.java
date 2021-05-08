@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -1247,7 +1247,7 @@ public final class CharEffectList
 		}
 		
 		// Prevent adding and initializing buffs/effects on dead creatures.
-		if (info.getEffected().isDead())
+		if (info.getEffected().isDead() && (info.getEffector() != info.getEffector()))
 		{
 			return;
 		}
@@ -1488,12 +1488,8 @@ public final class CharEffectList
 					if (summonOwner.isInParty())
 					{
 						summonOwner.getParty().broadcastToPartyMembers(summonOwner, psSummon); // send to all member except summonOwner
-						summonOwner.sendPacket(ps); // now send to summonOwner
 					}
-					else
-					{
-						summonOwner.sendPacket(ps);
-					}
+					summonOwner.sendPacket(ps);
 				}
 			}
 			else if (_owner.isPlayer() && _owner.isInParty())

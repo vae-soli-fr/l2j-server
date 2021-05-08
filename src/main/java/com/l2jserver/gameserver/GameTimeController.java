@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -34,7 +34,7 @@ import com.l2jserver.gameserver.model.actor.L2Character;
  */
 public final class GameTimeController extends Thread
 {
-	private static final Logger _log = LoggerFactory.getLogger(GameTimeController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(GameTimeController.class);
 	
 	public static final int TICKS_PER_SECOND = 10; // not able to change this without checking through code
 	public static final int MILLIS_IN_TICK = 1000 / TICKS_PER_SECOND;
@@ -133,13 +133,13 @@ public final class GameTimeController extends Thread
 	public final void stopTimer()
 	{
 		super.interrupt();
-		_log.info("Stopping {}", getClass().getSimpleName());
+		LOG.info("Stopping {}", getClass().getSimpleName());
 	}
 	
 	@Override
 	public final void run()
 	{
-		_log.debug("{}: Started.", getClass().getSimpleName());
+		LOG.debug("{}: Started.", getClass().getSimpleName());
 		
 		long nextTickTime, sleepTime;
 		boolean isNight = isNight();
@@ -159,7 +159,7 @@ public final class GameTimeController extends Thread
 			}
 			catch (final Throwable e)
 			{
-				_log.warn("Unable to move objects!", e);
+				LOG.warn("Unable to move objects!", e);
 			}
 			
 			sleepTime = nextTickTime - System.currentTimeMillis();

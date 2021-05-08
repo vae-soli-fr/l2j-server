@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -108,8 +108,8 @@ public class DoorData implements IXmlReader
 			collisionRadius = 20;
 		}
 		
-		set.set("collision_radius", collisionRadius);
-		set.set("collision_height", height);
+		set.set("collisionRadius", collisionRadius);
+		set.set("collisionHeight", height);
 	}
 	
 	/**

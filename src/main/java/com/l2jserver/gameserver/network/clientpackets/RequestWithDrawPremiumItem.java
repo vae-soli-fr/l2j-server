@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -19,6 +19,7 @@
 package com.l2jserver.gameserver.network.clientpackets;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.dao.factory.impl.DAOFactory;
 import com.l2jserver.gameserver.model.L2PremiumItem;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.network.SystemMessageId;
@@ -95,12 +96,12 @@ public final class RequestWithDrawPremiumItem extends L2GameClientPacket
 		if (itemsLeft > 0)
 		{
 			_item.updateCount(itemsLeft);
-			activeChar.updatePremiumItem(_itemNum, itemsLeft);
+			DAOFactory.getInstance().getPremiumItemDAO().update(activeChar, _itemNum, itemsLeft);
 		}
 		else
 		{
 			activeChar.getPremiumItemList().remove(_itemNum);
-			activeChar.deletePremiumItem(_itemNum);
+			DAOFactory.getInstance().getPremiumItemDAO().delete(activeChar, _itemNum);
 		}
 		
 		if (activeChar.getPremiumItemList().isEmpty())

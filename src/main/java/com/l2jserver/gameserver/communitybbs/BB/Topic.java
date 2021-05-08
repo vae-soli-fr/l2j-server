@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -29,7 +29,7 @@ import com.l2jserver.gameserver.communitybbs.Manager.TopicBBSManager;
 
 public class Topic
 {
-	private static final Logger _log = LoggerFactory.getLogger(Topic.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Topic.class);
 	
 	public static final int MORMAL = 0;
 	public static final int MEMO = 1;
@@ -90,7 +90,7 @@ public class Topic
 		}
 		catch (Exception e)
 		{
-			_log.warn("Error while saving new Topic to database!", e);
+			LOG.warn("Error while saving new Topic to database!", e);
 		}
 	}
 	
@@ -142,7 +142,7 @@ public class Topic
 		}
 		catch (Exception e)
 		{
-			_log.warn("Error while deleting topic ID {} from database!", getID(), e);
+			LOG.warn("Error while deleting topic ID {} from database!", getID(), e);
 		}
 	}
 	

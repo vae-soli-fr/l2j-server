@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 
 import com.l2jserver.Config;
 import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
+import com.l2jserver.gameserver.dao.factory.impl.DAOFactory;
 import com.l2jserver.gameserver.datatables.ItemTable;
 import com.l2jserver.gameserver.enums.ItemLocation;
 import com.l2jserver.gameserver.model.TradeItem;
@@ -50,6 +51,10 @@ public class PcInventory extends Inventory
 {
 	private static final Logger _log = Logger.getLogger(PcInventory.class.getName());
 	
+	private static final int IDX_OBJID = 0;
+	private static final int IDX_ITMID = 1;
+	private static final int IDX_ENCHT = 2;
+
 	private final L2PcInstance _owner;
 	private L2ItemInstance _adena;
 	private L2ItemInstance _ancientAdena;
@@ -489,7 +494,7 @@ public class PcInventory extends Inventory
 		if (item != null)
 		{
 			// Notify to scripts
-			EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemAdd(actor, item), item.getItem());
+			EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemAdd(actor, item), actor, item.getItem());
 		}
 		return item;
 	}
@@ -499,14 +504,15 @@ public class PcInventory extends Inventory
 	 * @param process : String Identifier of process triggering this action
 	 * @param itemId : int Item Identifier of the item to be added
 	 * @param count : int Quantity of items to be added
+	 * @param enchantLevel : int Enchant of the item; -1 to not modify on existing items, for new items use the default enchantLevel when -1
 	 * @param actor : L2PcInstance Player requesting the item creation
 	 * @param reference : Object Object referencing current action like NPC selling item or previous item in transformation
 	 * @return L2ItemInstance corresponding to the new item or the updated item in inventory
 	 */
 	@Override
-	public L2ItemInstance addItem(String process, int itemId, long count, L2PcInstance actor, Object reference)
+	public L2ItemInstance addItem(String process, int itemId, long count, int enchantLevel, L2PcInstance actor, Object reference)
 	{
-		final L2ItemInstance item = super.addItem(process, itemId, count, actor, reference);
+		final L2ItemInstance item = super.addItem(process, itemId, count, enchantLevel, actor, reference);
 		if (item != null)
 		{
 			if ((item.getId() == ADENA_ID) && !item.equals(_adena))
@@ -538,7 +544,7 @@ public class PcInventory extends Inventory
 				actor.sendPacket(su);
 				
 				// Notify to scripts
-				EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemAdd(actor, item), item.getItem());
+				EventDispatcher.getInstance().notifyEventAsync(new OnPlayerItemAdd(actor, item), actor, item.getItem());
 			}
 		}
 		return item;
@@ -785,7 +791,7 @@ public class PcInventory extends Inventory
 	
 	public static int[][] restoreVisibleInventory(int objectId)
 	{
-		int[][] paperdoll = new int[31][3];
+		int[][] paperdoll = new int[Inventory.PAPERDOLL_TOTALSLOTS][3];
 		try (Connection con = ConnectionFactory.getInstance().getConnection();
 			PreparedStatement ps = con.prepareStatement("SELECT object_id,item_id,loc_data,enchant_level FROM items WHERE owner_id=? AND loc='PAPERDOLL'"))
 		{
@@ -795,9 +801,9 @@ public class PcInventory extends Inventory
 				while (invdata.next())
 				{
 					int slot = invdata.getInt("loc_data");
-					paperdoll[slot][0] = invdata.getInt("object_id");
-					paperdoll[slot][1] = invdata.getInt("item_id");
-					paperdoll[slot][2] = invdata.getInt("enchant_level");
+					paperdoll[slot][IDX_OBJID] = invdata.getInt("object_id");
+					paperdoll[slot][IDX_ITMID] = invdata.getInt("item_id");
+					paperdoll[slot][IDX_ENCHT] = invdata.getInt("enchant_level");
 					/*
 					 * if (slot == Inventory.PAPERDOLL_RHAND) { paperdoll[Inventory.PAPERDOLL_RHAND][0] = invdata.getInt("object_id"); paperdoll[Inventory.PAPERDOLL_RHAND][1] = invdata.getInt("item_id"); paperdoll[Inventory.PAPERDOLL_RHAND][2] = invdata.getInt("enchant_level"); }
 					 */
@@ -808,6 +814,61 @@ public class PcInventory extends Inventory
 		{
 			_log.log(Level.WARNING, "Could not restore inventory: " + e.getMessage(), e);
 		}
+
+		return applyFashionInventory(objectId, paperdoll);
+	}
+
+	/**
+	 * @See {@link L2PcInstance#getFashionItemDisplayId(int)}
+	 */
+	private static int[][] applyFashionInventory(int objectId, int[][] paperdoll) {
+		// Apply fashion
+		int[] fashion = DAOFactory.getInstance().getFashionDAO().load(objectId);
+		for (int slot = 0; slot < paperdoll.length; slot++) {
+
+			if (slot == Inventory.PAPERDOLL_LEGS) {
+				// handle real full armor
+				L2Item realChest = ItemTable.getInstance().getTemplate(paperdoll[Inventory.PAPERDOLL_CHEST][IDX_ITMID]);
+				if (realChest != null && realChest.getBodyPart() == L2Item.SLOT_FULL_ARMOR) {
+					// fashionId
+					paperdoll[slot][IDX_ITMID] = fashion[slot];
+					continue;
+				}
+				// handle fashion full armor
+				L2Item fashionChest = ItemTable.getInstance().getTemplate(fashion[Inventory.PAPERDOLL_CHEST]);
+				if (fashionChest != null && fashionChest.getBodyPart() == L2Item.SLOT_FULL_ARMOR) {
+					// Zero
+					paperdoll[slot][IDX_ITMID] = 0;
+					continue;
+				}
+
+			} else if (slot == Inventory.PAPERDOLL_LHAND) {
+				// handle real double-handed weapon
+				L2Item realRhand = ItemTable.getInstance().getTemplate(paperdoll[Inventory.PAPERDOLL_RHAND][IDX_ITMID]);
+				if (realRhand != null && realRhand.getBodyPart() == L2Item.SLOT_LR_HAND) {
+					// fashionId
+					paperdoll[slot][IDX_ITMID] = fashion[slot];
+					continue;
+				}
+				// handle fashion double-handed weapon
+				L2Item fashionRhand = ItemTable.getInstance().getTemplate(fashion[Inventory.PAPERDOLL_RHAND]);
+				if (fashionRhand != null && fashionRhand.getBodyPart() == L2Item.SLOT_LR_HAND) {
+					// Zero
+					paperdoll[slot][IDX_ITMID] = 0;
+					continue;
+				}
+
+			}
+
+			if (paperdoll[slot][IDX_ITMID] == 0 || fashion[slot] == 0) {
+				// itemId
+				continue;
+			}
+
+			// fashionId
+			paperdoll[slot][IDX_ITMID] = fashion[slot];
+		}
+
 		return paperdoll;
 	}
 	

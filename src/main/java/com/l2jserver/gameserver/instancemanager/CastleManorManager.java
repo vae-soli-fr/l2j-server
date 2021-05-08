@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -692,6 +692,11 @@ public final class CastleManorManager implements IXmlReader, IStorable
 	
 	public final void resetManorData(int castleId)
 	{
+		if (!Config.ALLOW_MANOR)
+		{
+			return;
+		}
+		
 		_procure.get(castleId).clear();
 		_procureNext.get(castleId).clear();
 		_production.get(castleId).clear();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -69,7 +69,7 @@ import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
 import com.l2jserver.gameserver.util.Util;
 import com.l2jserver.util.Rnd;
 
-public final class Skill implements IIdentifiable
+public class Skill implements IIdentifiable
 {
 	private static final Logger _log = Logger.getLogger(Skill.class.getName());
 	
@@ -1368,11 +1368,25 @@ public final class Skill implements IIdentifiable
 		{
 			return;
 		}
-		
 		// Check bad skills against target.
 		if ((effector != effected) && isBad() && (effected.isInvul() || (effector.isGM() && !effector.getAccessLevel().canGiveDamage())))
 		{
 			return;
+		}
+		
+		if (isDebuff())
+		{
+			if (effected.isDebuffBlocked())
+			{
+				return;
+			}
+		}
+		else
+		{
+			if (effected.isBuffBlocked() && !isBad())
+			{
+				return;
+			}
 		}
 		
 		if (effected.isInvulAgainst(getId(), getLevel()))

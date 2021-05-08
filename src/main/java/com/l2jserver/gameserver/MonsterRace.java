@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -30,7 +30,7 @@ import com.l2jserver.util.Rnd;
 
 public class MonsterRace
 {
-	protected static final Logger _log = LoggerFactory.getLogger(MonsterRace.class);
+	protected static final Logger LOG = LoggerFactory.getLogger(MonsterRace.class);
 	
 	private final L2Npc[] _monsters;
 	private int[][] _speeds;
@@ -77,7 +77,7 @@ public class MonsterRace
 			}
 			catch (Exception e)
 			{
-				_log.warn("Unable to create monster!", e);
+				LOG.warn("Unable to create monster!", e);
 			}
 		}
 		newSpeeds();

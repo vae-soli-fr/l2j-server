@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  *
  * This file is part of L2J Server.
  *
@@ -43,8 +43,14 @@ public class ConditionTargetMyPartyExceptMe extends Condition
 	{
 		boolean isPartyMember = true;
 		final L2PcInstance player = effector.getActingPlayer();
-		if ((player == null) || (effected == null) || !effected.isPlayer())
+		if ((player == null))
 		{
+			if (!effected.isPlayer())
+			{
+				final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.S1_CANNOT_BE_USED);
+				sm.addSkillName(skill);
+				effector.sendPacket(sm);
+			}
 			isPartyMember = false;
 		}
 		else if (player == effected)

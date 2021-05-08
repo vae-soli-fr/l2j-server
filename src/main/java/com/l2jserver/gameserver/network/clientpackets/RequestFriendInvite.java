@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -82,7 +82,7 @@ public final class RequestFriendInvite extends L2GameClientPacket
 			return;
 		}
 		// Target already in friend list.
-		if (activeChar.getFriendList().contains(friend.getObjectId()))
+		if (activeChar.isFriend(friend.getObjectId()))
 		{
 			sm = SystemMessage.getSystemMessage(SystemMessageId.S1_ALREADY_IN_FRIENDS_LIST);
 			sm.addString(_name);

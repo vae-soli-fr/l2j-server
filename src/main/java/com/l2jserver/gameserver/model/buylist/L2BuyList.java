@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -71,7 +71,7 @@ public final class L2BuyList
 	{
 		if (_allowedNpcs == null)
 		{
-			return false;
+			return true;
 		}
 		return _allowedNpcs.contains(npcId);
 	}

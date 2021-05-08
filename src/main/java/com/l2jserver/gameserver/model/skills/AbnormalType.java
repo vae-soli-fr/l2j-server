@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -88,6 +88,7 @@ public enum AbnormalType
 	CRITICAL_PROB_UP,
 	CURSE_LIFE_FLOW,
 	DAMAGE_AMPLIFY,
+	DANCE_DEFENCE_MOTION1,
 	DANCE_OF_ALIGNMENT,
 	DANCE_OF_AQUA_GUARD,
 	DANCE_OF_BERSERKER,
@@ -119,6 +120,7 @@ public enum AbnormalType
 	DMG_SHIELD,
 	DOT_ATTR,
 	DOT_MP,
+	DRAGON_BUFF,
 	DRAGON_BREATH,
 	DUELIST_SPIRIT,
 	DWARF_ATTACK_BUFF,
@@ -182,6 +184,7 @@ public enum AbnormalType
 	MAX_BREATH_UP,
 	MAX_HP_DOWN,
 	MAX_HP_UP,
+	MAX_HP_CP_UP,
 	MAX_MP_UP,
 	MA_DOWN,
 	MA_MD_UP,
@@ -283,6 +286,7 @@ public enum AbnormalType
 	SOA_BUFF1,
 	SOA_BUFF2,
 	SOA_BUFF3,
+	SONG_BATTLE_WHISPER,
 	SONG_OF_CHAMPION,
 	SONG_OF_EARTH,
 	SONG_OF_ELEMENTAL,
@@ -355,23 +359,6 @@ public enum AbnormalType
 	WILL,
 	WIND_DOT,
 	WP_CHANGE_EVENT;
-	
-	/**
-	 * Get the enumerate for the given String.
-	 * @param type the abnormal type to get
-	 * @return the abnormal type
-	 */
-	public static AbnormalType getAbnormalType(String type)
-	{
-		try
-		{
-			return Enum.valueOf(AbnormalType.class, type);
-		}
-		catch (Exception e)
-		{
-			return NONE;
-		}
-	}
 	
 	/**
 	 * Verify if this enumerate is default.

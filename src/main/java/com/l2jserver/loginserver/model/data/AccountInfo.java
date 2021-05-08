@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -32,16 +32,16 @@ public final class AccountInfo
 	
 	public AccountInfo(final String login, final String passHash, final int accessLevel, final int lastServer)
 	{
-		Objects.requireNonNull(login, "login");
-		Objects.requireNonNull(passHash, "passHash");
+		Objects.requireNonNull(login, "login parameter is null");
+		Objects.requireNonNull(passHash, "passHash parameter is null");
 		
 		if (login.isEmpty())
 		{
-			throw new IllegalArgumentException("login");
+			throw new IllegalArgumentException("login string is empty");
 		}
 		if (passHash.isEmpty())
 		{
-			throw new IllegalArgumentException("passHash");
+			throw new IllegalArgumentException("passHash string is empty");
 		}
 		
 		_login = login.toLowerCase();

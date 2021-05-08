@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -108,13 +108,13 @@ public class L2SiegeFlagInstance extends L2Npc
 	@Override
 	public boolean canBeAttacked()
 	{
-		return !isInvul();
+		return !(isInvul() || isHpBlocked());
 	}
 	
 	@Override
 	public boolean isAutoAttackable(L2Character attacker)
 	{
-		return !isInvul();
+		return !(isInvul() || isHpBlocked());
 	}
 	
 	@Override

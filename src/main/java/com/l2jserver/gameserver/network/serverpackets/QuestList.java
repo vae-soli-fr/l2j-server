@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -18,30 +18,14 @@
  */
 package com.l2jserver.gameserver.network.serverpackets;
 
+import java.util.List;
+
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.quest.Quest;
 import com.l2jserver.gameserver.model.quest.QuestState;
 
 public class QuestList extends L2GameServerPacket
 {
-	private Quest[] _quests;
-	private L2PcInstance _activeChar;
-	
-	public QuestList()
-	{
-		
-	}
-	
-	@Override
-	public void runImpl()
-	{
-		if ((getClient() != null) && (getClient().getActiveChar() != null))
-		{
-			_activeChar = getClient().getActiveChar();
-			_quests = _activeChar.getAllActiveQuests();
-		}
-	}
-	
 	@Override
 	protected final void writeImpl()
 	{
@@ -78,35 +62,35 @@ public class QuestList extends L2GameServerPacket
 		 * </pre>
 		 */
 		
-		writeC(0x86);
-		if (_quests != null)
+		final L2PcInstance activeChar = getClient().getActiveChar();
+		if (activeChar == null)
 		{
-			writeH(_quests.length);
-			for (Quest q : _quests)
-			{
-				writeD(q.getId());
-				QuestState qs = _activeChar.getQuestState(q.getName());
-				if (qs == null)
-				{
-					writeD(0);
-					continue;
-				}
-				
-				int states = qs.getInt("__compltdStateFlags");
-				if (states != 0)
-				{
-					writeD(states);
-				}
-				else
-				{
-					writeD(qs.getInt("cond"));
-				}
-			}
+			return;
 		}
-		else
+		
+		final List<Quest> quests = activeChar.getAllActiveQuests();
+		
+		writeC(0x86);
+		writeH(quests.size());
+		for (Quest q : quests)
 		{
-			// write empty size
-			writeH(0x00);
+			writeD(q.getId());
+			QuestState qs = activeChar.getQuestState(q.getName());
+			if (qs == null)
+			{
+				writeD(0);
+				continue;
+			}
+			
+			int states = qs.getInt("__compltdStateFlags");
+			if (states != 0)
+			{
+				writeD(states);
+			}
+			else
+			{
+				writeD(qs.getInt("cond"));
+			}
 		}
 		writeB(new byte[128]);
 	}

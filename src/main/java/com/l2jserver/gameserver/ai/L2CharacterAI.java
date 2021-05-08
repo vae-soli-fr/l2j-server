@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -485,7 +485,7 @@ public class L2CharacterAI extends AbstractAI
 		setTarget(object);
 		if ((object.getX() == 0) && (object.getY() == 0)) // TODO: Find the drop&spawn bug
 		{
-			_log.warn("Object in coords 0,0 - using a temporary fix");
+			LOG.warn("Object in coords 0,0 - using a temporary fix");
 			object.setXYZ(getActor().getX(), getActor().getY(), getActor().getZ() + 5);
 		}
 		
@@ -549,7 +549,7 @@ public class L2CharacterAI extends AbstractAI
 	 * Do nothing.
 	 */
 	@Override
-	protected void onEvtAggression(L2Character target, int aggro)
+	protected void onEvtAggression(L2Character target, long aggro)
 	{
 		// do nothing
 	}
@@ -990,7 +990,7 @@ public class L2CharacterAI extends AbstractAI
 	{
 		if (worldPosition == null)
 		{
-			_log.warn("maybeMoveToPosition: worldPosition == NULL!");
+			LOG.warn("maybeMoveToPosition: worldPosition == NULL!");
 			return false;
 		}
 		
@@ -1062,7 +1062,7 @@ public class L2CharacterAI extends AbstractAI
 		// Get the distance between the current position of the L2Character and the target (x,y)
 		if (target == null)
 		{
-			_log.warn("maybeMoveToPawn: target == NULL!");
+			LOG.warn("maybeMoveToPawn: target == NULL!");
 			return false;
 		}
 		if (offset < 0)
@@ -1076,12 +1076,35 @@ public class L2CharacterAI extends AbstractAI
 			offset += ((L2Character) target).getTemplate().getCollisionRadius();
 		}
 		
-		if (!_actor.isInsideRadius(target, offset, false, false))
+		final boolean needToMove;
+		
+		if (target.isDoor())
+		{
+			L2DoorInstance dor = (L2DoorInstance) target;
+			int xPoint = 0;
+			int yPoint = 0;
+			for (int i : dor.getTemplate().getNodeX())
+			{
+				xPoint += i;
+			}
+			for (int i : dor.getTemplate().getNodeY())
+			{
+				yPoint += i;
+			}
+			xPoint /= 4;
+			yPoint /= 4;
+			needToMove = !_actor.isInsideRadius(xPoint, yPoint, dor.getTemplate().getNodeZ(), offset, false, false);
+		}
+		else
+		{
+			needToMove = !_actor.isInsideRadius(target, offset, false, false);
+		}
+		
+		if (needToMove)
 		{
 			// Caller should be L2Playable and thinkAttack/thinkCast/thinkInteract/thinkPickUp
 			if (getFollowTarget() != null)
 			{
-				
 				// allow larger hit range when the target is moving (check is run only once per second)
 				if (!_actor.isInsideRadius(target, offset + 100, false, false))
 				{

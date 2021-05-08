@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -41,6 +41,7 @@ import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -59,6 +60,7 @@ import com.l2jserver.loginserver.model.data.ForumInfo;
 import com.l2jserver.loginserver.network.L2LoginClient;
 import com.l2jserver.loginserver.network.gameserverpackets.ServerStatus;
 import com.l2jserver.loginserver.network.serverpackets.LoginFail.LoginFailReason;
+import com.l2jserver.util.Hmac;
 import com.l2jserver.util.Rnd;
 import com.l2jserver.util.crypt.ScrambledKeyPair;
 
@@ -228,9 +230,10 @@ public class LoginController
 			List<NameValuePair> nvps = new ArrayList<>();
 			nvps.add(new BasicNameValuePair("username", login));
 			nvps.add(new BasicNameValuePair("password", password));
-			nvps.add(new BasicNameValuePair("secret", Config.API_SECRET));
-			httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			HttpEntity entity = new UrlEncodedFormEntity(nvps);
+			httpPost.setEntity(entity);
 			httpPost.setHeader(HttpHeaders.X_FORWARDED_FOR, addr.getHostAddress());
+			httpPost.setHeader("X-Api-Signature", Hmac.sha256(Config.API_SECRET, EntityUtils.toByteArray(entity)));
 
 			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
 

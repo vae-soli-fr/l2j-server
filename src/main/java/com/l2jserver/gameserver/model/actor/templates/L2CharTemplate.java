@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -137,8 +137,8 @@ public class L2CharTemplate extends ListenersContainer
 		_baseElementRes = set.getInt("baseElementRes", 0);
 		
 		// Geometry
-		_fCollisionHeight = set.getDouble("collision_height", 0);
-		_fCollisionRadius = set.getDouble("collision_radius", 0);
+		_fCollisionHeight = set.getDouble("collisionHeight", 0);
+		_fCollisionRadius = set.getDouble("collisionRadius", 0);
 		_collisionRadius = (int) _fCollisionRadius;
 		_collisionHeight = (int) _fCollisionHeight;
 		

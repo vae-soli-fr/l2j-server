@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -544,7 +544,7 @@ public class Lottery
 							break;
 						default:
 							res[0] = 4;
-							res[1] = 200;
+							res[1] = Config.ALT_LOTTERY_2_AND_1_NUMBER_PRIZE;
 					}
 					
 					if (Config.DEBUG)

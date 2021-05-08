@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -176,10 +176,9 @@ public final class L2TamedBeastInstance extends L2FeedableBeastInstance
 			_durationCheckTask.cancel(true);
 		}
 		
-		// clean up variables
-		if ((_owner != null) && (_owner.getTrainedBeasts() != null))
+		if (_owner != null)
 		{
-			_owner.getTrainedBeasts().remove(this);
+			_owner.removeTamedBeast(this);
 		}
 		_buffTask = null;
 		_durationCheckTask = null;
@@ -262,7 +261,7 @@ public final class L2TamedBeastInstance extends L2FeedableBeastInstance
 			setShowSummonAnimation(true);
 			broadcastPacket(new AbstractNpcInfo.NpcInfo(this, owner));
 			
-			owner.addTrainedBeast(this);
+			owner.addTamedBeast(this);
 			
 			// always and automatically follow the owner.
 			getAI().startFollow(_owner, 100);
@@ -309,10 +308,9 @@ public final class L2TamedBeastInstance extends L2FeedableBeastInstance
 		_durationCheckTask.cancel(true);
 		stopHpMpRegeneration();
 		
-		// clean up variables
-		if ((_owner != null) && (_owner.getTrainedBeasts() != null))
+		if (_owner != null)
 		{
-			_owner.getTrainedBeasts().remove(this);
+			_owner.removeTamedBeast(this);
 		}
 		setTarget(null);
 		_buffTask = null;

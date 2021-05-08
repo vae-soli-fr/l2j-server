@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -61,7 +61,7 @@ public final class L2VillageMasterKamaelInstance extends L2VillageMasterInstance
 			return true;
 		}
 		
-		QuestState qs = player.getQuestState("234_FatesWhisper");
+		QuestState qs = player.getQuestState("Q00234_FatesWhisper");
 		if ((qs == null) || !qs.isCompleted())
 		{
 			return false;

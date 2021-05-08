@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -96,6 +96,11 @@ public class PreparedEntry extends Entry
 			final Ingredient newProduct = ing.getCopy();
 			if (maintainEnchantment && ing.isArmorOrWeapon())
 			{
+				newProduct.setItemInfo(info);
+			}
+			else if (ing.isArmorOrWeapon() && (ing.getTemplate().getDefaultEnchantLevel() > 0))
+			{
+				info = new ItemInfo(ing.getTemplate().getDefaultEnchantLevel());
 				newProduct.setItemInfo(info);
 			}
 			_products.add(newProduct);

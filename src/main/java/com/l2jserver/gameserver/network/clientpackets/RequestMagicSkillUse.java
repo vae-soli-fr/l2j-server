@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -53,6 +53,12 @@ public final class RequestMagicSkillUse extends L2GameClientPacket
 			return;
 		}
 		
+		if (activeChar.isDead())
+		{
+			activeChar.sendPacket(ActionFailed.STATIC_PACKET);
+			return;
+		}
+		
 		// Get the level of the used skill
 		Skill skill = activeChar.getKnownSkill(_magicId);
 		if (skill == null)
@@ -71,6 +77,19 @@ public final class RequestMagicSkillUse extends L2GameClientPacket
 			}
 		}
 		
+		if (activeChar.isFakeDeath())
+		{
+			// Toggle off
+			if (skill.hasEffectType(L2EffectType.FAKE_DEATH))
+			{
+				activeChar.stopEffects(L2EffectType.FAKE_DEATH);
+				return;
+			}
+			activeChar.sendPacket(SystemMessageId.CANT_MOVE_SITTING);
+			activeChar.sendPacket(ActionFailed.STATIC_PACKET);
+			return;
+		}
+
 		// Avoid Use of Skills in AirShip.
 		if (activeChar.isPlayable() && activeChar.isInAirShip())
 		{

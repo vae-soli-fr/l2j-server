@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -75,6 +75,8 @@ import com.l2jserver.util.Util;
  */
 public class Quest extends AbstractScript implements IIdentifiable
 {
+	public static final String TUTORIAL = "255_Tutorial";
+	
 	/** Map containing lists of timers from the name of the timer. */
 	private volatile Map<String, List<QuestTimer>> _questTimers = null;
 	private final ReentrantReadWriteLock _rwLock = new ReentrantReadWriteLock();
@@ -150,7 +152,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	protected void loadGlobalData()
 	{
-		
+	
 	}
 	
 	/**
@@ -161,7 +163,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	public void saveGlobalData()
 	{
-		
+	
 	}
 	
 	/**
@@ -1324,7 +1326,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	public void onOlympiadMatchFinish(Participant winner, Participant looser, CompetitionType type)
 	{
-		
+	
 	}
 	
 	/**
@@ -1334,7 +1336,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	public void onOlympiadLose(L2PcInstance loser, CompetitionType type)
 	{
-		
+	
 	}
 	
 	/**
@@ -1343,7 +1345,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	public void onMoveFinished(L2Npc npc)
 	{
-		
+	
 	}
 	
 	/**
@@ -1352,7 +1354,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	public void onNodeArrived(L2Npc npc)
 	{
-		
+	
 	}
 	
 	/**
@@ -1361,7 +1363,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	public void onRouteFinished(L2Npc npc)
 	{
-		
+	
 	}
 	
 	/**
@@ -1380,7 +1382,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	public void onSummonSpawn(L2Summon summon)
 	{
-		
+	
 	}
 	
 	/**
@@ -1388,7 +1390,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	 */
 	public void onSummonTalk(L2Summon summon)
 	{
-		
+	
 	}
 	
 	/**
@@ -1458,7 +1460,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 		{
 			showHtmlFile(player, res, npc);
 		}
-		else if (res.startsWith("<html>"))
+		else if (res.startsWith("<html"))
 		{
 			final NpcHtmlMessage npcReply = new NpcHtmlMessage(npc != null ? npc.getObjectId() : 0, res);
 			npcReply.replace("%playername%", player.getName());
@@ -1737,7 +1739,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 		}
 		catch (Exception e)
 		{
-			_log.log(Level.WARNING, "could not delete char quest:", e);
+			_log.log(Level.WARNING, "Unable to delete char quest!", e);
 		}
 	}
 	
@@ -2595,7 +2597,7 @@ public class Quest extends AbstractScript implements IIdentifiable
 	
 	/**
 	 * This method is called for every party member in {@link #getRandomPartyMemberState(L2PcInstance, int, int, L2Npc)} if/after all the standard checks are passed.<br>
-	 * It is intended to be overriden by the specific quest implementations.<br>
+	 * It is intended to be overridden by the specific quest implementations.<br>
 	 * It can be used in cases when there are more checks performed than simply a quest condition check,<br>
 	 * for example, if an item is required in the player's inventory.
 	 * @param qs the {@link QuestState} object of the party member

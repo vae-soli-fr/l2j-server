@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -32,6 +32,7 @@ import com.l2jserver.gameserver.model.actor.transform.TransformTemplate;
 import com.l2jserver.gameserver.model.entity.RecoBonus;
 import com.l2jserver.gameserver.model.events.EventDispatcher;
 import com.l2jserver.gameserver.model.events.impl.character.player.OnPlayerLevelChanged;
+import com.l2jserver.gameserver.model.quest.Quest;
 import com.l2jserver.gameserver.model.quest.QuestState;
 import com.l2jserver.gameserver.model.stats.Formulas;
 import com.l2jserver.gameserver.model.stats.MoveType;
@@ -82,6 +83,11 @@ public class PcStat extends PlayableStat
 	@Override
 	public boolean addExp(long value)
 	{
+		return addExp(value, false);
+	}
+	
+	public boolean addExp(long exp, boolean isRessurect)
+	{
 		L2PcInstance activeChar = getActiveChar();
 		
 		// Allowed to gain exp?
@@ -90,15 +96,41 @@ public class PcStat extends PlayableStat
 			return false;
 		}
 		
-		if (!super.addExp(value))
+		// Exp from resurrect don't remove karma
+		if (!super.addExp(exp))
 		{
 			return false;
 		}
 		
-		// Set new karma
+		if (!isRessurect)
+		{
+			changeKarma(exp);
+		}
+		
+		// EXP status update currently not used in retail
+		activeChar.sendPacket(new UserInfo(activeChar));
+		activeChar.sendPacket(new ExBrExtraUserInfo(activeChar));
+		return true;
+	}
+	
+	@Override
+	public boolean removeExp(long exp)
+	{
+		if (!super.removeExp(exp))
+		{
+			return false;
+		}
+		changeKarma(exp);
+		return true;
+	}
+	
+	public void changeKarma(long exp)
+	{
+		L2PcInstance activeChar = getActiveChar();
+		
 		if (!activeChar.isCursedWeaponEquipped() && (activeChar.getKarma() > 0) && (activeChar.isGM() || !activeChar.isInsideZone(ZoneId.PVP)))
 		{
-			int karmaLost = Formulas.calculateKarmaLost(activeChar, value);
+			int karmaLost = Formulas.calculateKarmaLost(activeChar, exp);
 			if (karmaLost > 0)
 			{
 				activeChar.setKarma(activeChar.getKarma() - karmaLost);
@@ -107,11 +139,6 @@ public class PcStat extends PlayableStat
 				activeChar.sendPacket(msg);
 			}
 		}
-		
-		// EXP status update currently not used in retail
-		activeChar.sendPacket(new UserInfo(activeChar));
-		activeChar.sendPacket(new ExBrExtraUserInfo(activeChar));
-		return true;
 	}
 	
 	public boolean addExpAndSp(long addToExp, int addToSp, boolean useBonuses, boolean sendMessage)
@@ -263,7 +290,7 @@ public class PcStat extends PlayableStat
 		{
 			if (!Config.DISABLE_TUTORIAL)
 			{
-				QuestState qs = getActiveChar().getQuestState("255_Tutorial");
+				final QuestState qs = getActiveChar().getQuestState(Quest.TUTORIAL);
 				if (qs != null)
 				{
 					qs.getQuest().notifyEvent("CE40", null, getActiveChar());

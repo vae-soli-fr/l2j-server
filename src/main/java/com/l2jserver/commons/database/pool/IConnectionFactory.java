@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2015 L2J Server
+ * Copyright (C) 2004-2016 L2J Server
  * 
  * This file is part of L2J Server.
  * 
@@ -19,8 +19,12 @@
 package com.l2jserver.commons.database.pool;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Connection Factory interface.
@@ -28,6 +32,8 @@ import javax.sql.DataSource;
  */
 public interface IConnectionFactory
 {
+	static final Logger LOG = LoggerFactory.getLogger(IConnectionFactory.class);
+	
 	/**
 	 * Gets the data source.
 	 * @return the data source
@@ -35,14 +41,29 @@ public interface IConnectionFactory
 	DataSource getDataSource();
 	
 	/**
-	 * Gets a connection from the pool.
-	 * @return a connection
-	 */
-	Connection getConnection();
-	
-	/**
 	 * Closes the data source.<br>
 	 * <i>Same as shutdown.</i>
 	 */
 	void close();
+	
+	/**
+	 * Gets a connection from the pool.
+	 * @return a connection
+	 */
+	default Connection getConnection()
+	{
+		Connection con = null;
+		while (con == null)
+		{
+			try
+			{
+				con = getDataSource().getConnection();
+			}
+			catch (SQLException e)
+			{
+				LOG.warn("{}: Unable to get a connection!", getClass().getSimpleName(), e);
+			}
+		}
+		return con;
+	}
 }
