@@ -1011,6 +1011,46 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 					}
 				}
 			}
+			
+			// Short Range Skill Condition
+			final List<Skill> aiShortRangeSkills = npc.getTemplate().getAISkills(AISkillScope.SHORT_RANGE);
+			if (!aiShortRangeSkills.isEmpty()) {
+				for (Skill shortSkill : aiShortRangeSkills) {
+					if (!checkSkillCastConditions(npc, shortSkill)) {
+						continue;
+					}
+					
+					final Skill skill = aiShortRangeSkills.get(Rnd.get(aiShortRangeSkills.size()));
+					if (Util.checkIfInRange(skill.getCastRange(), getActiveChar(), mostHate, false) && npc.hasSkillChance()) {
+						if (GeoData.getInstance().canSeeTarget(npc, mostHate)) {
+							clientStopMoving(null);
+							npc.doCast(skill);
+							LOG.debug("{} used short range skill {} on {}", this, skill, npc.getTarget());
+							return;
+						}
+					}
+				}
+			}
+			
+			// Long Range Skill Condition
+			final List<Skill> aiLongRangeSkills = npc.getTemplate().getAISkills(AISkillScope.LONG_RANGE);
+			if (!aiLongRangeSkills.isEmpty()) {
+				for (Skill longSkill : aiLongRangeSkills) {
+					if (!checkSkillCastConditions(npc, longSkill)) {
+						continue;
+					}
+					
+					final Skill skill = aiLongRangeSkills.get(Rnd.get(aiShortRangeSkills.size()));
+					if (Util.checkIfInRange(skill.getCastRange(), getActiveChar(), mostHate, false) && npc.hasSkillChance()) {
+						if (GeoData.getInstance().canSeeTarget(npc, mostHate)) {
+							clientStopMoving(null);
+							npc.doCast(skill);
+							LOG.debug("{} used long range skill {} on {}", this, skill, npc.getTarget());
+							return;
+						}
+					}
+				}
+			}
 		}
 		
 		double dist = npc.calculateDistance(mostHate, false, false);
@@ -1020,27 +1060,6 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 			range = range + 50;
 			if (npc.isMoving()) {
 				range = range + 50;
-			}
-		}
-		
-		// Long/Short Range skill usage.
-		if (!npc.getShortRangeSkills().isEmpty() && npc.hasSkillChance()) {
-			final Skill shortRangeSkill = npc.getShortRangeSkills().get(Rnd.get(npc.getShortRangeSkills().size()));
-			if (checkSkillCastConditions(npc, shortRangeSkill)) {
-				clientStopMoving(null);
-				npc.doCast(shortRangeSkill);
-				LOG.debug("{} used short range skill {} on {}", this, shortRangeSkill, npc.getTarget());
-				return;
-			}
-		}
-		
-		if (!npc.getLongRangeSkills().isEmpty() && npc.hasSkillChance()) {
-			final Skill longRangeSkill = npc.getLongRangeSkills().get(Rnd.get(npc.getLongRangeSkills().size()));
-			if (checkSkillCastConditions(npc, longRangeSkill)) {
-				clientStopMoving(null);
-				npc.doCast(longRangeSkill);
-				LOG.debug("{} used long range skill {} on {}", this, longRangeSkill, npc.getTarget());
-				return;
 			}
 		}
 		
