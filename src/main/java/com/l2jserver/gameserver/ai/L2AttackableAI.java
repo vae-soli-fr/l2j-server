@@ -1056,6 +1056,9 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 		double dist = npc.calculateDistance(mostHate, false, false);
 		int dist2 = (int) dist - collision;
 		int range = npc.getPhysicalAttackRange() + combinedCollision;
+		if (npc.getAiType() == AIType.ARCHER) {
+			range = 850 + combinedCollision; // Base Bow Range NPC
+		}
 		if (mostHate.isMoving()) {
 			range = range + 50;
 			if (npc.isMoving()) {

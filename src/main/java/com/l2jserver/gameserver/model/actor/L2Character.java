@@ -899,7 +899,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 			boolean hitted;
 			switch (getAttackType()) {
 				case BOW: {
-					if (!canUseRangeWeapon()) {
+					if ((isPlayer()) && (!canUseRangeWeapon())) {
 						return;
 					}
 					_attackEndTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(timeToHit + (reuse / 2), TimeUnit.MILLISECONDS);
@@ -907,7 +907,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 					break;
 				}
 				case CROSSBOW: {
-					if (!canUseRangeWeapon()) {
+					if ((isPlayer()) && (!canUseRangeWeapon())) {
 						return;
 					}
 					_attackEndTime = System.nanoTime() + TimeUnit.NANOSECONDS.convert(timeToHit + (reuse / 2), TimeUnit.MILLISECONDS);
