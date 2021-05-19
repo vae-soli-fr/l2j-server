@@ -213,10 +213,6 @@ public class L2Npc extends L2Character {
 		return getTemplate().isChaos();
 	}
 	
-	public int getDodge() {
-		return getTemplate().getDodge();
-	}
-	
 	public List<Skill> getLongRangeSkills() {
 		return getTemplate().getAISkills(AISkillScope.LONG_RANGE);
 	}

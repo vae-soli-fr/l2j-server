@@ -79,7 +79,6 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	private AIType _aiType;
 	private int _aggroRange;
 	private int _clanHelpRange;
-	private int _dodge;
 	private boolean _isChaos;
 	private boolean _isAggressive;
 	private int _soulShot;
@@ -146,7 +145,6 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		_aiType = set.getEnum("aiType", AIType.class, AIType.FIGHTER);
 		_aggroRange = set.getInt("aggroRange", 0);
 		_clanHelpRange = set.getInt("clanHelpRange", 0);
-		_dodge = set.getInt("dodge", 0);
 		_isChaos = set.getBoolean("isChaos", false);
 		_isAggressive = set.getBoolean("isAggressive", true);
 		
@@ -297,10 +295,6 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	
 	public int getClanHelpRange() {
 		return _clanHelpRange;
-	}
-	
-	public int getDodge() {
-		return _dodge;
 	}
 	
 	public boolean isChaos() {

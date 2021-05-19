@@ -777,10 +777,9 @@ public class L2AttackableAI extends L2CharacterAI implements Runnable {
 				}
 			}
 		}
-		// Dodge if its needed
-		if (!npc.isMovementDisabled() && (npc.getDodge() > 0)) {
-			if (Rnd.get(100) <= npc.getDodge()) {
-				// Micht: Keeping this one otherwise we should do 2 sqrt
+		// Calculate Archer movement
+		if ((!npc.isMovementDisabled()) && (npc.getAiType() == AIType.ARCHER)) {
+			if (Rnd.get(100) <= 15) {
 				double distance2 = npc.calculateDistance(mostHate, false, true);
 				if (Math.sqrt(distance2) <= (60 + combinedCollision)) {
 					int posX = npc.getX();
