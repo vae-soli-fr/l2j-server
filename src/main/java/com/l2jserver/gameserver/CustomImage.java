@@ -1,7 +1,5 @@
 package com.l2jserver.gameserver;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,8 +42,7 @@ public class CustomImage {
 					return;
 				}
 
-				File image = new File(Config.DATAPACK_ROOT + "/data/images/" + filename);
-				byte[] data = Files.readAllBytes(image.toPath());
+				byte[] data = ImagesManager.getBytes(filename);
 
 				int crestId = IdFactory.getInstance().getNextId();
 
