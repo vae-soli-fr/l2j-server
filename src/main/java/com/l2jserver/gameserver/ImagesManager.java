@@ -2,6 +2,8 @@ package com.l2jserver.gameserver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -16,50 +18,66 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.l2jserver.Config;
-import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.util.Hmac;
 
 /**
- * Description API implementation.
+ * Images API implementation.
  * @author Melua
  */
-public class DescriptionManager {
+public class ImagesManager {
 
-	private static final Logger LOG = LoggerFactory.getLogger(DescriptionManager.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ImagesManager.class);
 
-	public static void load(L2PcInstance player) {
+	private static final Map<String, byte[]> IMAGES_CACHE = new ConcurrentHashMap<>();
+	private static final int MAX_BYTES = 32_896;
+
+	public static byte[] getBytes(String filename) {
+		if (!IMAGES_CACHE.containsKey(filename)) {
+			cache(filename, load(filename));
+		}
+		return IMAGES_CACHE.get(filename);
+	}
+
+	public static void clearCache() {
+		IMAGES_CACHE.clear();
+	}
+
+	private static void cache(String filename, byte[] data) {
+		if (data.length > MAX_BYTES) {
+			IMAGES_CACHE.put(filename, new byte[0]);
+			return;
+		}
+		IMAGES_CACHE.put(filename, data);
+	}
+
+	private static byte[] load(String filename) {
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
 
-			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/desc.php");
+			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/images.php");
 			List<NameValuePair> nvps = new ArrayList<>();
-			nvps.add(new BasicNameValuePair("login", player.getAccountName()));
-			nvps.add(new BasicNameValuePair("slot", String.valueOf(player.getCharSlot())));
+			nvps.add(new BasicNameValuePair("filename", filename));
 			HttpEntity entity = new UrlEncodedFormEntity(nvps);
 			httpPost.setEntity(entity);
 			httpPost.setHeader("X-Api-Signature", Hmac.sha256(Config.API_SECRET, EntityUtils.toByteArray(entity)));
 
 			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
 
-				String description = null;
-
 				switch (response.getStatusLine().getStatusCode()) {
 
 				case 200:
-					description = EntityUtils.toString(response.getEntity());
-					break;
+					return EntityUtils.toByteArray(response.getEntity());
 
 				default:
-				case 204:
-					LOG.info("PHPBBDesc: No description for login '" + player.getAccountName() + "' and slot '" + player.getCharSlot() + "'.");
+				case 404:
+					LOG.info("Images: No data for file '" + filename + "'.");
 				}
-
-				player.setDescription(description);
 
 			}
 
 		} catch (Exception e) {
-			LOG.error("Failed loading description. {}", e);
+			LOG.error("Failed loading image. {}", e);
 		}
+		return new byte[0];
 	}
 
 }

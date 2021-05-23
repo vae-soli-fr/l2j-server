@@ -1,5 +1,7 @@
 package com.l2jserver.gameserver.taskmanager.tasks;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,6 +31,7 @@ import com.l2jserver.gameserver.taskmanager.TaskManager;
 import com.l2jserver.gameserver.taskmanager.TaskManager.ExecutedTask;
 import com.l2jserver.gameserver.taskmanager.TaskTypes;
 import com.l2jserver.util.Hmac;
+import com.sun.management.UnixOperatingSystemMXBean;
 
 /**
  * Analytics task.
@@ -36,6 +39,8 @@ import com.l2jserver.util.Hmac;
  */
 public class TaskAnalytics extends Task
 {
+	private final OperatingSystemMXBean mxBean = ManagementFactory.getOperatingSystemMXBean();
+
 	private static final int BLUE_EVA = 4355;
 	private static final String DELAY = "900000";
 	private static final String INTERVAL = "900000";
@@ -94,6 +99,7 @@ public class TaskAnalytics extends Task
 			nvps.add(new BasicNameValuePair("onlineChars", String.join(";", onlineChars)));
 			nvps.add(new BasicNameValuePair("offlineChars", String.join(";", offlineChars)));
 			nvps.add(new BasicNameValuePair("onlineGMs", String.join(";", onlineGMs)));
+			nvps.add(new BasicNameValuePair("cpu", String.valueOf(getCpuLoad())));
 			HttpEntity entity = new UrlEncodedFormEntity(nvps, Charsets.UTF_8);
 			httpPost.setEntity(entity);
 			httpPost.setHeader("X-Api-Signature", Hmac.sha256(Config.API_SECRET, EntityUtils.toByteArray(entity)));
@@ -142,6 +148,13 @@ public class TaskAnalytics extends Task
 			_log.warning("Error while counting item " + itemId + " ! " + e);
 		}
 		return total;
+	}
+
+	private double getCpuLoad() {
+		if (mxBean instanceof UnixOperatingSystemMXBean) {
+			return ((UnixOperatingSystemMXBean) mxBean).getProcessCpuLoad();
+		}
+		return -1;
 	}
 
 	@Override
