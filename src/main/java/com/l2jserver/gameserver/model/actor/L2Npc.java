@@ -403,6 +403,14 @@ public class L2Npc extends L2Character {
 		return getTemplate().getRace() == Race.UNDEAD;
 	}
 	
+    public boolean isSevenNpc() {
+    	if (getTemplate().isClan("C_DUNGEON") && !getTemplate().isClan("ALL")) {
+    		return true;
+    	} else {
+			return false;
+		}
+    }
+	
 	/**
 	 * Send a packet NpcInfo with state of abnormal effect to all L2PcInstance in the _KnownPlayers of the L2NpcInstance.
 	 */
