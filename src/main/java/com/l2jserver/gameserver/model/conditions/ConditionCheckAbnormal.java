@@ -19,13 +19,14 @@
 package com.l2jserver.gameserver.model.conditions;
 
 import com.l2jserver.gameserver.model.actor.L2Character;
+import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.skills.AbnormalType;
 import com.l2jserver.gameserver.model.skills.BuffInfo;
 import com.l2jserver.gameserver.model.skills.Skill;
 
 /**
- * Check Abnormal type and level.
+ * Check AbnormalType and level.
  * @author Zoey76
  * @version 2.6.2.0
  */
@@ -42,10 +43,11 @@ public class ConditionCheckAbnormal extends Condition {
 	
 	@Override
 	public boolean testImpl(L2Character effector, L2Character effected, Skill skill, L2Item item) {
-		final BuffInfo info = effected.getEffectList().getBuffInfoByAbnormalType(type);
+		final L2PcInstance player = effector.getActingPlayer();
+		final BuffInfo info = player.getEffectList().getBuffInfoByAbnormalType(type);
 		if (info == null) {
 			return !mustHave;
 		}
-		return (level == -1) || (level >= info.getSkill().getAbnormalLvl());
+		return (mustHave) || ((level == -1) && (level >= info.getSkill().getAbnormalLvl()));
 	}
 }
