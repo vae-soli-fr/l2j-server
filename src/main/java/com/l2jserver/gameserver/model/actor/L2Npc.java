@@ -404,11 +404,7 @@ public class L2Npc extends L2Character {
 	}
 	
     public boolean isSevenNpc() {
-    	if (getTemplate().isClan("C_DUNGEON") && !getTemplate().isClan("ALL")) {
-    		return true;
-    	} else {
-			return false;
-		}
+    	return getTemplate().isClan("C_DUNGEON") && !getTemplate().isClan("ALL");
     }
 	
 	/**
