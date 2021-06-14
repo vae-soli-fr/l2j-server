@@ -75,6 +75,7 @@ public class LoginController
 	
 	/** Authed Clients on LoginServer */
 	protected Map<String, L2LoginClient> _loginServerClients = new ConcurrentHashMap<>();
+	protected Map<String, String> _successfulLogins = new ConcurrentHashMap<>();
 	
 	private final Map<InetAddress, Integer> _failedLoginAttemps = new HashMap<>();
 	private final Map<InetAddress, Long> _bannedIps = new ConcurrentHashMap<>();
@@ -224,6 +225,14 @@ public class LoginController
 	}
 	
 	public ForumInfo retrieveForumInfo(InetAddress addr, String login, String password) {
+
+		// First we check if login/password are in cache
+		// to avoid network request
+		if (_successfulLogins.containsKey(login) && password.equals(_successfulLogins.get(login))) {
+			clearFailedLoginAttemps(addr);
+			return new ForumInfo(login, 304);
+		}
+
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/auth.php");
@@ -239,19 +248,13 @@ public class LoginController
 
 				int status = response.getStatusLine().getStatusCode();
 
-				if (Config.DEBUG) {
-					_log.info("PHPBBAuth: " + response.getStatusLine() + " for login '" + login + "' and password '"+ password + "'.");
-				} else {
-					_log.info("PHPBBAuth: " + response.getStatusLine() + " for login '" + login + "'.");
-				}
-
 				switch (status) {
 
 				case 200:
 					String username = EntityUtils.toString(response.getEntity());
-					String fakepass = Base64.getEncoder().encodeToString(username.getBytes());
 					clearFailedLoginAttemps(addr);
-					return new ForumInfo(username, fakepass, status);
+					_successfulLogins.put(login, password);
+					return new ForumInfo(username, status);
 
 				case 204:
 				case 401:
@@ -259,14 +262,14 @@ public class LoginController
 					recordFailedLoginAttemp(addr);
 
 				default:
-					return new ForumInfo(null, null, status);
+					return new ForumInfo(status);
 				}
 
 			}
 
 		} catch (Exception e) {
 			_log.log(Level.WARNING, "Exception while retriving forum info for '" + login + "'!", e);
-			return new ForumInfo(null, null, 0);
+			return new ForumInfo();
 		}
 	}
 
