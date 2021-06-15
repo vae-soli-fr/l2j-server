@@ -125,8 +125,16 @@ public class RequestAuthLogin extends L2LoginClientPacket
 		
 		final LoginController lc = LoginController.getInstance();
 		ForumInfo finfo = lc.retrieveForumInfo(clientAddr, _user, _password);
+
+		if (Config.DEBUG) {
+			_log.info("PHPBBAuth: " + finfo.getLoginStatus() + " for login '" + _user + "' and password '"+ _password + "'.");
+		} else {
+			_log.info("PHPBBAuth: " + finfo.getLoginStatus() + " for login '" + _user + "'.");
+		}
+
 		switch (finfo.getLoginStatus()) {
 		case 200:
+		case 304:
 			// This is fine
 			break;
 

@@ -1,5 +1,7 @@
 package com.l2jserver.loginserver.model.data;
 
+import java.util.Base64;
+
 /**
  * @author Melua
  */
@@ -9,10 +11,20 @@ public final class ForumInfo
 	private final String _fakepass;
 	private final int _loginstatus;
 
-	public ForumInfo(final String username, final String fakepass, final int loginstatus)
+	public ForumInfo()
+	{
+		this(-1);
+	}
+
+	public ForumInfo(final int loginstatus)
+	{
+		this(null, loginstatus);
+	}
+
+	public ForumInfo(final String username, final int loginstatus)
 	{
 		_username = username;
-		_fakepass = fakepass;
+		_fakepass = username != null ? Base64.getEncoder().encodeToString(username.getBytes()) : null;
 		_loginstatus = loginstatus;
 	}
 
