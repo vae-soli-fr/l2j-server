@@ -6297,7 +6297,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 	
 	public void reduceCurrentHp(double i, L2Character attacker, boolean awake, boolean isDOT, Skill skill)
 	{
-		if (Config.L2JMOD_CHAMPION_ENABLE && isChampion() && (Config.L2JMOD_CHAMPION_HP != 0))
+		if (Config.L2JMOD_CHAMPION_ENABLE && hasChampionBonus() && (Config.L2JMOD_CHAMPION_HP != 0))
 		{
 			getStatus().reduceHp(i / Config.L2JMOD_CHAMPION_HP, attacker, awake, isDOT, false);
 		}
@@ -6399,6 +6399,11 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		return false;
 	}
 	
+	public boolean hasChampionBonus()
+	{
+		return false;
+	}
+
 	/**
 	 * Send system message about damage.
 	 * @param target

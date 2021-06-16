@@ -299,7 +299,7 @@ public class CharStat
 	public double getMAtk(L2Character target, Skill skill)
 	{
 		float bonusAtk = 1;
-		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.isChampion())
+		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.hasChampionBonus())
 		{
 			bonusAtk = Config.L2JMOD_CHAMPION_ATK;
 		}
@@ -318,7 +318,7 @@ public class CharStat
 	public int getMAtkSpd()
 	{
 		float bonusSpdAtk = 1;
-		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.isChampion())
+		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.hasChampionBonus())
 		{
 			bonusSpdAtk = Config.L2JMOD_CHAMPION_SPD_ATK;
 		}
@@ -486,7 +486,7 @@ public class CharStat
 	public double getPAtk(L2Character target)
 	{
 		float bonusAtk = 1;
-		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.isChampion())
+		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.hasChampionBonus())
 		{
 			bonusAtk = Config.L2JMOD_CHAMPION_ATK;
 		}
@@ -503,7 +503,7 @@ public class CharStat
 	public double getPAtkSpd()
 	{
 		float bonusAtk = 1;
-		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.isChampion())
+		if (Config.L2JMOD_CHAMPION_ENABLE && _activeChar.hasChampionBonus())
 		{
 			bonusAtk = Config.L2JMOD_CHAMPION_SPD_ATK;
 		}

@@ -255,7 +255,7 @@ public final class Formulas
 		double hpRegenMultiplier = cha.isRaid() ? Config.RAID_HP_REGEN_MULTIPLIER : Config.HP_REGEN_MULTIPLIER;
 		double hpRegenBonus = 0;
 		
-		if (Config.L2JMOD_CHAMPION_ENABLE && cha.isChampion())
+		if (Config.L2JMOD_CHAMPION_ENABLE && cha.hasChampionBonus())
 		{
 			hpRegenMultiplier *= Config.L2JMOD_CHAMPION_HP_REGEN;
 		}
