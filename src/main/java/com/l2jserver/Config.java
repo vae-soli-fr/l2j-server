@@ -1145,6 +1145,7 @@ public final class Config
 	public static boolean VARKA_KETRA_RELAXED_ALLIANCE;
 	public static float CHAMPION_MIN_RESPAWN_MULTIPLIER;
 	public static float CHAMPION_MAX_RESPAWN_MULTIPLIER;
+	public static boolean ALLOW_CAMP;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2796,6 +2797,7 @@ public final class Config
 			VARKA_KETRA_RELAXED_ALLIANCE = customsSettings.getBoolean("VarkaKetraRelaxedAlliance", false);
 			CHAMPION_MIN_RESPAWN_MULTIPLIER = customsSettings.getFloat("ChampionMinRespawnMultiplier", 1);
 			CHAMPION_MAX_RESPAWN_MULTIPLIER = customsSettings.getFloat("ChampionMaxRespawnMultiplier", 1);
+			ALLOW_CAMP = customsSettings.getBoolean("AllowCamp", false);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{

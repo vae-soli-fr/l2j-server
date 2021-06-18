@@ -45,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.L2Camp;
 import com.l2jserver.gameserver.DescriptionManager;
 import com.l2jserver.gameserver.GameTimeController;
 import com.l2jserver.gameserver.GeoData;
@@ -650,6 +651,7 @@ public final class L2PcInstance extends L2Playable
 	private String _description;
 	private Volume _volume = Volume.DEFAULT;
 	private Language _language = Language.COMMON;
+	private L2Camp _camp = new L2Camp();
 	
 	/**
 	 * Creates a player.
@@ -10313,6 +10315,9 @@ public final class L2PcInstance extends L2Playable
 			player.removeSnooped(this);
 		}
 		
+		// Clear camp
+		_camp.clean();
+
 		// Remove L2Object object from _allObjects of L2World
 		L2World.getInstance().removeObject(this);
 		L2World.getInstance().removeFromAllPlayers(this);
@@ -13242,5 +13247,10 @@ public final class L2PcInstance extends L2Playable
 	public void setLanguage(Language language)
 	{
 		_language = language;
+	}
+
+	public void evolveCamp()
+	{
+		_camp.evolve(this);
 	}
 }
