@@ -21,9 +21,9 @@ public class L2Camp
 		FIRE,
 		TENT,
 		FOOD,
+		EXTINCT,
 		EATEN,
 		PACKED,
-		EXTINCT,
 		EMPTY
 	}
 	
@@ -85,22 +85,6 @@ public class L2Camp
 					
 				case FOOD:
 				{
-					removeNpc(Status.FOOD);
-					activeChar.sendMessage("Vous rangez les ustensiles de cuisine.");		
-					setStatus(Status.EATEN);
-					break;
-				}
-					
-				case EATEN:
-				{
-					removeNpc(Status.TENT);
-					activeChar.sendMessage("Vous démontez la tente.");
-					setStatus(Status.PACKED);
-					break;
-				}
-
-				case PACKED:
-				{
 					removeNpc(Status.FIRE);
 					activeChar.sendMessage("Vous étouffez le feu.");
 					setStatus(Status.EXTINCT);
@@ -109,8 +93,24 @@ public class L2Camp
 
 				case EXTINCT:
 				{
-					clean();
+					removeNpc(Status.FOOD);
+					activeChar.sendMessage("Vous rangez les ustensiles de cuisine.");		
+					setStatus(Status.EATEN);
+					break;
+				}
+					
+				case EATEN:
+				{
+					removeNpc(Status.TIMBER);
 					activeChar.sendMessage("Vous dispersez les morceaux de bois calcinés.");
+					setStatus(Status.PACKED);
+					break;
+				}
+
+				case PACKED:
+				{
+					clean();
+					activeChar.sendMessage("Vous démontez la tente.");
 					setStatus(Status.EMPTY);
 					break;
 				}
