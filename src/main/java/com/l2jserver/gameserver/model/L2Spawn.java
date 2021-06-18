@@ -453,9 +453,24 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 			// Update the current number of SpawnTask in progress or stand by of this L2Spawn
 			_scheduledCount++;
 			
+			final int respawnDelay;
+
+			if (Config.L2JMOD_CHAMPION_ENABLE && oldNpc.isChampion())
+			{
+				respawnDelay = Rnd.get((int) (_respawnMinDelay * Config.CHAMPION_MIN_RESPAWN_MULTIPLIER), (int) (_respawnMaxDelay * Config.CHAMPION_MAX_RESPAWN_MULTIPLIER));
+			}
+			else if (hasRespawnRandom())
+			{
+				respawnDelay = Rnd.get(_respawnMinDelay, _respawnMaxDelay);
+			}
+			else
+			{
+				respawnDelay = _respawnMinDelay;
+			}
+
 			// Create a new SpawnTask to launch after the respawn Delay
 			// ClientScheduler.getInstance().scheduleLow(new SpawnTask(npcId), _respawnDelay);
-			ThreadPoolManager.getInstance().scheduleGeneral(new SpawnTask(oldNpc), hasRespawnRandom() ? Rnd.get(_respawnMinDelay, _respawnMaxDelay) : _respawnMinDelay);
+			ThreadPoolManager.getInstance().scheduleGeneral(new SpawnTask(oldNpc), respawnDelay);
 		}
 	}
 	
@@ -656,8 +671,6 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 			// Set champion on next spawn
 			if (mob.isMonster() && !getTemplate().isUndying() && !mob.isRaid() && !mob.isRaidMinion() && //
 				(Config.L2JMOD_CHAMPION_FREQUENCY > 0) && //
-				(mob.getLevel() >= Config.L2JMOD_CHAMP_MIN_LVL) && //
-				(mob.getLevel() <= Config.L2JMOD_CHAMP_MAX_LVL) && //
 				(Config.L2JMOD_CHAMPION_ENABLE_IN_INSTANCES || (getInstanceId() == 0)))
 			{
 				if (Rnd.get(100) < Config.L2JMOD_CHAMPION_FREQUENCY)

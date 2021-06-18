@@ -1143,6 +1143,8 @@ public final class Config
 	public static boolean ENABLE_HELP;
 	public static boolean ENABLE_DICE;
 	public static boolean VARKA_KETRA_RELAXED_ALLIANCE;
+	public static float CHAMPION_MIN_RESPAWN_MULTIPLIER;
+	public static float CHAMPION_MAX_RESPAWN_MULTIPLIER;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2792,6 +2794,8 @@ public final class Config
 			ENABLE_HELP = customsSettings.getBoolean("EnableHelp", false);
 			ENABLE_DICE = customsSettings.getBoolean("EnableDice", false);
 			VARKA_KETRA_RELAXED_ALLIANCE = customsSettings.getBoolean("VarkaKetraRelaxedAlliance", false);
+			CHAMPION_MIN_RESPAWN_MULTIPLIER = customsSettings.getFloat("ChampionMinRespawnMultiplier", 1);
+			CHAMPION_MAX_RESPAWN_MULTIPLIER = customsSettings.getFloat("ChampionMaxRespawnMultiplier", 1);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{

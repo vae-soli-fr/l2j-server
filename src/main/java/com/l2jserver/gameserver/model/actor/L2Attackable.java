@@ -473,7 +473,7 @@ public class L2Attackable extends L2Npc
 							long exp = expSp[0];
 							int sp = expSp[1];
 							
-							if (Config.L2JMOD_CHAMPION_ENABLE && isChampion())
+							if (Config.L2JMOD_CHAMPION_ENABLE && hasChampionBonus())
 							{
 								exp *= Config.L2JMOD_CHAMPION_REWARDS_EXP_SP;
 								sp *= Config.L2JMOD_CHAMPION_REWARDS_EXP_SP;
@@ -582,7 +582,7 @@ public class L2Attackable extends L2Npc
 						long exp = expSp[0];
 						int sp = expSp[1];
 						
-						if (Config.L2JMOD_CHAMPION_ENABLE && isChampion())
+						if (Config.L2JMOD_CHAMPION_ENABLE && hasChampionBonus())
 						{
 							exp *= Config.L2JMOD_CHAMPION_REWARDS_EXP_SP;
 							sp *= Config.L2JMOD_CHAMPION_REWARDS_EXP_SP;
@@ -1724,6 +1724,12 @@ public class L2Attackable extends L2Npc
 		return _champion;
 	}
 	
+	@Override
+	public boolean hasChampionBonus()
+	{
+		return isChampion() && getLevel() >= Config.L2JMOD_CHAMP_MIN_LVL && getLevel() <= Config.L2JMOD_CHAMP_MAX_LVL;
+	}
+
 	@Override
 	public boolean isAttackable()
 	{
