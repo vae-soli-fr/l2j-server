@@ -52,16 +52,16 @@ public class L2Camp
 				case EMPTY:
 				{
 					addSpawn(TIMBER_NPC_ID, activeChar.getLocation());
-					setStatus(Status.TIMBER);
 					activeChar.sendMessage("Vous disposez du bois sec au sol.");
+					setStatus(Status.TIMBER);
 					break;
 				}
 
 				case TIMBER:
 				{
 					addSpawn(FIRE_NPC_ID, getNpc(Status.TIMBER).getLocation());
-					setStatus(Status.FIRE);
 					activeChar.sendMessage("Vous allumez un feu.");
+					setStatus(Status.FIRE);
 					break;
 				}
 
@@ -69,8 +69,8 @@ public class L2Camp
 				{
 					int heading = Util.calculateHeadingFrom(activeChar.getLocation(), getNpc(Status.FIRE).getLocation());
 					addSpawn(TENT_NPC_ID, activeChar.getLocation(), heading);
-					setStatus(Status.TENT);
 					activeChar.sendMessage("Vous montez une tente pour vous abriter.");
+					setStatus(Status.TENT);
 					break;
 				}
 
@@ -78,40 +78,40 @@ public class L2Camp
 				{
 					int heading = getNpc(Status.TENT).getHeading();
 					addSpawn(FOOD_NPC_ID, getNpc(Status.TIMBER).getLocation(), heading);
-					setStatus(Status.FOOD);
 					activeChar.sendMessage("Vous faites cuire le repas.");				
+					setStatus(Status.FOOD);
 					break;
 				}
 					
 				case FOOD:
 				{
-					removeNpc(3);
-					setStatus(Status.EATEN);
+					removeNpc(Status.FOOD);
 					activeChar.sendMessage("Vous rangez les ustensiles de cuisine.");		
+					setStatus(Status.EATEN);
 					break;
 				}
 					
 				case EATEN:
 				{
-					removeNpc(2);
-					setStatus(Status.PACKED);
+					removeNpc(Status.TENT);
 					activeChar.sendMessage("Vous démontez la tente.");
+					setStatus(Status.PACKED);
 					break;
 				}
 
 				case PACKED:
 				{
-					removeNpc(1);
-					setStatus(Status.EXTINCT);
+					removeNpc(Status.FIRE);
 					activeChar.sendMessage("Vous étouffez le feu.");
+					setStatus(Status.EXTINCT);
 					break;
 				}
 
 				case EXTINCT:
 				{
 					clean();
-					setStatus(Status.EMPTY);
 					activeChar.sendMessage("Vous dispersez les morceaux de bois calcinés.");
+					setStatus(Status.EMPTY);
 					break;
 				}
 			}
@@ -152,6 +152,11 @@ public class L2Camp
 		spawn.stopRespawn();
 		
 		_npcs.add(spawn.getLastSpawn());
+	}
+
+	private void removeNpc(Status status)
+	{
+		removeNpc(status.ordinal());
 	}
 
 	private void removeNpc(int index)
