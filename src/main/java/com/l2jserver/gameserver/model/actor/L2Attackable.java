@@ -64,6 +64,7 @@ import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAtt
 import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAttackableAttack;
 import com.l2jserver.gameserver.model.events.impl.character.npc.attackable.OnAttackableKill;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
+import com.l2jserver.gameserver.model.holders.SkillHolder;
 import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.items.instance.L2ItemInstance;
 import com.l2jserver.gameserver.model.skills.Skill;
@@ -84,6 +85,7 @@ public class L2Attackable extends L2Npc
 	private boolean _isRaidMinion = false;
 	//
 	private boolean _champion = false;
+	private static SkillHolder CHAMPION_DEATH = new SkillHolder(Config.CHAMPION_DEATH_SKILL, 1);
 	private final Map<L2Character, AggroInfo> _aggroList = new ConcurrentHashMap<>();
 	private boolean _isReturningToSpawnPoint = false;
 	private boolean _canReturnToSpawnPoint = true;
@@ -329,6 +331,11 @@ public class L2Attackable extends L2Npc
 	@Override
 	public boolean doDie(L2Character killer)
 	{
+		if (isChampion() && Config.CHAMPION_DEATH_SKILL > 0)
+		{
+			doSimultaneousCast(CHAMPION_DEATH.getSkill());
+		}
+
 		// Kill the L2NpcInstance (the corpse disappeared after 7 seconds)
 		if (!super.doDie(killer))
 		{
