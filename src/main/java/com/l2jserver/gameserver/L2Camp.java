@@ -21,9 +21,11 @@ public class L2Camp
 		FIRE,
 		TENT,
 		FOOD,
+		WEASEL,
 		EXTINCT,
 		EATEN,
 		PACKED,
+		ALONE,
 		EMPTY
 	}
 	
@@ -33,6 +35,9 @@ public class L2Camp
 	private static final int FIRE_NPC_ID = 60005;
 	private static final int FOOD_NPC_ID = 60006;
 	private static final int TENT_NPC_ID = 60007;
+	private static final int WEASEL_NPC_ID = 60008;
+	
+	private static final int WEASEL_DISTANCE = 122;
 	
 	
 	private Status _status = Status.EMPTY;
@@ -85,6 +90,15 @@ public class L2Camp
 					
 				case FOOD:
 				{
+					Location location = calculateLocation(getNpc(Status.TENT).getLocation(), getNpc(Status.FIRE).getLocation(), WEASEL_DISTANCE);
+					addSpawn(WEASEL_NPC_ID, location);
+					activeChar.sendMessage("Vous invoquez une sentinelle.");
+					setStatus(Status.WEASEL);
+					break;
+				}
+				
+				case WEASEL:
+				{
 					removeNpc(Status.FIRE);
 					activeChar.sendMessage("Vous étouffez le feu.");
 					setStatus(Status.EXTINCT);
@@ -108,6 +122,14 @@ public class L2Camp
 				}
 
 				case PACKED:
+				{
+					removeNpc(Status.WEASEL);
+					activeChar.sendMessage("Vous congédiez la sentinelle.");
+					setStatus(Status.ALONE);
+					break;
+				}
+
+				case ALONE:
 				{
 					clean();
 					activeChar.sendMessage("Vous démontez la tente.");
@@ -173,6 +195,14 @@ public class L2Camp
 	private L2Npc getNpc(Status status)
 	{
 		return _npcs.get(status.ordinal());
+	}
+	
+	public static final Location calculateLocation(Location from, Location to, int distance)
+	{
+		double radian = Math.atan2(to.getY() - from.getY(), to.getX() - from.getX());
+		int vectorX = (int) (distance * Math.cos(radian));
+		int vectorY = (int) (distance * Math.sin(radian));
+		return new Location(from.getX() + vectorX, from.getY() + vectorY, from.getZ(), from.getHeading(), from.getInstanceId());
 	}
 	
 	public void clean()
