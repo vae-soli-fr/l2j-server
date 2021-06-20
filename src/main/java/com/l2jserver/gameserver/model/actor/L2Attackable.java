@@ -40,6 +40,7 @@ import com.l2jserver.gameserver.ai.L2SiegeGuardAI;
 import com.l2jserver.gameserver.datatables.EventDroplist;
 import com.l2jserver.gameserver.datatables.EventDroplist.DateDrop;
 import com.l2jserver.gameserver.datatables.ItemTable;
+import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.InstanceType;
 import com.l2jserver.gameserver.instancemanager.CursedWeaponsManager;
 import com.l2jserver.gameserver.instancemanager.WalkingManager;
@@ -329,6 +330,11 @@ public class L2Attackable extends L2Npc
 	@Override
 	public boolean doDie(L2Character killer)
 	{
+		if (isChampion() && Config.CHAMPION_DEATH_SKILL > 0)
+		{
+			doSimultaneousCast(SkillData.getInstance().getSkill(Config.CHAMPION_DEATH_SKILL, 1));
+		}
+
 		// Kill the L2NpcInstance (the corpse disappeared after 7 seconds)
 		if (!super.doDie(killer))
 		{

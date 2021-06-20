@@ -1146,6 +1146,7 @@ public final class Config
 	public static float CHAMPION_MIN_RESPAWN_MULTIPLIER;
 	public static float CHAMPION_MAX_RESPAWN_MULTIPLIER;
 	public static boolean ALLOW_CAMP;
+	public static int CHAMPION_DEATH_SKILL;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2798,6 +2799,7 @@ public final class Config
 			CHAMPION_MIN_RESPAWN_MULTIPLIER = customsSettings.getFloat("ChampionMinRespawnMultiplier", 1);
 			CHAMPION_MAX_RESPAWN_MULTIPLIER = customsSettings.getFloat("ChampionMaxRespawnMultiplier", 1);
 			ALLOW_CAMP = customsSettings.getBoolean("AllowCamp", false);
+			CHAMPION_DEATH_SKILL = customsSettings.getInt("ChampionDeathSkill", 0);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
