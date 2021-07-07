@@ -1147,6 +1147,8 @@ public final class Config
 	public static float CHAMPION_MAX_RESPAWN_MULTIPLIER;
 	public static boolean ALLOW_CAMP;
 	public static int CHAMPION_DEATH_SKILL;
+	public static boolean ALLOW_RIDE;
+	public static int MOUNT_INTERVAL;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2800,6 +2802,8 @@ public final class Config
 			CHAMPION_MAX_RESPAWN_MULTIPLIER = customsSettings.getFloat("ChampionMaxRespawnMultiplier", 1);
 			ALLOW_CAMP = customsSettings.getBoolean("AllowCamp", false);
 			CHAMPION_DEATH_SKILL = customsSettings.getInt("ChampionDeathSkill", 0);
+			ALLOW_RIDE = customsSettings.getBoolean("AllowRide", false);
+			MOUNT_INTERVAL = customsSettings.getInt("MountInterval", 20);
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
