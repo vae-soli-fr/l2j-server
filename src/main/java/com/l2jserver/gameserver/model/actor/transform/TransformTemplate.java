@@ -96,6 +96,20 @@ public final class TransformTemplate
 		addDefense(Inventory.PAPERDOLL_NECK, set.getInt("neck", 0));
 	}
 	
+	public TransformTemplate(double radius, double height, double walk, double run)
+	{
+		_collisionRadius = radius;
+		_collisionHeight = height;
+		_baseAttackType = WeaponType.FIST;
+		_baseAttackRange = 40;
+		_baseRandomDamage = 0;
+		
+		addSpeed(MoveType.WALK, walk);
+		addSpeed(MoveType.RUN, run);
+		
+		addSkill(new SkillHolder(619, 1));
+	}
+	
 	private void addSpeed(MoveType type, double val)
 	{
 		if (_baseSpeed == null)

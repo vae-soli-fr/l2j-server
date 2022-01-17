@@ -27,12 +27,14 @@ import org.w3c.dom.Node;
 
 import com.l2jserver.gameserver.model.StatsSet;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.actor.transform.Transform;
 import com.l2jserver.gameserver.model.actor.transform.TransformLevelData;
 import com.l2jserver.gameserver.model.actor.transform.TransformTemplate;
 import com.l2jserver.gameserver.model.holders.AdditionalItemHolder;
 import com.l2jserver.gameserver.model.holders.AdditionalSkillHolder;
 import com.l2jserver.gameserver.model.holders.SkillHolder;
+import com.l2jserver.gameserver.model.stats.MoveType;
 import com.l2jserver.gameserver.network.serverpackets.ExBasicActionList;
 import com.l2jserver.util.data.xml.IXmlReader;
 
@@ -42,6 +44,7 @@ import com.l2jserver.util.data.xml.IXmlReader;
  */
 public final class TransformData implements IXmlReader
 {
+	private final int CUSTOM_BASE = 100_000;
 	private final Map<Integer, Transform> _transformData = new HashMap<>();
 	
 	protected TransformData()
@@ -218,8 +221,26 @@ public final class TransformData implements IXmlReader
 		}
 	}
 	
-	public Transform getTransform(int id)
+	public synchronized Transform getTransform(int id)
 	{
+		if (id > CUSTOM_BASE && !_transformData.containsKey(id)) {
+
+			L2NpcTemplate npc = NpcData.getInstance().getTemplate(Math.subtractExact(id, CUSTOM_BASE));
+
+			if (npc == null) {
+				return null;
+			}
+
+			double radius = npc.getfCollisionRadius();
+			double height = npc.getfCollisionHeight();
+			double walk = npc.getBaseMoveSpeed(MoveType.WALK);
+			double run = npc.getBaseMoveSpeed(MoveType.RUN);
+			
+			_transformData.put(id, new Transform(id, radius, height, walk, run));
+			
+			LOG.info("{}: Added transform based on npc {} on-the-fly.", getClass().getSimpleName(), npc.getId());
+		}
+		
 		return _transformData.get(id);
 	}
 	

@@ -61,6 +61,20 @@ public final class Transform implements IIdentifiable
 		_title = set.getString("setTitle", null);
 	}
 	
+	public Transform(int id, double radius, double height, double walk, double run)
+	{
+		_id = id;
+		_displayId = id;
+		_type = TransformType.COMBAT;
+		_canSwim = true;
+		_canAttack = true;
+		_spawnHeight = 0;
+		_name = null;
+		_title = null;
+		_maleTemplate = new TransformTemplate(radius, height, walk, run);
+		_femaleTemplate = new TransformTemplate(radius, height, walk, run);
+	}
+	
 	/**
 	 * Gets the transformation ID.
 	 * @return the transformation ID
