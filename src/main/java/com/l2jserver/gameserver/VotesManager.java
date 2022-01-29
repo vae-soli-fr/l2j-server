@@ -1,5 +1,6 @@
 package com.l2jserver.gameserver;
 
+import java.net.ProxySelector;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -37,7 +39,8 @@ public class VotesManager {
 
 	private static String call(L2PcInstance player, Integer withdraw) throws Exception {
 
-		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
+		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
+				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/reward.php");
 			List<NameValuePair> nvps = new ArrayList<>();

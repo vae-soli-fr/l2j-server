@@ -19,6 +19,7 @@
 package com.l2jserver.loginserver;
 
 import java.net.InetAddress;
+import java.net.ProxySelector;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -48,6 +49,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -233,7 +235,8 @@ public class LoginController
 			return new ForumInfo(login, 304);
 		}
 
-		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
+		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
+				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/auth.php");
 			List<NameValuePair> nvps = new ArrayList<>();

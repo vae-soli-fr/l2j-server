@@ -2,6 +2,7 @@ package com.l2jserver.gameserver.taskmanager.tasks;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
+import java.net.ProxySelector;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,6 +19,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
@@ -89,7 +91,8 @@ public class TaskAnalytics extends Task
 			onlineChars.add(player.getName());
 		}
 
-		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
+		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
+				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/stats.php");
 			List<NameValuePair> nvps = new ArrayList<>();

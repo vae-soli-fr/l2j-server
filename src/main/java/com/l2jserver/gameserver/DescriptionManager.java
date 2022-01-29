@@ -1,5 +1,6 @@
 package com.l2jserver.gameserver;
 
+import java.net.ProxySelector;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
@@ -28,7 +30,8 @@ public class DescriptionManager {
 	private static final Logger LOG = LoggerFactory.getLogger(DescriptionManager.class);
 
 	public static void load(L2PcInstance player) {
-		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement().build()) {
+		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
+				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/desc.php");
 			List<NameValuePair> nvps = new ArrayList<>();
