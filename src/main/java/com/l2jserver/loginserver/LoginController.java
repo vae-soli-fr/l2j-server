@@ -30,6 +30,7 @@ import java.security.spec.RSAKeyGenParameterSpec;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -235,11 +236,16 @@ public class LoginController
 			return new ForumInfo(login, 304);
 		}
 
+		long iat = Instant.now().getEpochSecond();
+		long exp = iat + 600;
+
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
 				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/auth.php");
 			List<NameValuePair> nvps = new ArrayList<>();
+			nvps.add(new BasicNameValuePair("iat", String.valueOf(iat)));
+			nvps.add(new BasicNameValuePair("exp", String.valueOf(exp)));
 			nvps.add(new BasicNameValuePair("username", login));
 			nvps.add(new BasicNameValuePair("password", password));
 			HttpEntity entity = new UrlEncodedFormEntity(nvps);

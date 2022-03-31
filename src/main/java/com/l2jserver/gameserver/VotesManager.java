@@ -1,6 +1,7 @@
 package com.l2jserver.gameserver;
 
 import java.net.ProxySelector;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,11 +40,16 @@ public class VotesManager {
 
 	private static String call(L2PcInstance player, Integer withdraw) throws Exception {
 
+		long iat = Instant.now().getEpochSecond();
+		long exp = iat + 600;
+
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
 				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/reward.php");
 			List<NameValuePair> nvps = new ArrayList<>();
+			nvps.add(new BasicNameValuePair("iat", String.valueOf(iat)));
+			nvps.add(new BasicNameValuePair("exp", String.valueOf(exp)));
 			nvps.add(new BasicNameValuePair("login", player.getAccountName()));
 			if (withdraw != null) {
 				nvps.add(new BasicNameValuePair("withdraw", String.valueOf(withdraw)));

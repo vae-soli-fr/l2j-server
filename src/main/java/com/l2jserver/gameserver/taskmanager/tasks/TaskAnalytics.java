@@ -6,6 +6,7 @@ import java.net.ProxySelector;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -91,11 +92,16 @@ public class TaskAnalytics extends Task
 			onlineChars.add(player.getName());
 		}
 
+		long iat = Instant.now().getEpochSecond();
+		long exp = iat + 600;
+
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
 				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/stats.php");
 			List<NameValuePair> nvps = new ArrayList<>();
+			nvps.add(new BasicNameValuePair("iat", String.valueOf(iat)));
+			nvps.add(new BasicNameValuePair("exp", String.valueOf(exp)));
 			nvps.add(new BasicNameValuePair("serverId", String.valueOf(Config.SERVER_ID)));
 			nvps.add(new BasicNameValuePair("onlinePlayers", String.valueOf(onlinePlayers)));
 			nvps.add(new BasicNameValuePair("blueEvas", String.valueOf(blueEvas)));

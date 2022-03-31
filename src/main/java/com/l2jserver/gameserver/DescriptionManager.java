@@ -1,6 +1,7 @@
 package com.l2jserver.gameserver;
 
 import java.net.ProxySelector;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,11 +31,17 @@ public class DescriptionManager {
 	private static final Logger LOG = LoggerFactory.getLogger(DescriptionManager.class);
 
 	public static void load(L2PcInstance player) {
+
+		long iat = Instant.now().getEpochSecond();
+		long exp = iat + 600;
+
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
 				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/desc.php");
 			List<NameValuePair> nvps = new ArrayList<>();
+			nvps.add(new BasicNameValuePair("iat", String.valueOf(iat)));
+			nvps.add(new BasicNameValuePair("exp", String.valueOf(exp)));
 			nvps.add(new BasicNameValuePair("login", player.getAccountName()));
 			nvps.add(new BasicNameValuePair("slot", String.valueOf(player.getCharSlot())));
 			HttpEntity entity = new UrlEncodedFormEntity(nvps);

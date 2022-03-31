@@ -1,6 +1,7 @@
 package com.l2jserver.gameserver;
 
 import java.net.ProxySelector;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,11 +54,17 @@ public class ImagesManager {
 	}
 
 	private static byte[] load(String filename) {
+
+		long iat = Instant.now().getEpochSecond();
+		long exp = iat + 600;
+
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
 				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/images.php");
 			List<NameValuePair> nvps = new ArrayList<>();
+			nvps.add(new BasicNameValuePair("iat", String.valueOf(iat)));
+			nvps.add(new BasicNameValuePair("exp", String.valueOf(exp)));
 			nvps.add(new BasicNameValuePair("filename", filename));
 			HttpEntity entity = new UrlEncodedFormEntity(nvps);
 			httpPost.setEntity(entity);
