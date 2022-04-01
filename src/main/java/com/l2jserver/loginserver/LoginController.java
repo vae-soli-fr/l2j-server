@@ -19,7 +19,6 @@
 package com.l2jserver.loginserver;
 
 import java.net.InetAddress;
-import java.net.ProxySelector;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -30,7 +29,6 @@ import java.security.spec.RSAKeyGenParameterSpec;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
@@ -43,19 +41,9 @@ import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-
-import com.google.common.net.HttpHeaders;
 import com.l2jserver.Config;
+import com.l2jserver.api.ApiClient;
+import com.l2jserver.api.StringResponse;
 import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
 import com.l2jserver.loginserver.GameServerTable.GameServerInfo;
 import com.l2jserver.loginserver.model.data.AccountInfo;
@@ -63,7 +51,6 @@ import com.l2jserver.loginserver.model.data.ForumInfo;
 import com.l2jserver.loginserver.network.L2LoginClient;
 import com.l2jserver.loginserver.network.gameserverpackets.ServerStatus;
 import com.l2jserver.loginserver.network.serverpackets.LoginFail.LoginFailReason;
-import com.l2jserver.util.Hmac;
 import com.l2jserver.util.Rnd;
 import com.l2jserver.util.crypt.ScrambledKeyPair;
 
@@ -236,49 +223,22 @@ public class LoginController
 			return new ForumInfo(login, 304);
 		}
 
-		long iat = Instant.now().getEpochSecond();
-		long exp = iat + 600;
+		StringResponse response = ApiClient.auth(addr, login, password);
+		switch (response.getStatus()) {
 
-		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
-				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
+		case 200:
+			String username = response.getEntity();
+			clearFailedLoginAttemps(addr);
+			_successfulLogins.put(login, password);
+			return new ForumInfo(username, response.getStatus());
 
-			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/auth.php");
-			List<NameValuePair> nvps = new ArrayList<>();
-			nvps.add(new BasicNameValuePair("iat", String.valueOf(iat)));
-			nvps.add(new BasicNameValuePair("exp", String.valueOf(exp)));
-			nvps.add(new BasicNameValuePair("username", login));
-			nvps.add(new BasicNameValuePair("password", password));
-			HttpEntity entity = new UrlEncodedFormEntity(nvps);
-			httpPost.setEntity(entity);
-			httpPost.setHeader(HttpHeaders.X_FORWARDED_FOR, addr.getHostAddress());
-			httpPost.setHeader("X-Api-Signature", Hmac.sha256(Config.API_SECRET, EntityUtils.toByteArray(entity)));
+		case 204:
+		case 401:
+		case 429:
+			recordFailedLoginAttemp(addr);
 
-			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
-
-				int status = response.getStatusLine().getStatusCode();
-
-				switch (status) {
-
-				case 200:
-					String username = EntityUtils.toString(response.getEntity());
-					clearFailedLoginAttemps(addr);
-					_successfulLogins.put(login, password);
-					return new ForumInfo(username, status);
-
-				case 204:
-				case 401:
-				case 429:
-					recordFailedLoginAttemp(addr);
-
-				default:
-					return new ForumInfo(status);
-				}
-
-			}
-
-		} catch (Exception e) {
-			_log.log(Level.WARNING, "Exception while retriving forum info for '" + login + "'!", e);
-			return new ForumInfo();
+		default:
+			return new ForumInfo(response.getStatus());
 		}
 	}
 

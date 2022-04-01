@@ -1,24 +1,8 @@
 package com.l2jserver.gameserver;
 
-import java.net.ProxySelector;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-
-import com.l2jserver.Config;
+import com.l2jserver.api.ApiClient;
+import com.l2jserver.api.StringResponse;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
-import com.l2jserver.util.Hmac;
 
 /**
  * Votes DAO MySQL implementation.
@@ -40,37 +24,16 @@ public class VotesManager {
 
 	private static String call(L2PcInstance player, Integer withdraw) throws Exception {
 
-		long iat = Instant.now().getEpochSecond();
-		long exp = iat + 600;
+		StringResponse response = ApiClient.reward(player.getAccountName(), withdraw);
 
-		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
-				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
+		switch (response.getStatus()) {
 
-			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + "/reward.php");
-			List<NameValuePair> nvps = new ArrayList<>();
-			nvps.add(new BasicNameValuePair("iat", String.valueOf(iat)));
-			nvps.add(new BasicNameValuePair("exp", String.valueOf(exp)));
-			nvps.add(new BasicNameValuePair("login", player.getAccountName()));
-			if (withdraw != null) {
-				nvps.add(new BasicNameValuePair("withdraw", String.valueOf(withdraw)));
-			}
-			HttpEntity entity = new UrlEncodedFormEntity(nvps);
-			httpPost.setEntity(entity);
-			httpPost.setHeader("X-Api-Signature", Hmac.sha256(Config.API_SECRET, EntityUtils.toByteArray(entity)));
+		case 200:
+			return response.getEntity();
 
-			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
-
-				switch (response.getStatusLine().getStatusCode()) {
-
-				case 200:
-					return EntityUtils.toString(response.getEntity());
-
-				default:
-				case 400:
-					throw new Exception("Votes: API did not respond OK.");
-				}
-			}
-
+		default:
+		case 400:
+			throw new Exception("Votes: API did not respond OK.");
 		}
 	}
 
