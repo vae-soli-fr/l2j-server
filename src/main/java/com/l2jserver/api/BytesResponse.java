@@ -23,6 +23,9 @@ public class BytesResponse implements ApiResponse<byte[]>
 	@Override
 	public void processEntity(HttpEntity entity) throws IOException
 	{
+		if (entity == null) {
+			return;
+		}
 		this._entity = EntityUtils.toByteArray(entity);
 	}
 
