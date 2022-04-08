@@ -5,5 +5,5 @@
 	<!-- Localhost here -->
 	<define subnet="127.0.0.0/8" address="127.0.0.1" />
 	<!-- Internalhosts here (LANs IPs) -->
-	<define subnet="192.168.1.0/24" address="192.168.1.252" />
+	<define subnet="192.168.1.0/24" address="192.168.1.1" />
 </gameserver>
