@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.l2jserver.Config;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -60,6 +61,12 @@ public final class InstanceManager implements IXmlReader
 		// Creates the universe.
 		INSTANCES.put(0, new Instance(0, "universe"));
 		LOG.info("{}: Universe Instance created.", getClass().getSimpleName());
+		// Creates the Permanent alternative Universes.
+		for (int permanentAlternativeInstance : Config.PERMANENT_ALTERNATIVE_INSTANCES) {
+			INSTANCES.put(permanentAlternativeInstance,
+					new Instance(permanentAlternativeInstance, "permanent alt universe: " + permanentAlternativeInstance));
+			LOG.info("{}: Permanent alt Universe Instance created (" + permanentAlternativeInstance + ").", getClass().getSimpleName());
+		}
 		load();
 	}
 	
