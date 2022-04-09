@@ -50,6 +50,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.google.common.collect.Streams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -825,6 +826,7 @@ public final class Config
 	public static int DROP_ITEM_MIN_LEVEL_DIFFERENCE;
 	public static int DROP_ITEM_MAX_LEVEL_DIFFERENCE;
 	public static double DROP_ITEM_MIN_LEVEL_GAP_CHANCE;
+	public static List<Integer> PERMANENT_ALTERNATIVE_INSTANCES;
 	
 	// --------------------------------------------------
 	// PvP Settings
@@ -2005,7 +2007,11 @@ public final class Config
 			
 			// Load NPC L2Properties file (if exists)
 			final PropertiesParser NPC = new PropertiesParser(NPC_CONFIG_FILE);
-			
+
+			//1000 and 1001 are for rooms/floors, 2000 for events
+			final String[] instances = NPC.getString("PermanentAlternativeInstances", "1000;1001;2000").split(";");
+			PERMANENT_ALTERNATIVE_INSTANCES = Arrays.stream(instances).map(Integer::parseInt).collect(Collectors.toList());
+
 			ANNOUNCE_MAMMON_SPAWN = NPC.getBoolean("AnnounceMammonSpawn", false);
 			ALT_MOB_AGRO_IN_PEACEZONE = NPC.getBoolean("AltMobAgroInPeaceZone", true);
 			ALT_ATTACKABLE_NPCS = NPC.getBoolean("AltAttackableNpcs", true);
