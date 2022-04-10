@@ -62,7 +62,8 @@ public final class InstanceManager implements IXmlReader
 		INSTANCES.put(0, new Instance(0, "universe"));
 		LOG.info("{}: Universe Instance created.", getClass().getSimpleName());
 		// Creates the Permanent alternative Universes.
-		for (int permanentAlternativeInstance : Config.PERMANENT_ALTERNATIVE_INSTANCES) {
+		for (int permanentAlternativeInstance : Config.PERMANENT_ALTERNATIVE_INSTANCES)
+		{
 			INSTANCES.put(permanentAlternativeInstance,
 					new Instance(permanentAlternativeInstance, "permanent alt universe: " + permanentAlternativeInstance));
 			LOG.info("{}: Permanent alt Universe Instance created (" + permanentAlternativeInstance + ").", getClass().getSimpleName());
