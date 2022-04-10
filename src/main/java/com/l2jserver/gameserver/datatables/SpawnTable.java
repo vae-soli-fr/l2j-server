@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -277,13 +276,9 @@ public final class SpawnTable implements IXmlReader
 				spawnInfo.set("respawnRandom", rs.getInt("respawn_random"));
 				spawnInfo.set("locId", rs.getInt("loc_id"));
 				spawnInfo.set("periodOfDay", rs.getInt("periodOfDay"));
-				if(isCustom) {
-					try {
-						spawnInfo.set("instanceId", rs.getInt("instance_id"));
-					} catch (SQLException e) { // just in case the custom_spawnlist table is missing the new instance_id column.
-						LOG.warn("{}: Could not read instance_id from custom_spawnlist table.", getClass().getSimpleName(), e);
-						continue; // Don't spawn
-					}
+				if(isCustom)
+				{
+					spawnInfo.set("instanceId", rs.getInt("instance_id"));
 				}
 				spawnInfo.set("isCustomSpawn", isCustom);
 				npcSpawnCount += addSpawn(spawnInfo);
@@ -414,9 +409,9 @@ public final class SpawnTable implements IXmlReader
 		
 		if (storeInDb)
 		{
-			final String spawnTable = spawn.isCustom() && Config.CUSTOM_SPAWNLIST_TABLE ? "custom_spawnlist" : "spawnlist";
+			boolean isCustom = spawn.isCustom() && Config.CUSTOM_SPAWNLIST_TABLE;
 			try (Connection con = ConnectionFactory.getInstance().getConnection();
-				PreparedStatement insert = con.prepareStatement("INSERT INTO " + spawnTable + "(count,npc_templateid,locx,locy,locz,heading,respawn_delay,respawn_random,loc_id,instance_id) values(?,?,?,?,?,?,?,?,?,?)"))
+				PreparedStatement insert = con.prepareStatement(getInsertStatement(isCustom)))
 			{
 				insert.setInt(1, spawn.getAmount());
 				insert.setInt(2, spawn.getId());
@@ -427,7 +422,10 @@ public final class SpawnTable implements IXmlReader
 				insert.setInt(7, spawn.getRespawnDelay() / 1000);
 				insert.setInt(8, spawn.getRespawnMaxDelay() - spawn.getRespawnMinDelay());
 				insert.setInt(9, spawn.getLocationId());
-				insert.setInt(10, spawn.getInstanceId());
+				if(isCustom)
+				{
+					insert.setInt(10, spawn.getInstanceId());
+				}
 				insert.execute();
 			}
 			catch (Exception e)
@@ -436,7 +434,17 @@ public final class SpawnTable implements IXmlReader
 			}
 		}
 	}
-	
+
+	private String getInsertStatement(boolean isCustom) {
+		if(isCustom)
+		{
+			return "INSERT INTO custom_spawnlist (count,npc_templateid,locx,locy,locz,heading,respawn_delay,respawn_random,loc_id,instance_id) values(?,?,?,?,?,?,?,?,?,?)";
+		} else
+		{
+			return "INSERT INTO spawnlist (count,npc_templateid,locx,locy,locz,heading,respawn_delay,respawn_random,loc_id) values(?,?,?,?,?,?,?,?,?)";
+		}
+	}
+
 	/**
 	 * Delete an spawn from the spawn table.
 	 * @param spawn the spawn to delete

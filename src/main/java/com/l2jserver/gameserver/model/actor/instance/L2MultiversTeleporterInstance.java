@@ -9,14 +9,14 @@ import org.slf4j.LoggerFactory;
 
 import java.util.StringTokenizer;
 
-public class L2VaeSoliTeleporterInstance extends L2Npc
+public class L2MultiversTeleporterInstance extends L2Npc
 {
-	private static final Logger LOG = LoggerFactory.getLogger(L2VaeSoliTeleporterInstance.class);
+	private static final Logger LOG = LoggerFactory.getLogger(L2MultiversTeleporterInstance.class);
 
-	public L2VaeSoliTeleporterInstance(L2NpcTemplate template)
+	public L2MultiversTeleporterInstance(L2NpcTemplate template)
 	{
 		super(template);
-		setInstanceType(InstanceType.L2VaeSoliTeleporterInstance);
+		setInstanceType(InstanceType.L2MultiversTeleporterInstance);
 	}
 	
 	@Override
@@ -32,13 +32,17 @@ public class L2VaeSoliTeleporterInstance extends L2Npc
 		int z = player.getLocation().getZ();
 		int instance = player.getInstanceId();
 
-		if(st.countTokens() == 1) {
+		if(st.countTokens() == 1)
+		{
 			instance = Integer.parseInt(st.nextToken());
-		}else if(st.countTokens() >= 3) {
+		}
+		else if(st.countTokens() >= 3)
+		{
 			x = Integer.parseInt(st.nextToken());
 			y = Integer.parseInt(st.nextToken());
 			z = Integer.parseInt(st.nextToken());
-			if (st.countTokens() == 1) {
+			if (st.countTokens() == 1)
+			{
 				instance = Integer.parseInt(st.nextToken());
 			}
 		}
@@ -68,6 +72,6 @@ public class L2VaeSoliTeleporterInstance extends L2Npc
 			pom = npcId + "-" + val;
 		}
 		
-		return "data/html/teleporter/vaeSoli/" + pom + ".htm";
+		return "data/html/teleporter/" + pom + ".htm";
 	}
 }
