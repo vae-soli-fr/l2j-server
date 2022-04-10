@@ -22,8 +22,6 @@ public class L2MultiversTeleporterInstance extends L2Npc
 	@Override
 	public void onBypassFeedback(L2PcInstance player, String command)
 	{
-		player.sendPacket(ActionFailed.STATIC_PACKET);
-		
 		StringTokenizer st = new StringTokenizer(command, " ");
 		String actualCommand = st.nextToken(); // Get actual command
 
