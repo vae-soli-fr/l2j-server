@@ -176,7 +176,7 @@ public final class WhosOnline {
 	
 	private static String getClan(L2PcInstance player)
 	{
-		if (player.getClan() == null) // || player.isGM())
+		if (player.getClan() == null || player.getClan().getLevel() <= 5 || player.isGM())
 		{
 			return "";
 		}
