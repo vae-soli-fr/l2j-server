@@ -44,7 +44,7 @@ public final class WhosOnline {
 
 	public static void refreshPlayersList()
 	{
-		L2PcInstance[] sortedPlayers = L2World.getInstance().getPlayersSortedBy(Comparator.comparingLong(L2PcInstance::getUptime));
+		L2PcInstance[] sortedPlayers = L2World.getInstance().getPlayersSortedBy(Comparator.comparingLong(L2PcInstance::getUptime).reversed());
 
 		_onlinePlayers.clear();
 		_onlineCount = 0;
