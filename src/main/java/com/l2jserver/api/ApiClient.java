@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -31,7 +32,9 @@ import com.l2jserver.util.Hmac;
  */
 public class ApiClient
 {
-	protected static final Logger _log = Logger.getLogger(ApiClient.class.getName());
+	private static final Logger _log = Logger.getLogger(ApiClient.class.getName());
+	private static final SystemDefaultRoutePlanner _planner = new SystemDefaultRoutePlanner(ProxySelector.getDefault());
+	private static final RequestConfig _config = RequestConfig.custom().setConnectTimeout(Config.API_TIMEOUT).setSocketTimeout(Config.API_TIMEOUT).build();
 
 	private ApiClient() {
 	}
@@ -88,7 +91,7 @@ public class ApiClient
 		long exp = iat + 600;
 
 		try (CloseableHttpClient httpclient = HttpClientBuilder.create().disableCookieManagement()
-				.setRoutePlanner(new SystemDefaultRoutePlanner(ProxySelector.getDefault())).build()) {
+				.setRoutePlanner(_planner).setDefaultRequestConfig(_config).build()) {
 
 			HttpPost httpPost = new HttpPost(Config.API_BASE_URL + endpoint);
 
