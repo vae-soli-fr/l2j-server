@@ -47,6 +47,11 @@ public class ApiClient
 		return invokeApi("/auth", data, new StringResponse(), new BasicHeader(HttpHeaders.X_FORWARDED_FOR, addr.getHostAddress()));
 	}
 
+	public static StringResponse date()
+	{
+		return invokeApi("/date", null, new StringResponse());
+	}
+
 	public static StringResponse desc(String account, int slot)
 	{
 		List<NameValuePair> data = new ArrayList<>();
