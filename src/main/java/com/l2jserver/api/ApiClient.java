@@ -22,6 +22,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import com.google.common.base.Charsets;
 import com.google.common.net.HttpHeaders;
 import com.l2jserver.Config;
 import com.l2jserver.util.Hmac;
@@ -109,7 +110,7 @@ public class ApiClient
 				form.addAll(data);
 			}
 
-			HttpEntity entity = new UrlEncodedFormEntity(form);
+			HttpEntity entity = new UrlEncodedFormEntity(form, Charsets.UTF_8);
 			httpPost.setEntity(entity);
 			// HMAC signature used to authenticate client
 			httpPost.setHeader("X-Api-Signature", Hmac.sha256(Config.API_SECRET, EntityUtils.toByteArray(entity)));
