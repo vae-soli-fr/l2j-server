@@ -20,6 +20,8 @@ while :; do
 	$JAVA -server \
 	-Xms$MIN -Xmx$MAX \
 	-XX:+UseG1GC \
+	-Dhttps.proxyHost=proxy \
+	-Dhttps.proxyPort=3128 \
 	-Djava.net.preferIPv4Stack=true \
 	-Djava.net.preferIPv4Addresses=true \
 	-Dcom.sun.management.config.file=jmx.cfg \

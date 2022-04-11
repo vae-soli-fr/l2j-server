@@ -24,6 +24,8 @@ while :; do
 	-XX:+UseG1GC \
 	-Djava.util.logging.manager=com.l2jserver.util.L2LogManager \
 	-Dpython.cachedir=../cachedir \
+	-Dhttps.proxyHost=proxy \
+	-Dhttps.proxyPort=3128 \
 	-Djava.net.preferIPv4Stack=true \
 	-Djava.net.preferIPv4Addresses=true \
 	-Dcom.sun.management.config.file=jmx.cfg \
