@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2805,9 +2806,8 @@ public final class Config
 			CHAMPION_DEATH_SKILL = customsSettings.getInt("ChampionDeathSkill", 0);
 			ALLOW_RIDE = customsSettings.getBoolean("AllowRide", false);
 			MOUNT_INTERVAL = customsSettings.getInt("MountInterval", 20);
-			final String[] instances = customsSettings.getString("PermanentAlternativeInstances", "").split(";");
-			PERMANENT_ALTERNATIVE_INSTANCES = Arrays.stream(instances).map(Integer::parseInt).collect(Collectors.toList());
-
+			final String instances = customsSettings.getString("PermanentAlternativeInstances", "");
+			PERMANENT_ALTERNATIVE_INSTANCES = instances.isEmpty() ? Collections.EMPTY_LIST : Arrays.stream(instances.split(";")).map(Integer::parseInt).collect(Collectors.toList());
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
 		{
