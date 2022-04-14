@@ -36,16 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -2807,8 +2798,8 @@ public final class Config
 			CHAMPION_DEATH_SKILL = customsSettings.getInt("ChampionDeathSkill", 0);
 			ALLOW_RIDE = customsSettings.getBoolean("AllowRide", false);
 			MOUNT_INTERVAL = customsSettings.getInt("MountInterval", 20);
-			final String[] instances = customsSettings.getString("PermanentAlternativeInstances", "").split(";");
-			PERMANENT_ALTERNATIVE_INSTANCES = Arrays.stream(instances).map(Integer::parseInt).collect(Collectors.toList());
+			final String instances = customsSettings.getString("PermanentAlternativeInstances", "");
+			PERMANENT_ALTERNATIVE_INSTANCES = instances.isEmpty() ? Collections.EMPTY_LIST : Arrays.stream(instances.split(";")).map(Integer::parseInt).collect(Collectors.toList());
 
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
