@@ -1192,7 +1192,8 @@ public final class Config
 			
 			DATABASE_ENGINE = serverSettings.getString("Database", "MySQL");
 			DATABASE_DRIVER = serverSettings.getString("Driver", "com.mysql.jdbc.Driver");
-			DATABASE_URL = serverSettings.getString("URL", "jdbc:mysql://localhost/l2jgs");
+			String databaseURL = System.getProperty("l2j.game.database.url");
+			DATABASE_URL = databaseURL == null ? serverSettings.getString("URL", "jdbc:mysql://localhost/l2jgs") : databaseURL;
 			DATABASE_LOGIN = serverSettings.getString("Login", "root");
 			DATABASE_PASSWORD = serverSettings.getString("Password", "");
 			DATABASE_CONNECTION_POOL = serverSettings.getString("ConnectionPool", "C3P0");
@@ -1201,7 +1202,14 @@ public final class Config
 			
 			try
 			{
-				DATAPACK_ROOT = new File(serverSettings.getString("DatapackRoot", ".").replaceAll("\\\\", "/")).getCanonicalFile();
+				String gameDatapackRoot = System.getProperty("l2j.game.datapack.root");
+				if (gameDatapackRoot == null)
+				{
+					DATAPACK_ROOT = new File(serverSettings.getString("DatapackRoot", ".").replaceAll("\\\\", "/")).getCanonicalFile();
+				} else
+				{
+					DATAPACK_ROOT = new File(gameDatapackRoot).getCanonicalFile();
+				}
 			}
 			catch (IOException e)
 			{
@@ -2794,7 +2802,8 @@ public final class Config
 				LOG.warn("Unable to load logged channels!", nfe);
 			}
 
-			API_SECRET = customsSettings.getString("ApiSecret", "");
+			String apiSecret = System.getProperty("l2j.api.secret");
+			API_SECRET = apiSecret == null ? customsSettings.getString("ApiSecret", "") : apiSecret;
 			API_BASE_URL = customsSettings.getString("ApiBaseUrl", "");
 			API_TIMEOUT = customsSettings.getInt("ApiTimeout", -1);
 			DECREASE_BANDWIDTH_USAGE = customsSettings.getBoolean("DecreaseBandwidthUsage", false);
@@ -2825,7 +2834,14 @@ public final class Config
 			
 			try
 			{
-				DATAPACK_ROOT = new File(ServerSettings.getString("DatapackRoot", ".").replaceAll("\\\\", "/")).getCanonicalFile();
+				String loginDatapackRoot = System.getProperty("l2j.login.datapack.root");
+				if (loginDatapackRoot == null)
+				{
+					DATAPACK_ROOT = new File(ServerSettings.getString("DatapackRoot", ".").replaceAll("\\\\", "/")).getCanonicalFile();
+				} else
+				{
+					DATAPACK_ROOT = new File(loginDatapackRoot).getCanonicalFile();
+				}
 			}
 			catch (IOException e)
 			{
@@ -2833,7 +2849,8 @@ public final class Config
 				DATAPACK_ROOT = new File(".");
 			}
 
-			API_SECRET = ServerSettings.getString("ApiSecret", "");
+			String apiSecret = System.getProperty("l2j.api.secret");
+			API_SECRET = apiSecret == null ? ServerSettings.getString("ApiSecret", "") : apiSecret;
 			API_BASE_URL = ServerSettings.getString("ApiBaseUrl", "");
 
 			DEBUG = ServerSettings.getBoolean("Debug", false);
@@ -2847,7 +2864,8 @@ public final class Config
 			LOGIN_SERVER_SCHEDULE_RESTART_TIME = ServerSettings.getLong("LoginRestartTime", 24);
 			
 			DATABASE_DRIVER = ServerSettings.getString("Driver", "com.mysql.jdbc.Driver");
-			DATABASE_URL = ServerSettings.getString("URL", "jdbc:mysql://localhost/l2jls");
+			String databaseURL = System.getProperty("l2j.login.database.url");
+			DATABASE_URL = databaseURL == null ? ServerSettings.getString("URL", "jdbc:mysql://localhost/l2jgs") : databaseURL;
 			DATABASE_LOGIN = ServerSettings.getString("Login", "root");
 			DATABASE_PASSWORD = ServerSettings.getString("Password", "");
 			DATABASE_CONNECTION_POOL = ServerSettings.getString("ConnectionPool", "HikariCP");
