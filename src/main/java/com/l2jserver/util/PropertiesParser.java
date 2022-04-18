@@ -63,16 +63,23 @@ public final class PropertiesParser
 	
 	public boolean containskey(String key)
 	{
+		if (System.getProperty(_name + "." + key) != null)
+		{
+			return true;
+		}
 		return _properties.containsKey(key);
 	}
 	
 	private String getValue(String key)
 	{
 		String value = System.getProperty(_name + "." + key);
-		if (value == null) {
+		if (value == null)
+		{
 			value = _properties.getProperty(key);
-		} else {
-			_log.info("[" + _file.getName() + "] property for key: " + key + " overrided in Java system properties");
+		}
+		else
+		{
+			_log.info("[" + _file.getName() + "] property for key: " + key + " overridden in Java system properties");
 		}
 		return value != null ? value.trim() : null;
 	}
