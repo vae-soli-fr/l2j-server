@@ -25,6 +25,8 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import com.google.common.io.Files;
+
 /**
  * Simplifies loading of property files and adds logging if a non existing property is requested.
  * @author NosBit
@@ -35,6 +37,7 @@ public final class PropertiesParser
 	
 	private final Properties _properties = new Properties();
 	private final File _file;
+	private final String _name;
 	
 	public PropertiesParser(String name)
 	{
@@ -44,6 +47,7 @@ public final class PropertiesParser
 	public PropertiesParser(File file)
 	{
 		_file = file;
+		_name = Files.getNameWithoutExtension(file.getName());
 		try (FileInputStream fileInputStream = new FileInputStream(file))
 		{
 			try (InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, Charset.defaultCharset()))
@@ -64,7 +68,12 @@ public final class PropertiesParser
 	
 	private String getValue(String key)
 	{
-		String value = _properties.getProperty(key);
+		String value = System.getProperty(_name + "." + key);
+		if (value == null) {
+			value = _properties.getProperty(key);
+		} else {
+			_log.info("[" + _file.getName() + "] property for key: " + key + " overrided in Java system properties");
+		}
 		return value != null ? value.trim() : null;
 	}
 	
