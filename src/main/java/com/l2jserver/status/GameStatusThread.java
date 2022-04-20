@@ -19,20 +19,17 @@
 package com.l2jserver.status;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import com.l2jserver.Config;
 import com.l2jserver.gameserver.handler.ITelnetHandler;
 import com.l2jserver.gameserver.handler.TelnetHandler;
+import com.l2jserver.util.PropertiesParser;
 
 public final class GameStatusThread extends Thread
 {
@@ -96,13 +93,11 @@ public final class GameStatusThread extends Thread
 			telnetOutput(2, "");
 		}
 		
-		final File file = new File(Config.TELNET_FILE);
-		try (InputStream telnetIS = new FileInputStream(file))
+		try
 		{
-			Properties telnetSettings = new Properties();
-			telnetSettings.load(telnetIS);
+			PropertiesParser telnetSettings = new PropertiesParser(Config.TELNET_FILE);
 			
-			String HostList = telnetSettings.getProperty("ListOfHosts", "127.0.0.1,localhost,::1");
+			String HostList = telnetSettings.getString("ListOfHosts", "127.0.0.1,localhost,::1");
 			
 			if (Config.DEVELOPER)
 			{

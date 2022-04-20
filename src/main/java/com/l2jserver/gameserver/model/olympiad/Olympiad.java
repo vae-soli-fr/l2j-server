@@ -18,8 +18,6 @@
  */
 package com.l2jserver.gameserver.model.olympiad;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.logging.Level;
@@ -50,6 +47,7 @@ import com.l2jserver.gameserver.model.events.ListenersContainer;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.SystemMessage;
 import com.l2jserver.gameserver.util.Broadcast;
+import com.l2jserver.util.PropertiesParser;
 
 /**
  * @author godson
@@ -201,23 +199,13 @@ public class Olympiad extends ListenersContainer
 		{
 			_log.log(Level.INFO, "Olympiad System: failed to load data from database, trying to load from file.");
 			
-			Properties OlympiadProperties = new Properties();
-			try (InputStream is = new FileInputStream(Config.OLYMPIAD_CONFIG_FILE))
-			{
-				
-				OlympiadProperties.load(is);
-			}
-			catch (Exception e)
-			{
-				_log.log(Level.SEVERE, "Olympiad System: Error loading olympiad properties: ", e);
-				return;
-			}
+			PropertiesParser OlympiadProperties = new PropertiesParser(Config.OLYMPIAD_CONFIG_FILE);
 			
-			_currentCycle = Integer.parseInt(OlympiadProperties.getProperty("CurrentCycle", "1"));
-			_period = Integer.parseInt(OlympiadProperties.getProperty("Period", "0"));
-			_olympiadEnd = Long.parseLong(OlympiadProperties.getProperty("OlympiadEnd", "0"));
-			_validationEnd = Long.parseLong(OlympiadProperties.getProperty("ValidationEnd", "0"));
-			_nextWeeklyChange = Long.parseLong(OlympiadProperties.getProperty("NextWeeklyChange", "0"));
+			_currentCycle = OlympiadProperties.getInt("CurrentCycle", 1);
+			_period = OlympiadProperties.getInt("Period", 0);
+			_olympiadEnd = OlympiadProperties.getLong("OlympiadEnd", 0);
+			_validationEnd = OlympiadProperties.getLong("ValidationEnd", 0);
+			_nextWeeklyChange = OlympiadProperties.getLong("NextWeeklyChange", 0);
 		}
 		
 		switch (_period)
