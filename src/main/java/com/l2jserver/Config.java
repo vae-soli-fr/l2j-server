@@ -2809,7 +2809,7 @@ public final class Config
 			ALLOW_RIDE = customsSettings.getBoolean("AllowRide", false);
 			MOUNT_INTERVAL = customsSettings.getInt("MountInterval", 20);
 			final String instances = customsSettings.getString("PermanentAlternativeInstances", "");
-			PERMANENT_ALTERNATIVE_INSTANCES = instances.isEmpty() ? Collections.EMPTY_LIST : Arrays.stream(instances.split(";")).map(Integer::parseInt).collect(Collectors.toList());
+			PERMANENT_ALTERNATIVE_INSTANCES = instances.isEmpty() ? Collections.emptyList() : Arrays.stream(instances.split(";")).map(Integer::parseInt).collect(Collectors.toList());
 
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)
