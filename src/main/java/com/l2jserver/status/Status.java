@@ -18,19 +18,16 @@
  */
 package com.l2jserver.status;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import com.l2jserver.Config;
 import com.l2jserver.Server;
+import com.l2jserver.util.PropertiesParser;
 import com.l2jserver.util.Rnd;
 
 public class Status extends Thread
@@ -101,13 +98,9 @@ public class Status extends Thread
 	{
 		super("Status");
 		_mode = mode;
-		Properties telnetSettings = new Properties();
-		try (InputStream is = new FileInputStream(new File(Config.TELNET_FILE)))
-		{
-			telnetSettings.load(is);
-		}
-		int statusPort = Integer.parseInt(telnetSettings.getProperty("StatusPort", "12345"));
-		_statusPw = telnetSettings.getProperty("StatusPW");
+		PropertiesParser telnetSettings = new PropertiesParser(Config.TELNET_FILE);
+		int statusPort = telnetSettings.getInt("StatusPort", 12345);
+		_statusPw = telnetSettings.getString("StatusPW", "");
 		
 		if ((_mode == Server.MODE_GAMESERVER) || (_mode == Server.MODE_LOGINSERVER))
 		{
