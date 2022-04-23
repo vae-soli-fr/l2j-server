@@ -10,6 +10,9 @@ if [ $USER != 'l2jserver' ]; then
 	exit;
 fi
 
+# Include config
+source setEnv.sh
+
 # exit codes of GameServer:
 #  0 normal shutdown
 #  2 reboot attempt
@@ -20,7 +23,7 @@ while :; do
 	[ -f log/stdout.log ] && mv log/stdout.log "log/`date +%Y-%m-%d_%H-%M-%S`_stdout.log"
 	[ -f log/item.log ] && mv log/item.log "log/`date +%Y-%m-%d_%H-%M-%S`_item.log"
 	[ -f log/chat.log ] && mv log/chat.log "log/`date +%Y-%m-%d_%H-%M-%S`_chat.log"
-	$JAVA -server \
+	$JAVA -server $JAVA_OPTS \
 	-Xms$MIN -Xmx$MAX \
 	-XX:+UseG1GC \
 	-Djava.util.logging.manager=com.l2jserver.util.L2LogManager \
