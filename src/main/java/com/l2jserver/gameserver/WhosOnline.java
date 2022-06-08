@@ -93,6 +93,11 @@ public final class WhosOnline {
 		msg.replace("%rate_spoil%", Config.RATE_CORPSE_DROP_CHANCE_MULTIPLIER);
 		msg.replace("%rate_adena%", Config.RATE_DROP_CHANCE_MULTIPLIER.getOrDefault(57, 1F));
 		
+		// Regen
+		msg.replace("%regen_hp%", Config.HP_REGEN_MULTIPLIER);
+		msg.replace("%regen_mp%", Config.MP_REGEN_MULTIPLIER);
+		msg.replace("%regen_cp%", Config.CP_REGEN_MULTIPLIER);
+
 		// Date
 		StringResponse response = ApiClient.date();
 		msg.replace("%roleplay_date%", response.getEntity() != null ? response.getEntity() : "");
