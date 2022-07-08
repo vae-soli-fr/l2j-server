@@ -10,14 +10,12 @@ if [ $USER != 'l2jserver' ]; then
 	exit;
 fi
 
-# Include config
-source setEnv.sh
-
 # exit codes of LoginServer:
 #  0 normal shutdown
 #  2 reboot attempt
 
 while :; do
+	source setEnv.sh
 	[ -f l2jlogin.jar.new ] && mv l2jlogin.jar.new l2jlogin.jar
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"
 	[ -f log/stdout.log ] && mv log/stdout.log "log/`date +%Y-%m-%d_%H-%M-%S`_stdout.log"
