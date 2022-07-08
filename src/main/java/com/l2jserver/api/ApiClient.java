@@ -48,6 +48,11 @@ public class ApiClient
 		return invokeApi("/auth", data, new StringResponse(), new BasicHeader(HttpHeaders.X_FORWARDED_FOR, addr.getHostAddress()));
 	}
 
+	public static StringResponse client()
+	{
+		return invokeApi("/client", null, new StringResponse());
+	}
+
 	public static StringResponse date()
 	{
 		return invokeApi("/date", null, new StringResponse());

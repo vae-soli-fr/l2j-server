@@ -22,6 +22,8 @@ import java.util.Base64;
 import java.util.Calendar;
 
 import com.l2jserver.Config;
+import com.l2jserver.api.ApiClient;
+import com.l2jserver.api.StringResponse;
 import com.l2jserver.gameserver.CustomImage;
 import com.l2jserver.gameserver.GameServer;
 import com.l2jserver.gameserver.LoginServerThread;
@@ -471,6 +473,11 @@ public class EnterWorld extends L2GameClientPacket
 			if (serverNews != null)
 			{
 				NpcHtmlMessage html = new NpcHtmlMessage(serverNews);
+
+				// Client version
+				StringResponse response = ApiClient.client();
+				html.replace("%client_version%", response.getEntity() != null ? response.getEntity() : "inconnue");
+
 				CustomImage.sendPackets(activeChar, html);
 				sendPacket(html);
 			}
