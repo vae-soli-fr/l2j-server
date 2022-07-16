@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.CustomImage;
 import com.l2jserver.gameserver.ItemsAutoDestroy;
 import com.l2jserver.gameserver.SevenSigns;
 import com.l2jserver.gameserver.SevenSignsFestival;
@@ -1150,6 +1151,11 @@ public class L2Npc extends L2Character
 		
 		html.replace("%objectId%", String.valueOf(getObjectId()));
 		html.replace("%festivalMins%", SevenSignsFestival.getInstance().getTimeToNextFestivalStr());
+
+		if (npcId >= 55_000)
+		{
+			CustomImage.sendPackets(player, html);
+		}
 		player.sendPacket(html);
 		
 		// Send a Server->Client ActionFailed to the L2PcInstance in order to avoid that the client wait another packet
