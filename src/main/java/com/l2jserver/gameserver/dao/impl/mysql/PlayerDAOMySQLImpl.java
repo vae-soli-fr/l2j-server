@@ -34,6 +34,7 @@ import com.l2jserver.gameserver.data.sql.impl.ClanTable;
 import com.l2jserver.gameserver.enums.Sex;
 import com.l2jserver.gameserver.instancemanager.CursedWeaponsManager;
 import com.l2jserver.gameserver.model.L2ClanMember;
+import com.l2jserver.gameserver.model.actor.L2Character;
 import com.l2jserver.gameserver.model.actor.appearance.PcAppearance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.base.SubClass;
@@ -333,7 +334,7 @@ public class PlayerDAOMySQLImpl implements PlayerDAO
 			ps.setInt(24, player.getRace().ordinal());
 			ps.setInt(25, player.getClassId().getId());
 			ps.setLong(26, player.getDeleteTimer());
-			ps.setString(27, player.getTitle());
+			ps.setString(27, ((L2Character)player).getTitle());
 			ps.setInt(28, player.getAppearance().getTitleColor());
 			ps.setInt(29, player.getAccessLevel().getLevel());
 			ps.setInt(30, player.isOnlineInt());

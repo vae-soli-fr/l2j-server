@@ -280,6 +280,7 @@ public final class Say2 extends L2GameClientPacket
 		final IChatHandler handler = ChatHandler.getInstance().getHandler(_type);
 		if (handler != null)
 		{
+			activeChar.setAfk(false);
 			handler.handleChat(_type, activeChar, _target, _text);
 		}
 		else

@@ -1152,6 +1152,7 @@ public final class Config
 	public static boolean ALLOW_RIDE;
 	public static int MOUNT_INTERVAL;
 	public static List<Integer> PERMANENT_ALTERNATIVE_INSTANCES;
+	public static int AFK_DELAY;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2810,6 +2811,7 @@ public final class Config
 			MOUNT_INTERVAL = customsSettings.getInt("MountInterval", 20);
 			final String instances = customsSettings.getString("PermanentAlternativeInstances", "");
 			PERMANENT_ALTERNATIVE_INSTANCES = instances.isEmpty() ? Collections.emptyList() : Arrays.stream(instances.split(";")).map(Integer::parseInt).collect(Collectors.toList());
+			AFK_DELAY = customsSettings.getInt("AfkDelay", 600);
 
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)

@@ -156,6 +156,7 @@ import com.l2jserver.gameserver.model.actor.appearance.PcAppearance;
 import com.l2jserver.gameserver.model.actor.knownlist.PcKnownList;
 import com.l2jserver.gameserver.model.actor.stat.PcStat;
 import com.l2jserver.gameserver.model.actor.status.PcStatus;
+import com.l2jserver.gameserver.model.actor.tasks.player.AfkTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.DismountTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.FameTask;
 import com.l2jserver.gameserver.model.actor.tasks.player.GameGuardCheckTask;
@@ -236,6 +237,7 @@ import com.l2jserver.gameserver.model.punishment.PunishmentType;
 import com.l2jserver.gameserver.model.quest.Quest;
 import com.l2jserver.gameserver.model.quest.QuestState;
 import com.l2jserver.gameserver.model.skills.AbnormalType;
+import com.l2jserver.gameserver.model.skills.AbnormalVisualEffect;
 import com.l2jserver.gameserver.model.skills.BuffInfo;
 import com.l2jserver.gameserver.model.skills.CommonSkill;
 import com.l2jserver.gameserver.model.skills.Skill;
@@ -652,6 +654,8 @@ public final class L2PcInstance extends L2Playable
 	private Volume _volume = Volume.DEFAULT;
 	private Language _language = Language.COMMON;
 	private L2Camp _camp = new L2Camp();
+	private boolean _afk = false;
+	private ScheduledFuture<?> _afkTask;
 	
 	/**
 	 * Creates a player.
@@ -5556,6 +5560,7 @@ public final class L2PcInstance extends L2Playable
 		stopVitalityTask();
 		stopRecoBonusTask();
 		stopRecoGiveTask();
+		stopAfkTask();
 	}
 	
 	@Override
@@ -12566,6 +12571,24 @@ public final class L2PcInstance extends L2Playable
 		}
 	}
 	
+	public void startAfkTask()
+	{
+		if (Config.AFK_DELAY > 0 && (_afkTask == null))
+		{
+			int delay = Config.AFK_DELAY * 1000;
+			_afkTask = ThreadPoolManager.getInstance().scheduleGeneralAtFixedRate(new AfkTask(this), delay, delay);
+		}
+	}
+	
+	public void stopAfkTask()
+	{
+		if (_afkTask != null)
+		{
+			_afkTask.cancel(false);
+			_afkTask = null;
+		}
+	}
+
 	public boolean isRecoTwoHoursGiven()
 	{
 		return _recoTwoHoursGiven;
@@ -13252,5 +13275,30 @@ public final class L2PcInstance extends L2Playable
 	public void evolveCamp()
 	{
 		_camp.evolve(this);
+	}
+
+	public boolean isAfk()
+	{
+		return _afk;
+	}
+
+	public void setAfk(boolean isAfk)
+	{
+		if (_afk != isAfk)
+		{
+			_afk = isAfk;
+			broadcastUserInfo();
+		}
+	}
+
+	@Override
+	public int getAbnormalVisualEffects() {
+		return isAfk() ? super.getAbnormalVisualEffects() | AbnormalVisualEffect.STEALTH.getMask() : super.getAbnormalVisualEffects();
+	}
+
+	@Override
+	public final String getTitle()
+	{
+		return isAfk() ? "*AFK*" : super.getTitle();
 	}
 }
