@@ -45,11 +45,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.l2jserver.Config;
-import com.l2jserver.gameserver.L2Camp;
 import com.l2jserver.gameserver.DescriptionManager;
 import com.l2jserver.gameserver.GameTimeController;
 import com.l2jserver.gameserver.GeoData;
 import com.l2jserver.gameserver.ItemsAutoDestroy;
+import com.l2jserver.gameserver.L2Camp;
 import com.l2jserver.gameserver.LoginServerThread;
 import com.l2jserver.gameserver.RecipeController;
 import com.l2jserver.gameserver.SevenSigns;
@@ -656,6 +656,7 @@ public final class L2PcInstance extends L2Playable
 	private L2Camp _camp = new L2Camp();
 	private boolean _afk = false;
 	private ScheduledFuture<?> _afkTask;
+	private long _actionId = 0;
 	
 	/**
 	 * Creates a player.
@@ -13282,13 +13283,25 @@ public final class L2PcInstance extends L2Playable
 		return _afk;
 	}
 
-	public void setAfk(boolean isAfk)
+	public void enterAfk()
 	{
-		if (_afk != isAfk)
+		_afk = true;
+		broadcastUserInfo();
+	}
+
+	public void notAfk()
+	{
+		if (isAfk())
 		{
-			_afk = isAfk;
+			_afk = false;
 			broadcastUserInfo();
 		}
+		_actionId++;
+	}
+	
+	public long getActionId()
+	{
+		return _actionId;
 	}
 
 	@Override
@@ -13299,6 +13312,11 @@ public final class L2PcInstance extends L2Playable
 	@Override
 	public final String getTitle()
 	{
-		return isAfk() ? "*AFK*" : super.getTitle();
+		return getTitle(true);
+	}
+	
+	public final String getTitle(boolean showAfk)
+	{
+		return showAfk && isAfk() ? "*AFK*" : super.getTitle();
 	}
 }

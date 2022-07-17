@@ -80,7 +80,7 @@ public class MoveBackwardToLocation extends L2GameClientPacket
 			return;
 		}
 		
-		activeChar.setAfk(false);
+		activeChar.notAfk();
 		
 		if ((Config.PLAYER_MOVEMENT_BLOCK_TIME > 0) && !activeChar.isGM() && (activeChar.getNotMoveUntil() > System.currentTimeMillis()))
 		{

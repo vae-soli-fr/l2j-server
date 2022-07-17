@@ -18,7 +18,6 @@
  */
 package com.l2jserver.gameserver.model.actor.tasks.player;
 
-import com.l2jserver.gameserver.model.Location;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 
 /**
@@ -28,12 +27,12 @@ import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 public class AfkTask implements Runnable
 {
 	private final L2PcInstance _player;
-	private final Location _location;
+	private long _actionId;
 
 	public AfkTask(L2PcInstance player)
 	{
 		_player = player;
-		_location = player.getLocation();
+		_actionId = player.getActionId();
 	}
 
 	@Override
@@ -41,16 +40,16 @@ public class AfkTask implements Runnable
 	{
 		if (_player != null)
 		{
-			if (_player.getLocation().equals(_location))
+			if (!(_player.getActionId() > _actionId))
 			{
-				_player.setAfk(true);
+				_player.enterAfk();
 				_player.sendMessage("Vous êtes considéré AFK.");
 				_player.sendMessage("Vous ne gagnez plus d'expérience en roleplay.");
 				_player.sendMessage("Déplacez-vous ou parlez pour quitter ce mode.");
 			}
 			else
 			{
-				_location.setLocation(_player.getLocation());
+				_actionId = _player.getActionId();
 			}
 		}
 	}
