@@ -18,7 +18,10 @@
  */
 package com.l2jserver.gameserver.model.actor.tasks.player;
 
+import com.l2jserver.Config;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
+import com.l2jserver.gameserver.network.clientpackets.Say2;
+import com.l2jserver.gameserver.network.serverpackets.CreatureSay;
 
 /**
  * Task dedicated to set AFK status.
@@ -42,15 +45,24 @@ public class AfkTask implements Runnable
 		{
 			if (!(_player.getActionId() > _actionId))
 			{
-				_player.enterAfk();
-				_player.sendMessage("Vous êtes considéré AFK.");
-				_player.sendMessage("Vous ne gagnez plus d'expérience en roleplay.");
-				_player.sendMessage("Déplacez-vous ou parlez pour quitter ce mode.");
+				if (!_player.isAfk())
+				{
+					_player.enterAfk();
+					_player.sendPacket(announce("Vous êtes inactif depuis " + Config.AFK_DELAY + " secondes."));
+					_player.sendPacket(announce("Vous êtes maintenant considéré AFK."));
+					_player.sendMessage("Vous ne gagnez plus d'expérience en roleplay.");
+					_player.sendMessage("Déplacez-vous ou parlez pour quitter ce mode.");
+				}
 			}
 			else
 			{
 				_actionId = _player.getActionId();
 			}
 		}
+	}
+
+	private static CreatureSay announce(String text)
+	{
+		return new CreatureSay(0, Say2.CRITICAL_ANNOUNCE, "", text);
 	}
 }
