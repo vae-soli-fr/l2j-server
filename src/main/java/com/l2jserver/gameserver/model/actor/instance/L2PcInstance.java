@@ -9295,6 +9295,8 @@ public final class L2PcInstance extends L2Playable
 			checkPlayerSkills();
 		}
 		
+		checkFashionItems();
+		
 		try
 		{
 			for (L2ZoneType zone : ZoneManager.getInstance().getZones(this))
@@ -13318,5 +13320,24 @@ public final class L2PcInstance extends L2Playable
 	public final String getTitle(boolean showAfk)
 	{
 		return showAfk && isAfk() ? "*AFK*" : super.getTitle();
+	}
+	
+	public void checkFashionItems()
+	{
+		for (int i = 0; i < Inventory.PAPERDOLL_TOTALSLOTS; i++)
+		{
+			L2Item item = getInventory().getFashionItem(i);
+
+			if (item == null)
+			{
+				continue;
+			}
+
+			if (getWarehouse().getInventoryItemCount(item.getId(), -1) == 0
+					&& getInventory().getInventoryItemCount(item.getId(), -1) == 0)
+			{
+				getInventory().setFashionItem(i, null);
+			}
+		}
 	}
 }
