@@ -13336,6 +13336,7 @@ public final class L2PcInstance extends L2Playable
 			if (getWarehouse().getInventoryItemCount(item.getId(), -1) == 0
 					&& getInventory().getInventoryItemCount(item.getId(), -1) == 0)
 			{
+				sendMessage("Fashion item " + item.getName() + " not found.");
 				getInventory().setFashionItem(i, null);
 			}
 		}
