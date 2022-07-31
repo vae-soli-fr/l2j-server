@@ -1037,30 +1037,37 @@ public class L2Attackable extends L2Npc
 
 		if (isRaid() && !isRaidMinion() && Config.RAID_REWARD_ITEM_ID > 0) {
 
-			ItemHolder reward;
+			int raidRewardQty = 10;
 
-			if (Util.between(getLevel(), 30, 39)) {
-				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 100);
-
-			} else if (Util.between(getLevel(), 40, 64)) {
-				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 1_000);
-
-			} else if (Util.between(getLevel(), 65, 75)) {
-				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 10_000);
-
-			} else if (getLevel() > 75) {
-				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 100_000);
-
-			} else {
-				reward = new ItemHolder(Config.RAID_REWARD_ITEM_ID, 10);
+			if (Util.between(getLevel(), 30, 39)) 
+			{
+				raidRewardQty = 100;
+			}
+			else if (Util.between(getLevel(), 40, 64))
+			{
+				raidRewardQty = 1_000;
+			}
+			else if (Util.between(getLevel(), 65, 75))
+			{
+				raidRewardQty = 10_000;
+			}
+			else if (getLevel() > 75)
+			{
+				raidRewardQty = 100_000;
+			}
+			
+			int dropQty = Math.min(raidRewardQty, 10_000);
+			
+			for (int i = 0; i < raidRewardQty; i += dropQty)
+			{
+				dropItem(player, Config.RAID_REWARD_ITEM_ID, dropQty);
 			}
 
-			dropItem(player, reward);
-			L2Item item = ItemTable.getInstance().getTemplate(reward.getId());
+			L2Item item = ItemTable.getInstance().getTemplate(Config.RAID_REWARD_ITEM_ID);
 			final SystemMessage sm = SystemMessage.getSystemMessage(SystemMessageId.C1_DIED_DROPPED_S3_S2);
 			sm.addCharName(this);
 			sm.addItemName(item);
-			sm.addLong(reward.getCount());
+			sm.addLong(raidRewardQty);
 			broadcastPacket(sm);
 		}
 	}
