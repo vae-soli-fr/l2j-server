@@ -30,6 +30,8 @@ import com.l2jserver.gameserver.model.actor.instance.L2MonsterInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2NpcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2TrapInstance;
+import com.l2jserver.gameserver.model.actor.templates.L2FakePcTemplate;
+import com.l2jserver.gameserver.model.itemcontainer.Inventory;
 import com.l2jserver.gameserver.model.skills.AbnormalVisualEffect;
 import com.l2jserver.gameserver.model.zone.ZoneId;
 
@@ -48,6 +50,31 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 	protected double _collisionHeight, _collisionRadius;
 	protected String _name = "";
 	protected String _title = "";
+	
+	private static final int[] PAPERDOLL_ORDER = new int[]
+	{
+		Inventory.PAPERDOLL_UNDER,
+		Inventory.PAPERDOLL_HEAD,
+		Inventory.PAPERDOLL_RHAND,
+		Inventory.PAPERDOLL_LHAND,
+		Inventory.PAPERDOLL_GLOVES,
+		Inventory.PAPERDOLL_CHEST,
+		Inventory.PAPERDOLL_LEGS,
+		Inventory.PAPERDOLL_FEET,
+		Inventory.PAPERDOLL_CLOAK,
+		Inventory.PAPERDOLL_RHAND,
+		Inventory.PAPERDOLL_HAIR,
+		Inventory.PAPERDOLL_HAIR2,
+		Inventory.PAPERDOLL_RBRACELET,
+		Inventory.PAPERDOLL_LBRACELET,
+		Inventory.PAPERDOLL_DECO1,
+		Inventory.PAPERDOLL_DECO2,
+		Inventory.PAPERDOLL_DECO3,
+		Inventory.PAPERDOLL_DECO4,
+		Inventory.PAPERDOLL_DECO5,
+		Inventory.PAPERDOLL_DECO6,
+		Inventory.PAPERDOLL_BELT
+	};
 	
 	public AbstractNpcInfo(L2Character cha)
 	{
@@ -101,7 +128,7 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 			}
 			else if (Config.L2JMOD_CHAMPION_ENABLE && cha.isChampion())
 			{
-				_title = (Config.L2JMOD_CHAMP_TITLE); // On every subclass
+				_title = cha.getTemplate().isFakePc() ? "Champion" : Config.L2JMOD_CHAMP_TITLE; // On every subclass
 			}
 			else if (cha.getTemplate().isUsingServerSideTitle())
 			{
@@ -143,64 +170,187 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 		@Override
 		protected void writeImpl()
 		{
-			writeC(0x0c);
-			writeD(_npc.getObjectId());
-			writeD(_idTemplate + 1000000); // npctype id
-			writeD(_isAttackable ? 1 : 0);
-			writeD(_x);
-			writeD(_y);
-			writeD(_z);
-			writeD(_heading);
-			writeD(0x00);
-			writeD(_mAtkSpd);
-			writeD(_pAtkSpd);
-			writeD(_runSpd);
-			writeD(_walkSpd);
-			writeD(_swimRunSpd);
-			writeD(_swimWalkSpd);
-			writeD(_flyRunSpd);
-			writeD(_flyWalkSpd);
-			writeD(_flyRunSpd);
-			writeD(_flyWalkSpd);
-			writeF(_moveMultiplier);
-			writeF(_npc.getAttackSpeedMultiplier());
-			writeF(_collisionRadius);
-			writeF(_collisionHeight);
-			writeD(_rhand); // right hand weapon
-			writeD(_chest);
-			writeD(_lhand); // left hand weapon
-			writeC(1); // name above char 1=true ... ??
-			writeC(_npc.isRunning() ? 1 : 0);
-			writeC(_npc.isInCombat() ? 1 : 0);
-			writeC(_npc.isAlikeDead() ? 1 : 0);
-			writeC(_isSummoned ? 2 : 0); // invisible ?? 0=false 1=true 2=summoned (only works if model has a summon animation)
-			writeD(-1); // High Five NPCString ID
-			writeS(_name);
-			writeD(-1); // High Five NPCString ID
-			writeS(_title);
-			writeD(0x00); // Title color 0=client default
-			writeD(0x00); // pvp flag
-			writeD(0x00); // karma
-			
-			writeD(_npc.isInvisible() ? _npc.getAbnormalVisualEffects() | AbnormalVisualEffect.STEALTH.getMask() : _npc.getAbnormalVisualEffects());
-			writeD(_clanId); // clan id
-			writeD(_clanCrest); // crest id
-			writeD(_allyId); // ally id
-			writeD(_allyCrest); // all crest
-			
-			writeC(_npc.isInsideZone(ZoneId.WATER) ? 1 : _npc.isFlying() ? 2 : 0); // C2
-			writeC(_npc.getTeam().getId());
-			
-			writeF(_collisionRadius);
-			writeF(_collisionHeight);
-			writeD(_enchantEffect); // C4
-			writeD(_npc.isFlying() ? 1 : 0); // C6
-			writeD(0x00);
-			writeD(_npc.getColorEffect()); // CT1.5 Pet form and skills, Color effect
-			writeC(_npc.isTargetable() ? 0x01 : 0x00);
-			writeC(_npc.isShowName() ? 0x01 : 0x00);
-			writeD(_npc.getAbnormalVisualEffectSpecial());
-			writeD(_displayEffect);
+			if (_npc.getTemplate().isFakePc())
+			{
+				L2FakePcTemplate fake = (L2FakePcTemplate) _npc.getTemplate();
+				
+				writeC(0x31);
+				writeD(_x);
+				writeD(_y);
+				writeD(_z);
+				writeD(0x00); // vehicle id
+				writeD(_npc.getObjectId());
+				writeS(_name);
+				writeD(fake.getRace().ordinal());
+				writeD(fake.isFemale() ? 1 : 0);
+				writeD(fake.getBaseClass());
+				
+				for (int slot : getPaperdollOrder())
+				{
+					writeD(fake.getPaperdollItemDisplayId(slot));
+				}
+				
+				for (int slot : getPaperdollOrder())
+				{
+					writeD(fake.getPaperdollAugmentationId(slot));
+				}
+				
+				writeD(0x00); // talisman slots
+				writeD(0x01); // can equip cloak
+				
+				writeD(0x00); // pvp flag
+				writeD(0x00); // karma
+				
+				writeD(_mAtkSpd);
+				writeD(_pAtkSpd);
+				
+				writeD(0x00); // ?
+				
+				writeD(_runSpd);
+				writeD(_walkSpd);
+				writeD(_swimRunSpd);
+				writeD(_swimWalkSpd);
+				writeD(_flyRunSpd);
+				writeD(_flyWalkSpd);
+				writeD(_flyRunSpd);
+				writeD(_flyWalkSpd);
+				writeF(_moveMultiplier);
+				writeF(_npc.getAttackSpeedMultiplier());
+				
+				writeF(fake.getCollisionRadiusGrown());
+				writeF(fake.getCollisionHeightGrown());
+				
+				writeD(fake.getHairStyle() > -1 ? fake.getHairStyle() : _npc.getRandomHairStyle());
+				writeD(fake.getHairColor() > -1 ? fake.getHairColor() : _npc.getRandomHairColor());
+				writeD(fake.getFace() > -1 ? fake.getFace() : _npc.getRandomFace());
+				
+				writeS(_title);
+				
+				writeD(0x00); // clan id
+				writeD(0x00); // clan crest id
+				writeD(0x00); // ally id
+				writeD(0x00); // ally crest id
+				
+				writeC(0x01); // standing = 1 sitting = 0
+				writeC(_npc.isRunning() ? 1 : 0); // running = 1 walking = 0
+				writeC(_npc.isInCombat() ? 1 : 0);
+				
+				writeC(_npc.isAlikeDead() ? 1 : 0);
+				
+				writeC(0x00); // invisible = 1 visible = 0
+				
+				writeC(fake.getMountType().ordinal()); // 1-on Strider, 2-on Wyvern, 3-on Great Wolf, 0-no mount
+				writeC(0x00); // private store type
+				
+				writeH(0x00); // cubic size
+				
+				writeC(0x00); // party matchroom
+				
+				writeD(fake.isGhost() ? (_npc.getAbnormalVisualEffects() | AbnormalVisualEffect.STEALTH.getMask()) : _npc.getAbnormalVisualEffects()); // abnormal effects
+				
+				writeC(_npc.isFlying() ? 2 : 0); // is Flying
+				
+				writeH(0x00); // Blue value for name (0 = white, 255 = pure blue)
+				writeD(fake.getMountNpcId() + 1000000);
+				writeD(fake.getActiveClass());
+				writeD(0x00); // ?
+				writeC(fake.isMounted() ? 0 : fake.getEnchantEffect());
+				
+				writeC(0x00); // team
+				
+				writeD(0x00); // clean crest large id
+				writeC(0x00); // Symbol on char menu ctrl+I
+				writeC(fake.isHero() ? 1 : 0); // Hero Aura
+				
+				writeC(0x00); // 0x01: Fishing Mode (Cant be undone by setting back to 0)
+				writeD(0x00); // fish x
+				writeD(0x00); // fish y
+				writeD(0x00); // fish z
+				
+				writeD(0xffffff); // name color
+				
+				writeD(_heading);
+				
+				writeD(0x00); // pledge class
+				writeD(0x00); // pledge type
+				
+				writeD(0xecf9a2); // title color
+				
+				writeD(0x00); // cursed weapon level
+				
+				writeD(0x00); // reputation score
+				
+				// T1
+				writeD(0x00); // transformation id
+				writeD(0x00); // agathion id
+				
+				// T2
+				writeD(0x01); // ?
+				
+				// T2.3
+				writeD(_npc.getAbnormalVisualEffectSpecial()); // special effects
+			}
+			else
+			{
+				writeC(0x0c);
+				writeD(_npc.getObjectId());
+				writeD(_idTemplate + 1000000); // npctype id
+				writeD(_isAttackable ? 1 : 0);
+				writeD(_x);
+				writeD(_y);
+				writeD(_z);
+				writeD(_heading);
+				writeD(0x00);
+				writeD(_mAtkSpd);
+				writeD(_pAtkSpd);
+				writeD(_runSpd);
+				writeD(_walkSpd);
+				writeD(_swimRunSpd);
+				writeD(_swimWalkSpd);
+				writeD(_flyRunSpd);
+				writeD(_flyWalkSpd);
+				writeD(_flyRunSpd);
+				writeD(_flyWalkSpd);
+				writeF(_moveMultiplier);
+				writeF(_npc.getAttackSpeedMultiplier());
+				writeF(_collisionRadius);
+				writeF(_collisionHeight);
+				writeD(_rhand); // right hand weapon
+				writeD(_chest);
+				writeD(_lhand); // left hand weapon
+				writeC(1); // name above char 1=true ... ??
+				writeC(_npc.isRunning() ? 1 : 0);
+				writeC(_npc.isInCombat() ? 1 : 0);
+				writeC(_npc.isAlikeDead() ? 1 : 0);
+				writeC(_isSummoned ? 2 : 0); // invisible ?? 0=false 1=true 2=summoned (only works if model has a summon animation)
+				writeD(-1); // High Five NPCString ID
+				writeS(_name);
+				writeD(-1); // High Five NPCString ID
+				writeS(_title);
+				writeD(0x00); // Title color 0=client default
+				writeD(0x00); // pvp flag
+				writeD(0x00); // karma
+				
+				writeD(_npc.isInvisible() ? _npc.getAbnormalVisualEffects() | AbnormalVisualEffect.STEALTH.getMask() : _npc.getAbnormalVisualEffects());
+				writeD(_clanId); // clan id
+				writeD(_clanCrest); // crest id
+				writeD(_allyId); // ally id
+				writeD(_allyCrest); // all crest
+				
+				writeC(_npc.isInsideZone(ZoneId.WATER) ? 1 : _npc.isFlying() ? 2 : 0); // C2
+				writeC(_npc.getTeam().getId());
+				
+				writeF(_collisionRadius);
+				writeF(_collisionHeight);
+				writeD(_enchantEffect); // C4
+				writeD(_npc.isFlying() ? 1 : 0); // C6
+				writeD(0x00);
+				writeD(_npc.getColorEffect()); // CT1.5 Pet form and skills, Color effect
+				writeC(_npc.isTargetable() ? 0x01 : 0x00);
+				writeC(_npc.isShowName() ? 0x01 : 0x00);
+				writeD(_npc.getAbnormalVisualEffectSpecial());
+				writeD(_displayEffect);
+			}
 		}
 	}
 	
@@ -392,5 +542,11 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 			writeC(0x01);
 			writeD(_summon.getAbnormalVisualEffectSpecial());
 		}
+	}
+	
+	@Override
+	protected int[] getPaperdollOrder()
+	{
+		return PAPERDOLL_ORDER;
 	}
 }

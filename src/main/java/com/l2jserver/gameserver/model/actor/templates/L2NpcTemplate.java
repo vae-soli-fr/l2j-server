@@ -45,7 +45,7 @@ import com.l2jserver.gameserver.model.skills.Skill;
  * NPC template.
  * @author NosBit
  */
-public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
+public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 {
 	private int _id;
 	private int _displayId;
@@ -611,5 +611,10 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	public void addTeachInfo(List<ClassId> teachInfo)
 	{
 		_teachInfo.addAll(teachInfo);
+	}
+	
+	public boolean isFakePc()
+	{
+		return false;
 	}
 }

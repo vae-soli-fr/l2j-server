@@ -39,6 +39,7 @@ import com.l2jserver.Config;
 import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.AISkillScope;
 import com.l2jserver.gameserver.model.StatsSet;
+import com.l2jserver.gameserver.model.actor.templates.L2FakePcTemplate;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.drops.DropListScope;
@@ -476,7 +477,14 @@ public class NpcData implements IXmlReader
 						L2NpcTemplate template = _npcs.get(npcId);
 						if (template == null)
 						{
-							template = new L2NpcTemplate(set);
+							// TODO REMOVE !!!
+							if (set.getInt("id") == 70_000) {
+								LOG.info("IS FAKE PC LOADING !!!!");
+								template = new L2FakePcTemplate(set);
+								
+							} else {
+								template = new L2NpcTemplate(set);
+							}
 							_npcs.put(template.getId(), template);
 						}
 						else

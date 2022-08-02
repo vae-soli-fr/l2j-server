@@ -19,6 +19,7 @@
 package com.l2jserver.gameserver.model.actor;
 
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_ACTIVE;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -152,6 +153,11 @@ public class L2Npc extends L2Character
 	private int _killingBlowWeaponId;
 	/** Map of summoned NPCs by this NPC. */
 	private volatile Map<Integer, L2Npc> _summonedNpcs = null;
+	
+	private byte _vesperChange = (byte) Rnd.get(0, 2);
+	private byte _hairStyle = (byte) Rnd.get(0, 4);
+	private byte _hairColor = (byte) Rnd.get(0, 2);
+	private byte _face = (byte) Rnd.get(0, 2);
 	
 	/**
 	 * Creates a NPC.
@@ -1960,6 +1966,46 @@ public class L2Npc extends L2Character
 
 	@Override
 	public int getAbnormalVisualEffectSpecial() {
-		return isChampion() ? super.getAbnormalVisualEffectSpecial() | AbnormalVisualEffect.NAVIT_ADVENT.getMask() : super.getAbnormalVisualEffectSpecial();
+		if (isChampion())
+		{
+			AbnormalVisualEffect effect = AbnormalVisualEffect.NAVIT_ADVENT;
+
+			if (getTemplate().isFakePc())
+			{
+				switch(_vesperChange)
+				{
+					case 0:
+						effect =  AbnormalVisualEffect.CHANGE_VES_C;
+						break;
+					case 1:
+						effect = AbnormalVisualEffect.CHANGE_VES_D;
+						break;
+					case 2:
+					default:
+						effect = AbnormalVisualEffect.CHANGE_VES_S;
+				}
+			}
+			
+			return super.getAbnormalVisualEffectSpecial() | effect.getMask();
+			
+		}
+		
+		return super.getAbnormalVisualEffectSpecial();
 	}
+	
+	public byte getRandomHairStyle()
+	{
+		return _hairStyle;
+	}
+
+	public byte getRandomHairColor()
+	{
+		return _hairColor;
+	}
+
+	public byte getRandomFace()
+	{
+		return _face;
+	}
+
 }
