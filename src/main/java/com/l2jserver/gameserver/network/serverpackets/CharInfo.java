@@ -117,6 +117,7 @@ public class CharInfo extends L2GameServerPacket
 	protected final void writeImpl()
 	{
 		boolean gmSeeInvis = false;
+		String title;
 		
 		if (isInvisible())
 		{
@@ -127,6 +128,19 @@ public class CharInfo extends L2GameServerPacket
 			}
 		}
 		
+		if (gmSeeInvis)
+		{
+			title = "Invisible";
+		}
+		else if (_activeChar.isAfk())
+		{
+			title = "*AFK*";
+		}
+		else
+		{
+			title = _activeChar.getAppearance().getVisibleTitle();
+		}
+	
 		final L2NpcTemplate template = _activeChar.getPoly().isMorphed() ? NpcData.getInstance().getTemplate(_activeChar.getPoly().getPolyId()) : null;
 		if (template != null)
 		{
@@ -165,7 +179,7 @@ public class CharInfo extends L2GameServerPacket
 			writeD(-1); // High Five NPCString ID
 			writeS(_activeChar.getAppearance().getVisibleName());
 			writeD(-1); // High Five NPCString ID
-			writeS(gmSeeInvis ? "Invisible" : _activeChar.getAppearance().getVisibleTitle());
+			writeS(title);
 			
 			writeD(_activeChar.getAppearance().getTitleColor()); // Title color 0=client default
 			writeD(_activeChar.getPvpFlag()); // pvp flag
@@ -247,7 +261,7 @@ public class CharInfo extends L2GameServerPacket
 			writeD(_activeChar.getAppearance().getHairColor());
 			writeD(_activeChar.getAppearance().getFace());
 			
-			writeS(gmSeeInvis ? "Invisible" : _activeChar.getAppearance().getVisibleTitle());
+			writeS(title);
 			
 			if (!_activeChar.isCursedWeaponEquipped())
 			{

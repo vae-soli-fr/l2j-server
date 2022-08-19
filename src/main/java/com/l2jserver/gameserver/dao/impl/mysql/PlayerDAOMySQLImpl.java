@@ -333,7 +333,7 @@ public class PlayerDAOMySQLImpl implements PlayerDAO
 			ps.setInt(24, player.getRace().ordinal());
 			ps.setInt(25, player.getClassId().getId());
 			ps.setLong(26, player.getDeleteTimer());
-			ps.setString(27, player.getTitle(false));
+			ps.setString(27, player.getTitle());
 			ps.setInt(28, player.getAppearance().getTitleColor());
 			ps.setInt(29, player.getAccessLevel().getLevel());
 			ps.setInt(30, player.isOnlineInt());

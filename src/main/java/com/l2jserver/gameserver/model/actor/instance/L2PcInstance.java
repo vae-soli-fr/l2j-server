@@ -13311,17 +13311,6 @@ public final class L2PcInstance extends L2Playable
 		return isAfk() ? super.getAbnormalVisualEffects() | AbnormalVisualEffect.STEALTH.getMask() : super.getAbnormalVisualEffects();
 	}
 
-	@Override
-	public final String getTitle()
-	{
-		return getTitle(true);
-	}
-	
-	public final String getTitle(boolean showAfk)
-	{
-		return showAfk && isAfk() ? "*AFK*" : super.getTitle();
-	}
-	
 	public void checkFashionItems()
 	{
 		for (int i = 0; i < Inventory.PAPERDOLL_TOTALSLOTS; i++)
