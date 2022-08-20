@@ -123,6 +123,10 @@ public class HeadUtil
 	
 	public static byte toByte(String value)
 	{
+		if (value == null || value.length() == 0)
+		{
+			return -1;
+		}
 		return (byte) toInt(value.charAt(0));
 	}
 	

@@ -59,9 +59,9 @@ public class L2FakePcTemplate extends L2NpcTemplate
 
 		_female = set.getBoolean("fake_female", false);
 		
-		_hairStyle = HeadUtil.toByte(set.getString("fake_head_style", "A"));
-		_hairColor = HeadUtil.toByte(set.getString("fake_head_color", "A"));
-		_face = HeadUtil.toByte(set.getString("fake_head_face", "A"));
+		_hairStyle = HeadUtil.toByte(set.getString("fake_head_style", null));
+		_hairColor = HeadUtil.toByte(set.getString("fake_head_color", null));
+		_face = HeadUtil.toByte(set.getString("fake_head_face", null));
 		
 		_mountNpcId = set.getInt("fake_mountNpcId", 0);
 		_mountType = MountType.findByNpcId(_mountNpcId);
