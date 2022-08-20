@@ -19,6 +19,7 @@
 package com.l2jserver.gameserver.model.actor;
 
 import static com.l2jserver.gameserver.ai.CtrlIntention.AI_INTENTION_ACTIVE;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.l2jserver.Config;
 import com.l2jserver.gameserver.CustomImage;
+import com.l2jserver.gameserver.HeadUtil;
 import com.l2jserver.gameserver.ItemsAutoDestroy;
 import com.l2jserver.gameserver.SevenSigns;
 import com.l2jserver.gameserver.SevenSignsFestival;
@@ -152,6 +154,11 @@ public class L2Npc extends L2Character
 	private int _killingBlowWeaponId;
 	/** Map of summoned NPCs by this NPC. */
 	private volatile Map<Integer, L2Npc> _summonedNpcs = null;
+	
+	private Byte _vesperChange;
+	private Byte _hairStyle;
+	private Byte _hairColor;
+	private Byte _face;
 	
 	/**
 	 * Creates a NPC.
@@ -1960,6 +1967,62 @@ public class L2Npc extends L2Character
 
 	@Override
 	public int getAbnormalVisualEffectSpecial() {
-		return isChampion() ? super.getAbnormalVisualEffectSpecial() | AbnormalVisualEffect.NAVIT_ADVENT.getMask() : super.getAbnormalVisualEffectSpecial();
+		if (isChampion())
+		{
+			AbnormalVisualEffect effect = AbnormalVisualEffect.NAVIT_ADVENT;
+
+			if (getTemplate().isFakePc())
+			{
+				if (_vesperChange == null)
+				{
+					_vesperChange = (byte) Rnd.get(0, 2);
+				}
+				switch(_vesperChange)
+				{
+					case 0:
+						effect =  AbnormalVisualEffect.CHANGE_VES_C;
+						break;
+					case 1:
+						effect = AbnormalVisualEffect.CHANGE_VES_D;
+						break;
+					case 2:
+					default:
+						effect = AbnormalVisualEffect.CHANGE_VES_S;
+				}
+			}
+			
+			return super.getAbnormalVisualEffectSpecial() | effect.getMask();
+			
+		}
+		
+		return super.getAbnormalVisualEffectSpecial();
 	}
+	
+	public byte getRandomHairStyle()
+	{
+		if (_hairStyle == null)
+		{
+			_hairStyle = HeadUtil.randomHairStyle(getRace(), getTemplate().getSex());
+		}
+		return _hairStyle;
+	}
+
+	public byte getRandomHairColor()
+	{
+		if (_hairColor == null)
+		{
+			_hairColor = HeadUtil.randomHairColor(getRace(), getTemplate().getSex());
+		}
+		return _hairColor;
+	}
+
+	public byte getRandomFace()
+	{
+		if (_face == null)
+		{
+			_face = HeadUtil.randomFace(getRace(), getTemplate().getSex());
+		}
+		return _face;
+	}
+
 }

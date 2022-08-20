@@ -39,6 +39,7 @@ import com.l2jserver.Config;
 import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.AISkillScope;
 import com.l2jserver.gameserver.model.StatsSet;
+import com.l2jserver.gameserver.model.actor.templates.L2FakePcTemplate;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.drops.DropListScope;
@@ -105,6 +106,7 @@ public class NpcData implements IXmlReader
 						Set<Integer> clans = null;
 						Set<Integer> ignoreClanNpcIds = null;
 						Map<DropListScope, List<IDropItem>> dropLists = null;
+						boolean isFake = false;
 						set.set("id", npcId);
 						set.set("displayId", parseInteger(attrs, "displayId"));
 						set.set("level", parseByte(attrs, "level"));
@@ -322,6 +324,44 @@ public class NpcData implements IXmlReader
 									set.set("canBeSown", parseBoolean(attrs, "canBeSown"));
 									break;
 								}
+								case "fake":
+								{
+									isFake = true;
+									set.set("fake_classId", parseInteger(attrs, "classId"));
+									set.set("fake_female", parseBoolean(attrs, "female"));
+									set.set("fake_hero", parseBoolean(attrs, "hero"));
+									set.set("fake_ghost", parseBoolean(attrs, "ghost"));
+									set.set("fake_mountNpcId", parseInteger(attrs, "mountNpcId"));
+									for (Node fakeNode = npcNode.getFirstChild(); fakeNode != null; fakeNode = fakeNode.getNextSibling())
+									{
+										attrs = fakeNode.getAttributes();
+										switch (fakeNode.getNodeName().toLowerCase())
+										{
+											case "head":
+											{
+												set.set("fake_head_style", parseString(attrs, "style"));
+												set.set("fake_head_color", parseString(attrs, "color"));
+												set.set("fake_head_face", parseString(attrs, "face"));
+												break;
+											}
+											case "equipment":
+											{
+												set.set("fake_equipment_rhand", parseInteger(attrs, "rhand"));
+												set.set("fake_equipment_lhand", parseInteger(attrs, "lhand"));
+												set.set("fake_equipment_gloves", parseInteger(attrs, "gloves"));
+												set.set("fake_equipment_chest", parseInteger(attrs, "chest"));
+												set.set("fake_equipment_legs", parseInteger(attrs, "legs"));
+												set.set("fake_equipment_feet", parseInteger(attrs, "feet"));
+												set.set("fake_equipment_cloak", parseInteger(attrs, "cloak"));
+												set.set("fake_equipment_hair", parseInteger(attrs, "hair"));
+												set.set("fake_equipment_hair2", parseInteger(attrs, "hair2"));
+												set.set("fake_equipment_weaponEnchant", parseInteger(attrs, "weaponEnchant"));
+												break;
+											}
+										}
+									}
+									break;
+								}
 								case "skilllist":
 								{
 									skills = new HashMap<>();
@@ -476,7 +516,7 @@ public class NpcData implements IXmlReader
 						L2NpcTemplate template = _npcs.get(npcId);
 						if (template == null)
 						{
-							template = new L2NpcTemplate(set);
+							template = isFake && Config.ENABLE_FAKEPC ? new L2FakePcTemplate(set) : new L2NpcTemplate(set);
 							_npcs.put(template.getId(), template);
 						}
 						else
