@@ -30,6 +30,8 @@ import com.l2jserver.util.Rnd;
  */
 public class HeadUtil
 {
+	public static final byte NO_VALUE = -1;
+
 	private static final Head M_HUMAN = new Head('E', 'D', 'C');
 	private static final Head F_HUMAN = new Head('G', 'D', 'C');
 	private static final Head M_ELF = new Head('E', 'D', 'C');
@@ -125,7 +127,7 @@ public class HeadUtil
 	{
 		if (value == null || value.length() == 0)
 		{
-			return -1;
+			return NO_VALUE;
 		}
 		return (byte) toInt(value.charAt(0));
 	}

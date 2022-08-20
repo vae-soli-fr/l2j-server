@@ -19,6 +19,7 @@
 package com.l2jserver.gameserver.network.serverpackets;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.HeadUtil;
 import com.l2jserver.gameserver.data.sql.impl.ClanTable;
 import com.l2jserver.gameserver.instancemanager.TownManager;
 import com.l2jserver.gameserver.model.L2Clan;
@@ -220,9 +221,9 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 				writeF(fake.getCollisionRadiusGrown());
 				writeF(fake.getCollisionHeightGrown());
 				
-				writeD(fake.getHairStyle() > -1 ? fake.getHairStyle() : _npc.getRandomHairStyle());
-				writeD(fake.getHairColor() > -1 ? fake.getHairColor() : _npc.getRandomHairColor());
-				writeD(fake.getFace() > -1 ? fake.getFace() : _npc.getRandomFace());
+				writeD(fake.getHairStyle() != HeadUtil.NO_VALUE ? fake.getHairStyle() : _npc.getRandomHairStyle());
+				writeD(fake.getHairColor() != HeadUtil.NO_VALUE ? fake.getHairColor() : _npc.getRandomHairColor());
+				writeD(fake.getFace() != HeadUtil.NO_VALUE ? fake.getFace() : _npc.getRandomFace());
 				
 				writeS(_title);
 				
