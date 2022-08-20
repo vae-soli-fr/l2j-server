@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.l2jserver.Config;
 import com.l2jserver.gameserver.CustomImage;
+import com.l2jserver.gameserver.HeadUtil;
 import com.l2jserver.gameserver.ItemsAutoDestroy;
 import com.l2jserver.gameserver.SevenSigns;
 import com.l2jserver.gameserver.SevenSignsFestival;
@@ -155,9 +156,9 @@ public class L2Npc extends L2Character
 	private volatile Map<Integer, L2Npc> _summonedNpcs = null;
 	
 	private byte _vesperChange = (byte) Rnd.get(0, 2);
-	private byte _hairStyle = (byte) Rnd.get(0, 4);
-	private byte _hairColor = (byte) Rnd.get(0, 2);
-	private byte _face = (byte) Rnd.get(0, 2);
+	private byte _hairStyle = HeadUtil.randomHairStyle(getRace(), getTemplate().getSex());
+	private byte _hairColor = HeadUtil.randomHairColor(getRace(), getTemplate().getSex());
+	private byte _face = HeadUtil.randomFace(getRace(), getTemplate().getSex());
 	
 	/**
 	 * Creates a NPC.

@@ -190,9 +190,9 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 					writeD(fake.getPaperdollItemDisplayId(slot));
 				}
 				
-				for (int slot : getPaperdollOrder())
+				for (int i = 0; i < getPaperdollOrder().length; i++)
 				{
-					writeD(fake.getPaperdollAugmentationId(slot));
+					writeD(0x00); // augmentation
 				}
 				
 				writeD(0x00); // talisman slots
