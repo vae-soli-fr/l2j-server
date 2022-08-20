@@ -516,7 +516,7 @@ public class NpcData implements IXmlReader
 						L2NpcTemplate template = _npcs.get(npcId);
 						if (template == null)
 						{
-							template = isFake ? new L2FakePcTemplate(set) : new L2NpcTemplate(set);
+							template = isFake && Config.ENABLE_FAKEPC ? new L2FakePcTemplate(set) : new L2NpcTemplate(set);
 							_npcs.put(template.getId(), template);
 						}
 						else
