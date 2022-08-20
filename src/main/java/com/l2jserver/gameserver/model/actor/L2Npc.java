@@ -156,9 +156,9 @@ public class L2Npc extends L2Character
 	private volatile Map<Integer, L2Npc> _summonedNpcs = null;
 	
 	private byte _vesperChange = (byte) Rnd.get(0, 2);
-	private byte _hairStyle = HeadUtil.randomHairStyle(getRace(), getTemplate().getSex());
-	private byte _hairColor = HeadUtil.randomHairColor(getRace(), getTemplate().getSex());
-	private byte _face = HeadUtil.randomFace(getRace(), getTemplate().getSex());
+	private Byte _hairStyle;
+	private Byte _hairColor;
+	private Byte _face;
 	
 	/**
 	 * Creates a NPC.
@@ -1996,16 +1996,28 @@ public class L2Npc extends L2Character
 	
 	public byte getRandomHairStyle()
 	{
+		if (_hairStyle == null)
+		{
+			_hairStyle = HeadUtil.randomHairStyle(getRace(), getTemplate().getSex());
+		}
 		return _hairStyle;
 	}
 
 	public byte getRandomHairColor()
 	{
+		if (_hairColor == null)
+		{
+			_hairColor = HeadUtil.randomHairColor(getRace(), getTemplate().getSex());
+		}
 		return _hairColor;
 	}
 
 	public byte getRandomFace()
 	{
+		if (_face == null)
+		{
+			_face = HeadUtil.randomFace(getRace(), getTemplate().getSex());
+		}
 		return _face;
 	}
 

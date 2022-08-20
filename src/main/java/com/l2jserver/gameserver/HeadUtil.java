@@ -134,7 +134,7 @@ public class HeadUtil
 	
 	private static int toInt(char value)
 	{
-		return value & 30;
+		return (value & 31) - 1;
 	}
 	
 	protected static class Head {
