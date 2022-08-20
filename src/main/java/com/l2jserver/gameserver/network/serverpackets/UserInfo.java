@@ -168,10 +168,18 @@ public final class UserInfo extends L2GameServerPacket
 		writeD(_activeChar.getAppearance().getFace());
 		writeD(_activeChar.isGM() ? 1 : 0); // builder level
 		
-		String title = _activeChar.getTitle();
+		String title;
 		if (_activeChar.isGM() && _activeChar.isInvisible())
 		{
 			title = "Invisible";
+		}
+		else if (_activeChar.isAfk())
+		{
+			title = "*AFK*";
+		}
+		else
+		{
+			title = _activeChar.getTitle();
 		}
 		if (_activeChar.getPoly().isMorphed())
 		{
