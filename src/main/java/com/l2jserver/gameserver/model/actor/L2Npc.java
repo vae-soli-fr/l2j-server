@@ -155,7 +155,7 @@ public class L2Npc extends L2Character
 	/** Map of summoned NPCs by this NPC. */
 	private volatile Map<Integer, L2Npc> _summonedNpcs = null;
 	
-	private byte _vesperChange = (byte) Rnd.get(0, 2);
+	private Byte _vesperChange;
 	private Byte _hairStyle;
 	private Byte _hairColor;
 	private Byte _face;
@@ -1973,6 +1973,10 @@ public class L2Npc extends L2Character
 
 			if (getTemplate().isFakePc())
 			{
+				if (_vesperChange == null)
+				{
+					_vesperChange = (byte) Rnd.get(0, 2);
+				}
 				switch(_vesperChange)
 				{
 					case 0:
