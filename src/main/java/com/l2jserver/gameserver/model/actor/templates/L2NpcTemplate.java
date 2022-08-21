@@ -95,9 +95,10 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	private Map<DropListScope, List<IDropItem>> _dropLists;
 	private double _collisionRadiusGrown;
 	private double _collisionHeightGrown;
+	private boolean _isDead;
 	
 	private final List<ClassId> _teachInfo = new ArrayList<>();
-	
+
 	/**
 	 * Constructor of L2Character.
 	 * @param set The StatsSet object to transfer data to the method
@@ -142,6 +143,7 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		_passableDoor = set.getBoolean("passableDoor", false);
 		_hasSummoner = set.getBoolean("hasSummoner", false);
 		_canBeSown = set.getBoolean("canBeSown", false);
+		_isDead = set.getBoolean("dead", false);
 		
 		_corpseTime = set.getInt("corpseTime", Config.DEFAULT_CORPSE_TIME);
 		
@@ -616,5 +618,15 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	public boolean isFakePc()
 	{
 		return false;
+	}
+	
+	public boolean isSitting()
+	{
+		return false;
+	}
+	
+	public boolean isDead()
+	{
+		return _isDead;
 	}
 }

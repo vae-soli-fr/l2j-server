@@ -2029,4 +2029,16 @@ public class L2Npc extends L2Character
 	{
 		return getTemplate().isFakePc();
 	}
+	
+	@Override
+	public boolean isAlikeDead()
+	{
+		return super.isAlikeDead() || getTemplate().isDead();
+	}
+	
+	@Override
+	public final boolean isParalyzed()
+	{
+		return super.isParalyzed() || getTemplate().isSitting();
+	}
 }

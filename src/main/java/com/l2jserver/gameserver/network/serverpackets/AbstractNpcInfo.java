@@ -232,7 +232,7 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 				writeD(0x00); // ally id
 				writeD(0x00); // ally crest id
 				
-				writeC(0x01); // standing = 1 sitting = 0
+				writeC(fake.isSitting() ? 0 : 1); // standing = 1 sitting = 0
 				writeC(_npc.isRunning() ? 1 : 0); // running = 1 walking = 0
 				writeC(_npc.isInCombat() ? 1 : 0);
 				

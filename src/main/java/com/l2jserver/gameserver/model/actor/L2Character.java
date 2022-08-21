@@ -2769,7 +2769,7 @@ public abstract class L2Character extends L2Object implements ISkillsHolder, IDe
 		_isOverloaded = value;
 	}
 	
-	public final boolean isParalyzed()
+	public boolean isParalyzed()
 	{
 		return _isParalyzed || isAffected(EffectFlag.PARALYZED);
 	}

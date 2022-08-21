@@ -322,6 +322,7 @@ public class NpcData implements IXmlReader
 									set.set("passableDoor", parseBoolean(attrs, "passableDoor"));
 									set.set("hasSummoner", parseBoolean(attrs, "hasSummoner"));
 									set.set("canBeSown", parseBoolean(attrs, "canBeSown"));
+									set.set("dead", parseBoolean(attrs, "dead"));
 									break;
 								}
 								case "fake":
@@ -331,6 +332,7 @@ public class NpcData implements IXmlReader
 									set.set("fake_female", parseBoolean(attrs, "female"));
 									set.set("fake_hero", parseBoolean(attrs, "hero"));
 									set.set("fake_ghost", parseBoolean(attrs, "ghost"));
+									set.set("fake_sitting", parseBoolean(attrs, "sitting"));
 									set.set("fake_mountNpcId", parseInteger(attrs, "mountNpcId"));
 									for (Node fakeNode = npcNode.getFirstChild(); fakeNode != null; fakeNode = fakeNode.getNextSibling())
 									{

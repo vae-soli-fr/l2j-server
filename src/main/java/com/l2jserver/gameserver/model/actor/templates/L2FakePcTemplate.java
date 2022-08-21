@@ -41,6 +41,7 @@ public class L2FakePcTemplate extends L2NpcTemplate
 	private MountType _mountType;
 	private boolean _hero;
 	private int _enchantEffect;
+	private boolean _sitting;
 	
 	public L2FakePcTemplate(StatsSet set)
 	{
@@ -65,6 +66,8 @@ public class L2FakePcTemplate extends L2NpcTemplate
 		
 		_mountNpcId = set.getInt("fake_mountNpcId", 0);
 		_mountType = MountType.findByNpcId(_mountNpcId);
+		
+		_sitting = set.getBoolean("fake_sitting", false);
 		
 		if (isMounted())
 		{
@@ -203,6 +206,12 @@ public class L2FakePcTemplate extends L2NpcTemplate
 	public int getPaperdollItemDisplayId(int slot)
 	{
 		return _paperdoll[slot];
+	}
+	
+	@Override
+	public boolean isSitting()
+	{
+		return _sitting;
 	}
 	
 }
