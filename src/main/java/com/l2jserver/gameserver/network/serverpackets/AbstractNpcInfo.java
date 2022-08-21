@@ -129,7 +129,7 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 			}
 			else if (Config.L2JMOD_CHAMPION_ENABLE && cha.isChampion())
 			{
-				_title = cha.getTemplate().isFakePc() ? "Champion" : Config.L2JMOD_CHAMP_TITLE; // On every subclass
+				_title = cha.isFakePc() ? "Champion" : Config.L2JMOD_CHAMP_TITLE; // On every subclass
 			}
 			else if (cha.getTemplate().isUsingServerSideTitle())
 			{
@@ -171,7 +171,7 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 		@Override
 		protected void writeImpl()
 		{
-			if (_npc.getTemplate().isFakePc())
+			if (_npc.isFakePc())
 			{
 				L2FakePcTemplate fake = (L2FakePcTemplate) _npc.getTemplate();
 				

@@ -1971,7 +1971,7 @@ public class L2Npc extends L2Character
 		{
 			AbnormalVisualEffect effect = AbnormalVisualEffect.NAVIT_ADVENT;
 
-			if (getTemplate().isFakePc())
+			if (isFakePc())
 			{
 				if (_vesperChange == null)
 				{
@@ -2024,5 +2024,9 @@ public class L2Npc extends L2Character
 		}
 		return _face;
 	}
-
+	
+	public boolean isFakePc()
+	{
+		return getTemplate().isFakePc();
+	}
 }
