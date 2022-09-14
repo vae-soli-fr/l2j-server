@@ -37,7 +37,9 @@ import com.l2jserver.Config;
 import com.l2jserver.commons.database.pool.impl.ConnectionFactory;
 import com.l2jserver.gameserver.data.xml.impl.NpcData;
 import com.l2jserver.gameserver.instancemanager.DayNightSpawnManager;
+import com.l2jserver.gameserver.instancemanager.MapRegionManager;
 import com.l2jserver.gameserver.instancemanager.ZoneManager;
+import com.l2jserver.gameserver.model.L2MapRegion;
 import com.l2jserver.gameserver.model.L2Spawn;
 import com.l2jserver.gameserver.model.StatsSet;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
@@ -424,7 +426,9 @@ public final class SpawnTable implements IXmlReader
 				insert.setInt(9, spawn.getLocationId());
 				if(isCustom)
 				{
+					L2MapRegion region = MapRegionManager.getInstance().getMapRegion(spawn.getX(), spawn.getY());
 					insert.setInt(10, spawn.getInstanceId());
+					insert.setString(11, region != null ? "near " + region.getTown() : "unknown");
 				}
 				insert.execute();
 			}
@@ -438,7 +442,7 @@ public final class SpawnTable implements IXmlReader
 	private String getInsertStatement(boolean isCustom) {
 		if(isCustom)
 		{
-			return "INSERT INTO custom_spawnlist (count,npc_templateid,locx,locy,locz,heading,respawn_delay,respawn_random,loc_id,instance_id) values(?,?,?,?,?,?,?,?,?,?)";
+			return "INSERT INTO custom_spawnlist (count,npc_templateid,locx,locy,locz,heading,respawn_delay,respawn_random,loc_id,instance_id, location) values(?,?,?,?,?,?,?,?,?,?,?)";
 		} else
 		{
 			return "INSERT INTO spawnlist (count,npc_templateid,locx,locy,locz,heading,respawn_delay,respawn_random,loc_id) values(?,?,?,?,?,?,?,?,?)";
