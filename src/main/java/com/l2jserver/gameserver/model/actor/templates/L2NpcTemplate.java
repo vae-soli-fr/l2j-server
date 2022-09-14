@@ -612,4 +612,9 @@ public final class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	{
 		_teachInfo.addAll(teachInfo);
 	}
+
+	public String getHumanComparableKey() {
+		return getRace() +":"+ getName() +":"+ getSex() +":"+ getfCollisionHeight() +":"+ getfCollisionHeight();
+	}
+
 }

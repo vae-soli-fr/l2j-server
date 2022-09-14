@@ -19,18 +19,26 @@
 package com.l2jserver.gameserver.data.xml.impl;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.Iterator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import com.l2jserver.gameserver.enums.Race;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -51,6 +59,9 @@ import com.l2jserver.gameserver.model.holders.SkillHolder;
 import com.l2jserver.gameserver.model.skills.Skill;
 import com.l2jserver.gameserver.util.Util;
 import com.l2jserver.util.data.xml.IXmlReader;
+
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 /**
  * NPC data parser.
@@ -74,7 +85,9 @@ public class NpcData implements IXmlReader
 		
 		parseDatapackDirectory("data/stats/npcs", false);
 		LOG.info("{}: Loaded {} NPCs.", getClass().getSimpleName(), _npcs.size());
-		
+
+		// logNpcGridSql();
+
 		if (Config.CUSTOM_NPC_DATA)
 		{
 			final int npcCount = _npcs.size();
@@ -85,7 +98,7 @@ public class NpcData implements IXmlReader
 		_minionData = null;
 		loadNpcsSkillLearn();
 	}
-	
+
 	@Override
 	public void parseDocument(Document doc, File f)
 	{
@@ -851,6 +864,86 @@ public class NpcData implements IXmlReader
 						}
 					}
 				}
+			}
+		}
+	}
+
+	private void logNpcGridSql() {
+		final List<Integer> causeServerNpeOnBoot = Arrays.asList(
+				36393, 36394, 36437, 36435, 36395, 36436, 36439, 36441, 36396, 36440, 36444, 36449, 36451, 36397,
+				36438, 36442, 36443, 36446,36398, 36399, 36445, 36448, 36400, 36450, 36401, 36447, 36453, 36433,
+				36452, 36454, 36434, 36455
+		);
+
+		final  List<Integer> causeClientCrashOnLoad = Arrays.asList(
+				13136, 13137, 13138, 13139, 13140, 13141
+		);
+
+		final  List<Integer> causeWarningOnBoot = Arrays.asList(
+				18812, 18813
+		);
+
+		ConcurrentMap<Race, List<L2NpcTemplate>> groupedNpcs = _npcs.values().stream()
+				.filter(n-> !Objects.equals(n.getType(), "L2Pet")) 			// Can't be spawn as NPC
+				.filter(n-> !Objects.equals(n.getType(), "L2BabyPet")) 		// Can't be spawn as NPC
+				.filter(n-> !Objects.equals(n.getType(), "L2TamedBeast")) 	// Can't be spawn as NPC
+				.filter(n-> !Objects.equals(n.getType(), "L2EffectPoint")) 	// Can't be spawn as NPC
+				.filter(n-> !Objects.equals(n.getType(), "L2Decoy")) 		// Can't be spawn as NPC
+				.filter(n-> !Objects.equals(n.getType(), "L2Servitor")) 		// Can't be spawn as NPC
+				.filter(n-> !Objects.equals(n.getType(), "L2Defender")) 		// Causes warning on server boot
+				.filter(n-> !Objects.equals(n.getType(), "L2FortCommander")) // Causes warning on server boot
+				.filter(n-> !Objects.equals(n.getRace(), Race.CASTLE_GUARD)) 	// Duplicates
+				.filter(n-> !causeServerNpeOnBoot.contains(n.getId())) 			// Causes NullPointerException on server boot
+				.filter(n-> !causeClientCrashOnLoad.contains(n.getId())) 		// Causes the client to crash when loaded
+				.filter(n-> !causeWarningOnBoot.contains(n.getId())) 			// Causes warning on server boot
+				.sorted(Comparator.comparing(L2NpcTemplate::getType).thenComparing(L2NpcTemplate::getId))
+				.collect(collectingAndThen(toCollection(() -> new TreeSet<>(Comparator.comparing(Function.identity(), Comparator.comparing(L2NpcTemplate::getHumanComparableKey)))),ArrayList::new)).stream()
+				.collect(Collectors.groupingByConcurrent(L2NpcTemplate::getRace, Collectors.toList()));
+
+		final int instance = 1001;
+		final int groupsOnLine = 11;
+		final int groupCols = 10;
+		final int npcGap = 130;
+		final int gutterGroupGapY = 1300;
+		final int groupGapY = npcGap * groupCols + gutterGroupGapY;
+		final int groupGapX = 12000;
+		final int initialGroupY = -260000;
+
+		int groupId = 1;
+		int groupX = -128000;
+		int groupY = initialGroupY;
+		final int groupZ = -15536;
+
+		System.out.printf("delete from custom_spawnlist where location like 'npcGrid';%n");
+		System.out.printf("insert into custom_spawnlist (location, count, npc_templateid, locx, locy, locz, instance_id)%nvalues%n");
+		for (Map.Entry<Race, List<L2NpcTemplate>> groupedNpcEntry : groupedNpcs.entrySet())
+		{
+			System.out.printf("-- %s : %d, %d, %d %n", groupedNpcEntry.getKey(), groupX, groupY, groupZ);
+			Iterator<L2NpcTemplate> npcIterator = groupedNpcEntry.getValue().iterator();
+			int npcX = groupX;
+			int npcY;
+			while (npcIterator.hasNext())
+			{
+				npcY = groupY;
+				for (int col = 0; col < groupCols; col++)
+				{
+					if (npcIterator.hasNext())
+					{
+						System.out.printf("('npcGrid',1,%d,%d,%d,%d,%d),%n", npcIterator.next().getId(), npcX, npcY, groupZ, instance);
+						npcY += npcGap;
+					} else
+					{
+						break;
+					}
+				}
+				npcX += npcGap;
+			}
+			groupY += groupGapY;
+
+			if (groupId++ % groupsOnLine == 0)
+			{
+				groupX += groupGapX;
+				groupY = initialGroupY;
 			}
 		}
 	}
