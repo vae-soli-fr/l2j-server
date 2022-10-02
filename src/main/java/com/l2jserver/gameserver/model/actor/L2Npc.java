@@ -160,6 +160,8 @@ public class L2Npc extends L2Character
 	private Byte _hairColor;
 	private Byte _face;
 	
+	private boolean _isDummy = false;
+	
 	/**
 	 * Creates a NPC.
 	 * @param template the NPC template
@@ -2030,6 +2032,16 @@ public class L2Npc extends L2Character
 		return getTemplate().isFakePc();
 	}
 	
+	public void setDummy(boolean isDummy)
+	{
+		_isDummy = isDummy;
+	}
+	
+	public boolean isDummy()
+	{
+		return _isDummy;
+	}
+	
 	@Override
 	public boolean isAlikeDead()
 	{
@@ -2039,6 +2051,6 @@ public class L2Npc extends L2Character
 	@Override
 	public final boolean isParalyzed()
 	{
-		return super.isParalyzed() || getTemplate().isSitting();
+		return super.isParalyzed() || getTemplate().isSitting() || isDummy();
 	}
 }

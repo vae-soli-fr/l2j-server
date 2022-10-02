@@ -52,8 +52,8 @@ import com.l2jserver.util.data.xml.IXmlReader;
 public final class SpawnTable implements IXmlReader
 {
 	// SQL
-	private static final String SELECT_SPAWNS = "SELECT count, npc_templateid, locx, locy, locz, heading, respawn_delay, respawn_random, loc_id, periodOfDay FROM spawnlist";
-	private static final String SELECT_CUSTOM_SPAWNS = "SELECT count, npc_templateid, locx, locy, locz, heading, respawn_delay, respawn_random, loc_id, periodOfDay, instance_id FROM custom_spawnlist";
+	private static final String SELECT_SPAWNS = "SELECT count, npc_templateid, locx, locy, locz, heading, respawn_delay, respawn_random, loc_id, periodOfDay, location FROM spawnlist";
+	private static final String SELECT_CUSTOM_SPAWNS = "SELECT count, npc_templateid, locx, locy, locz, heading, respawn_delay, respawn_random, loc_id, periodOfDay, instance_id, location FROM custom_spawnlist";
 	
 	private static final Map<Integer, Set<L2Spawn>> _spawnTable = new ConcurrentHashMap<>();
 	
@@ -278,6 +278,7 @@ public final class SpawnTable implements IXmlReader
 				spawnInfo.set("respawnRandom", rs.getInt("respawn_random"));
 				spawnInfo.set("locId", rs.getInt("loc_id"));
 				spawnInfo.set("periodOfDay", rs.getInt("periodOfDay"));
+				spawnInfo.set("region", rs.getString("location"));
 				if(isCustom)
 				{
 					spawnInfo.set("instanceId", rs.getInt("instance_id"));
@@ -317,6 +318,7 @@ public final class SpawnTable implements IXmlReader
 			String territoryName = spawnInfo.getString("territoryName", "");
 			String spawnName = spawnInfo.getString("spawnName", "");
 			spawnDat.setCustom(spawnInfo.getBoolean("isCustomSpawn", false));
+			spawnDat.setRegion(spawnInfo.getString("region", ""));
 			if (!spawnName.isEmpty())
 			{
 				spawnDat.setName(spawnName);

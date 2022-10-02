@@ -55,6 +55,8 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 {
 	protected static final Logger _log = Logger.getLogger(L2Spawn.class.getName());
 	
+	private static final String DUMMY_LOCATION = "npcGrid";
+	
 	/** String identifier of this spawn */
 	private String _name;
 	/** The link on the L2NpcTemplate object containing generic and static properties of this spawn (ex : RewardExp, RewardSP, AggroRange...) */
@@ -87,6 +89,7 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 	private boolean _isNoRndWalk = false; // Is no random walk
 	private String _areaName;
 	private int _globalMapId;
+	private String _region;
 	
 	/** The task launching the function doSpawn() */
 	class SpawnTask implements Runnable
@@ -686,6 +689,8 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 		mob.resetSummonedNpcs();
 		// Link the L2NpcInstance to this L2Spawn
 		mob.setSpawn(this);
+		// Dummy NPC
+		mob.setDummy(DUMMY_LOCATION.equals(getRegion()));
 		
 		// Spawn NPC
 		mob.spawnMe(newlocx, newlocy, newlocz);
@@ -853,6 +858,16 @@ public class L2Spawn implements IPositionable, IIdentifiable, INamable
 		_globalMapId = globalMapId;
 	}
 	
+	public String getRegion()
+	{
+		return _region;
+	}
+
+	public void setRegion(String region)
+	{
+		_region = region;
+	}
+
 	@Override
 	public String toString()
 	{
