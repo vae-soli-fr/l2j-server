@@ -69,6 +69,7 @@ import com.l2jserver.gameserver.model.quest.Quest;
 import com.l2jserver.gameserver.model.quest.QuestState;
 import com.l2jserver.gameserver.model.skills.CommonSkill;
 import com.l2jserver.gameserver.model.zone.ZoneId;
+import com.l2jserver.gameserver.network.NpcStringId;
 import com.l2jserver.gameserver.network.SystemMessageId;
 import com.l2jserver.gameserver.network.serverpackets.ActionFailed;
 import com.l2jserver.gameserver.network.serverpackets.Die;
@@ -597,6 +598,7 @@ public class EnterWorld extends L2GameClientPacket
 		if (Config.WELCOME_MESSAGE_ENABLED)
 		{
 			activeChar.sendPacket(new ExShowScreenMessage(Config.WELCOME_MESSAGE_TEXT, Config.WELCOME_MESSAGE_TIME));
+			activeChar.sendPacket(new ExShowScreenMessage(activeChar.getBattleTag(), ExShowScreenMessage.BOTTOM_RIGHT, Config.WELCOME_MESSAGE_TIME, 1, false, true));
 		}
 		
 		L2ClassMasterInstance.showQuestionMark(activeChar);

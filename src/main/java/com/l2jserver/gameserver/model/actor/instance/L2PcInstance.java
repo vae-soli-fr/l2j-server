@@ -13330,4 +13330,9 @@ public final class L2PcInstance extends L2Playable
 			}
 		}
 	}
+
+	public String getBattleTag()
+	{
+		return String.format("%s#%05d", getName().replaceAll("[^A-z]", ""), getObjectId() % 100_000);
+	}
 }
