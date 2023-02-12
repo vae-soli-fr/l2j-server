@@ -18,6 +18,17 @@
  */
 package com.l2jserver.gameserver.model.actor.templates;
 
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_CHEST;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_CLOAK;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_FEET;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_GLOVES;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_HAIR;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_HAIR2;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_LEGS;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_LHAND;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_RHAND;
+import static com.l2jserver.gameserver.model.itemcontainer.Inventory.PAPERDOLL_TOTALSLOTS;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,9 +38,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.l2jserver.Config;
+import com.l2jserver.gameserver.HeadUtil;
 import com.l2jserver.gameserver.data.xml.impl.NpcData;
+import com.l2jserver.gameserver.data.xml.impl.PlayerTemplateData;
+import com.l2jserver.gameserver.datatables.ItemTable;
 import com.l2jserver.gameserver.enums.AISkillScope;
 import com.l2jserver.gameserver.enums.AIType;
+import com.l2jserver.gameserver.enums.MountType;
 import com.l2jserver.gameserver.enums.Race;
 import com.l2jserver.gameserver.enums.Sex;
 import com.l2jserver.gameserver.model.StatsSet;
@@ -39,6 +54,7 @@ import com.l2jserver.gameserver.model.drops.DropListScope;
 import com.l2jserver.gameserver.model.drops.IDropItem;
 import com.l2jserver.gameserver.model.holders.ItemHolder;
 import com.l2jserver.gameserver.model.interfaces.IIdentifiable;
+import com.l2jserver.gameserver.model.items.L2Item;
 import com.l2jserver.gameserver.model.skills.Skill;
 
 /**
@@ -96,6 +112,28 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	private double _collisionRadiusGrown;
 	private double _collisionHeightGrown;
 	private boolean _isDead;
+	
+	/** Fake */
+	private boolean _fake;
+	
+	private Race _race = null;
+	private Integer _baseClass = null;
+	private Boolean _female = null;
+	private Double _fakeCollisionHeight = null;
+	private Double _fakeCollisionRadius = null;
+	
+	private Byte _hairStyle = null;
+	private Byte _hairColor = null;
+	private Byte _face = null;
+	
+	private int[] _paperdoll;
+	
+	private boolean _ghost;
+	private int _mountNpcId;
+	private MountType _mountType;
+	private boolean _hero;
+	private int _enchantEffect;
+	private boolean _sitting;
 	
 	private final List<ClassId> _teachInfo = new ArrayList<>();
 
@@ -164,6 +202,71 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		
 		_collisionRadiusGrown = set.getDouble("collisionRadiusGrown", 0);
 		_collisionHeightGrown = set.getDouble("collisionHeightGrown", 0);
+		
+		_fake = set.getBoolean("fake", false);
+		
+		if (_fake)
+		{
+			_female = set.getBoolean("fake_female", false);
+			
+			Integer classId = set.getInt("fake_classId", -1);
+			if (classId >= 0)
+			{
+				L2PcTemplate playerTemplate = PlayerTemplateData.getInstance().getTemplate(classId);
+				_race = playerTemplate.getRace();
+				_baseClass = playerTemplate.getClassId().getId();
+				_fakeCollisionHeight = _female ? playerTemplate.getFCollisionHeightFemale() : playerTemplate.getfCollisionHeight();
+				_fakeCollisionRadius = _female ? playerTemplate.getFCollisionRadiusFemale() : playerTemplate.getfCollisionRadius();
+			}
+			
+			_hairStyle = HeadUtil.toByte(set.getString("fake_head_style", null));
+			_hairColor = HeadUtil.toByte(set.getString("fake_head_color", null));
+			_face = HeadUtil.toByte(set.getString("fake_head_face", null));
+			
+			_mountNpcId = set.getInt("fake_mountNpcId", 0);
+			_mountType = MountType.findByNpcId(_mountNpcId);
+			
+			_sitting = set.getBoolean("fake_sitting", false);
+			
+			if (isMounted())
+			{
+				L2NpcTemplate mountTemplate = NpcData.getInstance().getTemplate(getMountNpcId());
+				_fakeCollisionHeight = mountTemplate.getfCollisionHeight();
+				_fakeCollisionRadius = mountTemplate.getfCollisionRadius();
+			}
+			
+			_hero = set.getBoolean("fake_hero", false);
+			_ghost = set.getBoolean("fake_ghost", false);
+			
+			_enchantEffect = Math.min(127, set.getInt("fake_equipment_weaponEnchant", 0));
+			
+			_paperdoll = new int[PAPERDOLL_TOTALSLOTS];		
+			_paperdoll[PAPERDOLL_RHAND] = set.getInt("fake_equipment_rhand", 7); // apprentice rod
+			_paperdoll[PAPERDOLL_GLOVES] = set.getInt("fake_equipment_gloves", 48); // short gloves		
+			_paperdoll[PAPERDOLL_CHEST] = set.getInt("fake_equipment_chest", 425); // apprentice tunic
+			_paperdoll[PAPERDOLL_FEET] = set.getInt("fake_equipment_feet", 1121); // apprentice shoes	
+			_paperdoll[PAPERDOLL_CLOAK] = set.getInt("fake_equipment_cloak", 0);		
+			_paperdoll[PAPERDOLL_HAIR] = set.getInt("fake_equipment_hair", 0);
+			
+			// handle double-handed weapon
+			L2Item rhand = ItemTable.getInstance().getTemplate(getPaperdollItemDisplayId(PAPERDOLL_RHAND));
+			if (rhand == null || rhand.getBodyPart() != L2Item.SLOT_LR_HAND) {
+				_paperdoll[PAPERDOLL_LHAND] = set.getInt("fake_equipment_lhand", 0);
+			}
+			
+			// handle full armor
+			L2Item chest = ItemTable.getInstance().getTemplate(getPaperdollItemDisplayId(PAPERDOLL_CHEST));
+			if (chest == null || chest.getBodyPart() != L2Item.SLOT_FULL_ARMOR) {
+				_paperdoll[PAPERDOLL_LEGS] = set.getInt("fake_equipment_legs", 461); // apprentice stockings
+			}
+			
+			// handle double-slot accessories
+			L2Item hair = ItemTable.getInstance().getTemplate(getPaperdollItemDisplayId(PAPERDOLL_HAIR));
+			if (hair == null || hair.getBodyPart() != L2Item.SLOT_HAIRALL) {
+				_paperdoll[PAPERDOLL_HAIR2] = set.getInt("fake_equipment_hair2", 0);
+			}
+		}
+
 	}
 	
 	@Override
@@ -224,6 +327,9 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	
 	public Sex getSex()
 	{
+		if (_female != null) {
+			return _female ? Sex.FEMALE : Sex.MALE;
+		}
 		return _sex;
 	}
 	
@@ -543,11 +649,19 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	
 	public double getCollisionRadiusGrown()
 	{
+		if (_fakeCollisionRadius != null)
+		{
+			return _fakeCollisionRadius;
+		}
 		return _collisionRadiusGrown;
 	}
 	
 	public double getCollisionHeightGrown()
 	{
+		if (_fakeCollisionHeight != null)
+		{
+			return _fakeCollisionHeight;
+		}
 		return _collisionHeightGrown;
 	}
 	
@@ -615,18 +729,93 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		_teachInfo.addAll(teachInfo);
 	}
 	
-	public boolean isFakePc()
+	public boolean isDead()
 	{
-		return false;
+		return _isDead;
+	}
+
+	public Boolean isFemale()
+	{
+		return _female;
+	}
+
+	public Integer getBaseClass()
+	{
+		return _baseClass;
+	}
+	
+	public Integer getActiveClass()
+	{
+		return _baseClass;
+	}
+	
+	public Byte getHairStyle()
+	{
+		return _hairStyle;
+	}
+	
+	public Byte getHairColor()
+	{
+		return _hairColor;
+	}
+	
+	public Byte getFace()
+	{
+		return _face;
+	}
+	
+	public boolean isMounted()
+	{
+		return _mountNpcId > 0;
+	}
+	
+	public MountType getMountType()
+	{
+		return _mountType;
+	}
+	
+	public int getMountNpcId()
+	{
+		return _mountNpcId;
+	}
+	
+	public boolean isHero()
+	{
+		return _hero;
+	}
+	
+	public int getEnchantEffect()
+	{
+		return _enchantEffect;
+	}
+	
+	public boolean isGhost()
+	{
+		return _ghost;
+	}
+	
+	public int getPaperdollItemDisplayId(int slot)
+	{
+		return _paperdoll[slot];
 	}
 	
 	public boolean isSitting()
 	{
-		return false;
+		return _sitting;
 	}
 	
-	public boolean isDead()
+	public boolean isFake()
 	{
-		return _isDead;
+		return _fake;
+	}
+	
+	@Override
+	public Race getRace()
+	{
+		if (_race != null)
+		{
+			return _race;
+		}
+		return super.getRace();
 	}
 }

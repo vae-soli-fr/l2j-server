@@ -38,11 +38,13 @@ import com.l2jserver.gameserver.SevenSignsFestival;
 import com.l2jserver.gameserver.ThreadPoolManager;
 import com.l2jserver.gameserver.cache.HtmCache;
 import com.l2jserver.gameserver.data.xml.impl.NpcData;
+import com.l2jserver.gameserver.data.xml.impl.PlayerTemplateData;
 import com.l2jserver.gameserver.datatables.ItemTable;
 import com.l2jserver.gameserver.datatables.NpcPersonalAIData;
 import com.l2jserver.gameserver.enums.AISkillScope;
 import com.l2jserver.gameserver.enums.AIType;
 import com.l2jserver.gameserver.enums.InstanceType;
+import com.l2jserver.gameserver.enums.MountType;
 import com.l2jserver.gameserver.enums.PrivateStoreType;
 import com.l2jserver.gameserver.enums.Race;
 import com.l2jserver.gameserver.enums.ShotType;
@@ -71,6 +73,7 @@ import com.l2jserver.gameserver.model.actor.knownlist.NpcKnownList;
 import com.l2jserver.gameserver.model.actor.stat.NpcStat;
 import com.l2jserver.gameserver.model.actor.status.NpcStatus;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
+import com.l2jserver.gameserver.model.actor.templates.L2PcTemplate;
 import com.l2jserver.gameserver.model.entity.Castle;
 import com.l2jserver.gameserver.model.entity.Fort;
 import com.l2jserver.gameserver.model.entity.clanhall.SiegableHall;
@@ -155,12 +158,18 @@ public class L2Npc extends L2Character
 	/** Map of summoned NPCs by this NPC. */
 	private volatile Map<Integer, L2Npc> _summonedNpcs = null;
 	
-	private Byte _vesperChange;
-	private Byte _hairStyle;
-	private Byte _hairColor;
-	private Byte _face;
-	
 	private boolean _isDummy = false;
+	
+	/** Fake */
+	private AbnormalVisualEffect _vesperEffect = null;
+	private Byte _hairStyle = null;
+	private Byte _hairColor = null;
+	private Byte _face = null;
+	private Race _race = null;
+	private Boolean _female = null;
+	private Integer _baseClass = null;
+	private Double _fakeCollisionRadius = null;
+	private Double _fakeCollisionHeight = null;
 	
 	/**
 	 * Creates a NPC.
@@ -184,6 +193,64 @@ public class L2Npc extends L2Character
 		_currentCollisionRadius = getTemplate().getfCollisionRadius();
 		
 		setIsFlying(template.isFlying());
+
+		if (template.isFake())
+		{
+			_baseClass = template.getBaseClass();
+			_race = template.getRace();
+			_female = template.isFemale();
+			_fakeCollisionRadius = template.getCollisionRadiusGrown();
+			_fakeCollisionHeight = template.getCollisionHeightGrown();
+			_hairStyle = template.getHairStyle();
+			_hairColor = template.getHairColor();
+			_face = template.getFace();
+
+			if (_female == null)
+			{
+				_female = Rnd.nextBoolean();
+			}
+			
+			if (_baseClass == null)
+			{
+				L2PcTemplate pcTemplate = PlayerTemplateData.getInstance().getTemplate(HeadUtil.randomClassId(_female));
+				_baseClass = pcTemplate.getClassId().getId();
+				_race = pcTemplate.getRace();
+				
+				if (!template.isMounted())
+				{
+					_fakeCollisionHeight = _female ? pcTemplate.getFCollisionHeightFemale() : pcTemplate.getfCollisionHeight();
+					_fakeCollisionRadius = _female ? pcTemplate.getFCollisionRadiusFemale() : pcTemplate.getfCollisionRadius();
+				}
+			}
+			
+			if (_hairStyle == null)
+			{
+				_hairStyle = HeadUtil.randomHairStyle(_race, _female);
+			}
+			
+			if (_hairColor == null)
+			{
+				_hairColor = HeadUtil.randomHairColor(_race, _female);
+			}
+			
+			if (_face == null)
+			{
+				_face = HeadUtil.randomFace(_race, _female);
+			}
+			
+			switch(Rnd.get(0, 2))
+			{
+				case 0:
+					_vesperEffect = AbnormalVisualEffect.CHANGE_VES_C;
+					break;
+				case 1:
+					_vesperEffect = AbnormalVisualEffect.CHANGE_VES_D;
+					break;
+				case 2:
+				default:
+					_vesperEffect = AbnormalVisualEffect.CHANGE_VES_S;
+			}
+		}
 	}
 	
 	/**
@@ -388,7 +455,7 @@ public class L2Npc extends L2Character
 	{
 		return (L2NpcTemplate) super.getTemplate();
 	}
-	
+
 	/**
 	 * Gets the NPC ID.
 	 * @return the NPC ID
@@ -1452,11 +1519,19 @@ public class L2Npc extends L2Character
 	
 	public double getCollisionHeight()
 	{
+		if (_fakeCollisionHeight != null)
+		{
+			return _fakeCollisionHeight;
+		}
 		return _currentCollisionHeight;
 	}
 	
 	public double getCollisionRadius()
 	{
+		if (_fakeCollisionRadius != null)
+		{
+			return _fakeCollisionRadius;
+		}
 		return _currentCollisionRadius;
 	}
 	
@@ -1967,71 +2042,6 @@ public class L2Npc extends L2Character
 		}
 	}
 
-	@Override
-	public int getAbnormalVisualEffectSpecial() {
-		if (isChampion())
-		{
-			AbnormalVisualEffect effect = AbnormalVisualEffect.NAVIT_ADVENT;
-
-			if (isFakePc())
-			{
-				if (_vesperChange == null)
-				{
-					_vesperChange = (byte) Rnd.get(0, 2);
-				}
-				switch(_vesperChange)
-				{
-					case 0:
-						effect =  AbnormalVisualEffect.CHANGE_VES_C;
-						break;
-					case 1:
-						effect = AbnormalVisualEffect.CHANGE_VES_D;
-						break;
-					case 2:
-					default:
-						effect = AbnormalVisualEffect.CHANGE_VES_S;
-				}
-			}
-			
-			return super.getAbnormalVisualEffectSpecial() | effect.getMask();
-			
-		}
-		
-		return super.getAbnormalVisualEffectSpecial();
-	}
-	
-	public byte getRandomHairStyle()
-	{
-		if (_hairStyle == null)
-		{
-			_hairStyle = HeadUtil.randomHairStyle(getRace(), getTemplate().getSex());
-		}
-		return _hairStyle;
-	}
-
-	public byte getRandomHairColor()
-	{
-		if (_hairColor == null)
-		{
-			_hairColor = HeadUtil.randomHairColor(getRace(), getTemplate().getSex());
-		}
-		return _hairColor;
-	}
-
-	public byte getRandomFace()
-	{
-		if (_face == null)
-		{
-			_face = HeadUtil.randomFace(getRace(), getTemplate().getSex());
-		}
-		return _face;
-	}
-	
-	public boolean isFakePc()
-	{
-		return getTemplate().isFakePc();
-	}
-	
 	public void setDummy(boolean isDummy)
 	{
 		_isDummy = isDummy;
@@ -2041,16 +2051,106 @@ public class L2Npc extends L2Character
 	{
 		return _isDummy;
 	}
-	
+
+	@Override 
+	public int getAbnormalVisualEffectSpecial() {
+		if (isChampion()) 
+		{ 
+			if (isFake())
+			{
+				return super.getAbnormalVisualEffectSpecial() | _vesperEffect.getMask();
+			}
+			return super.getAbnormalVisualEffectSpecial() | AbnormalVisualEffect.NAVIT_ADVENT.getMask();
+		} 
+		return super.getAbnormalVisualEffectSpecial();
+	}
+
 	@Override
 	public boolean isAlikeDead()
 	{
 		return super.isAlikeDead() || getTemplate().isDead();
 	}
+
+	@Override
+	public boolean isParalyzed()
+	{
+		return super.isParalyzed() || isDummy() || getTemplate().isSitting();
+	}
 	
 	@Override
-	public final boolean isParalyzed()
+	public Race getRace()
 	{
-		return super.isParalyzed() || getTemplate().isSitting() || isDummy();
+		return _race;
 	}
+	
+	public byte getHairStyle()
+	{
+		return _hairStyle;
+	}
+
+	public byte getHairColor()
+	{
+		return _hairColor;
+	}
+
+	public byte getFace()
+	{
+		return _face;
+	}
+
+	public boolean isFemale()
+	{
+		return _female;
+	}
+
+	public int getBaseClass()
+	{
+		return _baseClass;
+	}
+	
+	public int getActiveClass()
+	{
+		return _baseClass;
+	}
+	
+	public int getPaperdollItemDisplayId(int slot)
+	{
+		return getTemplate().getPaperdollItemDisplayId(slot);
+	}
+	
+	public boolean isFakeSitting()
+	{
+		return getTemplate().isSitting();
+	}
+	
+	public MountType getMountType()
+	{
+		return getTemplate().getMountType();
+	}
+	
+	public boolean isGhost()
+	{
+		return getTemplate().isGhost();
+	}
+	
+	public int getMountNpcId()
+	{
+		return getTemplate().getMountNpcId();
+	}
+	
+	public boolean isMounted()
+	{
+		return getTemplate().isMounted();
+	}
+	
+	public boolean isHero()
+	{
+		return getTemplate().isHero();
+	}
+	
+	public boolean isFake()
+	{
+		return getTemplate().isFake();
+	}
+
 }

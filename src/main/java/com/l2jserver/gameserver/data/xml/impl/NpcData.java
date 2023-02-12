@@ -39,7 +39,6 @@ import com.l2jserver.Config;
 import com.l2jserver.gameserver.datatables.SkillData;
 import com.l2jserver.gameserver.enums.AISkillScope;
 import com.l2jserver.gameserver.model.StatsSet;
-import com.l2jserver.gameserver.model.actor.templates.L2FakePcTemplate;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.drops.DropListScope;
@@ -106,7 +105,6 @@ public class NpcData implements IXmlReader
 						Set<Integer> clans = null;
 						Set<Integer> ignoreClanNpcIds = null;
 						Map<DropListScope, List<IDropItem>> dropLists = null;
-						boolean isFake = false;
 						set.set("id", npcId);
 						set.set("displayId", parseInteger(attrs, "displayId"));
 						set.set("level", parseByte(attrs, "level"));
@@ -327,7 +325,7 @@ public class NpcData implements IXmlReader
 								}
 								case "fake":
 								{
-									isFake = true;
+									set.set("fake", true);
 									set.set("fake_classId", parseInteger(attrs, "classId"));
 									set.set("fake_female", parseBoolean(attrs, "female"));
 									set.set("fake_hero", parseBoolean(attrs, "hero"));
@@ -518,7 +516,7 @@ public class NpcData implements IXmlReader
 						L2NpcTemplate template = _npcs.get(npcId);
 						if (template == null)
 						{
-							template = isFake && Config.ENABLE_FAKEPC ? new L2FakePcTemplate(set) : new L2NpcTemplate(set);
+							template = new L2NpcTemplate(set);
 							_npcs.put(template.getId(), template);
 						}
 						else

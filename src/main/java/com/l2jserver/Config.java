@@ -1153,7 +1153,6 @@ public final class Config
 	public static int MOUNT_INTERVAL;
 	public static List<Integer> PERMANENT_ALTERNATIVE_INSTANCES;
 	public static int AFK_DELAY;
-	public static boolean ENABLE_FAKEPC;
 
 	/**
 	 * This class initializes all global variables for configuration.<br>
@@ -2813,7 +2812,6 @@ public final class Config
 			final String instances = customsSettings.getString("PermanentAlternativeInstances", "");
 			PERMANENT_ALTERNATIVE_INSTANCES = instances.isEmpty() ? Collections.emptyList() : Arrays.stream(instances.split(";")).map(Integer::parseInt).collect(Collectors.toList());
 			AFK_DELAY = customsSettings.getInt("AfkDelay", 300);
-			ENABLE_FAKEPC = customsSettings.getBoolean("EnableFakePC", false);
 
 		}
 		else if (Server.serverMode == Server.MODE_LOGINSERVER)

@@ -19,7 +19,6 @@
 package com.l2jserver.gameserver.network.serverpackets;
 
 import com.l2jserver.Config;
-import com.l2jserver.gameserver.HeadUtil;
 import com.l2jserver.gameserver.data.sql.impl.ClanTable;
 import com.l2jserver.gameserver.instancemanager.TownManager;
 import com.l2jserver.gameserver.model.L2Clan;
@@ -31,7 +30,6 @@ import com.l2jserver.gameserver.model.actor.instance.L2MonsterInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2NpcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2PcInstance;
 import com.l2jserver.gameserver.model.actor.instance.L2TrapInstance;
-import com.l2jserver.gameserver.model.actor.templates.L2FakePcTemplate;
 import com.l2jserver.gameserver.model.itemcontainer.Inventory;
 import com.l2jserver.gameserver.model.skills.AbnormalVisualEffect;
 import com.l2jserver.gameserver.model.zone.ZoneId;
@@ -129,7 +127,7 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 			}
 			else if (Config.L2JMOD_CHAMPION_ENABLE && cha.isChampion())
 			{
-				_title = cha.isFakePc() ? "Champion" : Config.L2JMOD_CHAMP_TITLE; // On every subclass
+				_title = cha.isFake() ? "Champion" : Config.L2JMOD_CHAMP_TITLE; // On every subclass
 			}
 			else if (cha.getTemplate().isUsingServerSideTitle())
 			{
@@ -171,10 +169,8 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 		@Override
 		protected void writeImpl()
 		{
-			if (_npc.isFakePc())
+			if (_npc.isFake())
 			{
-				L2FakePcTemplate fake = (L2FakePcTemplate) _npc.getTemplate();
-				
 				writeC(0x31);
 				writeD(_x);
 				writeD(_y);
@@ -182,13 +178,13 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 				writeD(0x00); // vehicle id
 				writeD(_npc.getObjectId());
 				writeS(_name);
-				writeD(fake.getRace().ordinal());
-				writeD(fake.isFemale() ? 1 : 0);
-				writeD(fake.getBaseClass());
+				writeD(_npc.getRace().ordinal());
+				writeD(_npc.isFemale() ? 1 : 0);
+				writeD(_npc.getBaseClass());
 				
 				for (int slot : getPaperdollOrder())
 				{
-					writeD(fake.getPaperdollItemDisplayId(slot));
+					writeD(_npc.getPaperdollItemDisplayId(slot));
 				}
 				
 				for (int i = 0; i < getPaperdollOrder().length; i++)
@@ -218,12 +214,12 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 				writeF(_moveMultiplier);
 				writeF(_npc.getAttackSpeedMultiplier());
 				
-				writeF(fake.getCollisionRadiusGrown());
-				writeF(fake.getCollisionHeightGrown());
+				writeF(_npc.getCollisionRadius());
+				writeF(_npc.getCollisionHeight());
 				
-				writeD(fake.getHairStyle() != HeadUtil.NO_VALUE ? fake.getHairStyle() : _npc.getRandomHairStyle());
-				writeD(fake.getHairColor() != HeadUtil.NO_VALUE ? fake.getHairColor() : _npc.getRandomHairColor());
-				writeD(fake.getFace() != HeadUtil.NO_VALUE ? fake.getFace() : _npc.getRandomFace());
+				writeD(_npc.getHairStyle());
+				writeD(_npc.getHairColor());
+				writeD(_npc.getFace());
 				
 				writeS(_title);
 				
@@ -232,7 +228,7 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 				writeD(0x00); // ally id
 				writeD(0x00); // ally crest id
 				
-				writeC(fake.isSitting() ? 0 : 1); // standing = 1 sitting = 0
+				writeC(_npc.isFakeSitting() ? 0 : 1); // standing = 1 sitting = 0
 				writeC(_npc.isRunning() ? 1 : 0); // running = 1 walking = 0
 				writeC(_npc.isInCombat() ? 1 : 0);
 				
@@ -240,28 +236,28 @@ public abstract class AbstractNpcInfo extends L2GameServerPacket
 				
 				writeC(0x00); // invisible = 1 visible = 0
 				
-				writeC(fake.getMountType().ordinal()); // 1-on Strider, 2-on Wyvern, 3-on Great Wolf, 0-no mount
+				writeC(_npc.getMountType().ordinal()); // 1-on Strider, 2-on Wyvern, 3-on Great Wolf, 0-no mount
 				writeC(0x00); // private store type
 				
 				writeH(0x00); // cubic size
 				
 				writeC(0x00); // party matchroom
 				
-				writeD(fake.isGhost() ? (_npc.getAbnormalVisualEffects() | AbnormalVisualEffect.STEALTH.getMask()) : _npc.getAbnormalVisualEffects()); // abnormal effects
+				writeD(_npc.isGhost() ? (_npc.getAbnormalVisualEffects() | AbnormalVisualEffect.STEALTH.getMask()) : _npc.getAbnormalVisualEffects()); // abnormal effects
 				
 				writeC(_npc.isFlying() ? 2 : 0); // is Flying
 				
 				writeH(0x00); // Blue value for name (0 = white, 255 = pure blue)
-				writeD(fake.getMountNpcId() + 1000000);
-				writeD(fake.getActiveClass());
+				writeD(_npc.getMountNpcId() + 1000000);
+				writeD(_npc.getActiveClass());
 				writeD(0x00); // ?
-				writeC(fake.isMounted() ? 0 : fake.getEnchantEffect());
+				writeC(_npc.isMounted() ? 0 : _npc.getEnchantEffect());
 				
 				writeC(0x00); // team
 				
 				writeD(0x00); // clean crest large id
 				writeC(0x00); // Symbol on char menu ctrl+I
-				writeC(fake.isHero() ? 1 : 0); // Hero Aura
+				writeC(_npc.isHero() ? 1 : 0); // Hero Aura
 				
 				writeC(0x00); // 0x01: Fishing Mode (Cant be undone by setting back to 0)
 				writeD(0x00); // fish x

@@ -18,10 +18,11 @@
  */
 package com.l2jserver.gameserver;
 
-import static com.l2jserver.gameserver.enums.Sex.FEMALE;
+import java.util.LinkedList;
+import java.util.List;
 
 import com.l2jserver.gameserver.enums.Race;
-import com.l2jserver.gameserver.enums.Sex;
+import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.util.Rnd;
 
 /**
@@ -30,8 +31,6 @@ import com.l2jserver.util.Rnd;
  */
 public class HeadUtil
 {
-	public static final byte NO_VALUE = -1;
-
 	private static final Head M_HUMAN = new Head('E', 'D', 'C');
 	private static final Head F_HUMAN = new Head('G', 'D', 'C');
 	private static final Head M_ELF = new Head('E', 'D', 'C');
@@ -45,89 +44,110 @@ public class HeadUtil
 	private static final Head M_KAMAEL = new Head('E', 'C', 'C');
 	private static final Head F_KAMAEL = new Head('G', 'C', 'C');
 	
-	public static final byte randomHairStyle(Race race, Sex sex)
+	private static final List<ClassId> START_CLASSES = new LinkedList<>();
+	
+	static {
+		START_CLASSES.add(ClassId.femaleSoldier);
+		START_CLASSES.add(ClassId.fighter);
+		START_CLASSES.add(ClassId.mage);
+		START_CLASSES.add(ClassId.elvenFighter);
+		START_CLASSES.add(ClassId.elvenMage);
+		START_CLASSES.add(ClassId.darkFighter);
+		START_CLASSES.add(ClassId.darkMage);
+		START_CLASSES.add(ClassId.orcFighter);
+		START_CLASSES.add(ClassId.orcMage);
+		START_CLASSES.add(ClassId.dwarvenFighter);
+		START_CLASSES.add(ClassId.maleSoldier);
+	}
+	
+	public static final byte randomHairStyle(Race race, boolean female)
 	{
 		int style = 0;
 		switch (race)
 		{
 			case HUMAN:
-				style = Rnd.get(0, FEMALE.equals(sex) ? F_HUMAN._maxHairStyle : M_HUMAN._maxHairStyle);
+				style = Rnd.get(0, female ? F_HUMAN._maxHairStyle : M_HUMAN._maxHairStyle);
 				break;
 			case ELF:
-				style = Rnd.get(0, FEMALE.equals(sex) ? F_ELF._maxHairStyle : M_ELF._maxHairStyle);
+				style = Rnd.get(0, female ? F_ELF._maxHairStyle : M_ELF._maxHairStyle);
 				break;
 			case DARK_ELF:
-				style = Rnd.get(0, FEMALE.equals(sex) ? F_DARKELF._maxHairStyle : M_DARKELF._maxHairStyle);
+				style = Rnd.get(0, female ? F_DARKELF._maxHairStyle : M_DARKELF._maxHairStyle);
 				break;
 			case ORC:
-				style = Rnd.get(0, FEMALE.equals(sex) ? F_ORC._maxHairStyle : M_ORC._maxHairStyle);
+				style = Rnd.get(0, female ? F_ORC._maxHairStyle : M_ORC._maxHairStyle);
 				break;
 			case DWARF:
-				style = Rnd.get(0, FEMALE.equals(sex) ? F_DWARF._maxHairStyle : M_DWARF._maxHairStyle);
+				style = Rnd.get(0, female ? F_DWARF._maxHairStyle : M_DWARF._maxHairStyle);
 				break;
 			case KAMAEL:
-				style = Rnd.get(0, FEMALE.equals(sex) ? F_KAMAEL._maxHairStyle : M_KAMAEL._maxHairStyle);
+				style = Rnd.get(0, female ? F_KAMAEL._maxHairStyle : M_KAMAEL._maxHairStyle);
 		}
 		return (byte) style;
 	}
 	
-	public static final byte randomHairColor(Race race, Sex sex)
+	public static final byte randomHairColor(Race race, boolean female)
 	{
 		int color = 0;
 		switch (race)
 		{
 			case HUMAN:
-				color = Rnd.get(0, FEMALE.equals(sex) ? F_HUMAN._maxHairColor : M_HUMAN._maxHairColor);
+				color = Rnd.get(0, female ? F_HUMAN._maxHairColor : M_HUMAN._maxHairColor);
 				break;
 			case ELF:
-				color = Rnd.get(0, FEMALE.equals(sex) ? F_ELF._maxHairColor : M_ELF._maxHairColor);
+				color = Rnd.get(0, female ? F_ELF._maxHairColor : M_ELF._maxHairColor);
 				break;
 			case DARK_ELF:
-				color = Rnd.get(0, FEMALE.equals(sex) ? F_DARKELF._maxHairColor : M_DARKELF._maxHairColor);
+				color = Rnd.get(0, female ? F_DARKELF._maxHairColor : M_DARKELF._maxHairColor);
 				break;
 			case ORC:
-				color = Rnd.get(0, FEMALE.equals(sex) ? F_ORC._maxHairColor : M_ORC._maxHairColor);
+				color = Rnd.get(0, female ? F_ORC._maxHairColor : M_ORC._maxHairColor);
 				break;
 			case DWARF:
-				color = Rnd.get(0, FEMALE.equals(sex) ? F_DWARF._maxHairColor : M_DWARF._maxHairColor);
+				color = Rnd.get(0, female ? F_DWARF._maxHairColor : M_DWARF._maxHairColor);
 				break;
 			case KAMAEL:
-				color = Rnd.get(0, FEMALE.equals(sex) ? F_KAMAEL._maxHairColor : M_KAMAEL._maxHairColor);
+				color = Rnd.get(0, female ? F_KAMAEL._maxHairColor : M_KAMAEL._maxHairColor);
 		}
 		return (byte) color;
 	}
 	
-	public static final byte randomFace(Race race, Sex sex)
+	public static final ClassId randomClassId(boolean female)
+	{
+		return START_CLASSES.get(Rnd.get(female ? 1 : 0, START_CLASSES.size()-1));
+	}
+	
+	public static final byte randomFace(Race race, boolean female)
 	{
 		int face = 0;
 		switch (race)
 		{
 			case HUMAN:
-				face = Rnd.get(0, FEMALE.equals(sex) ? F_HUMAN._maxFace : M_HUMAN._maxFace);
+				face = Rnd.get(0, female ? F_HUMAN._maxFace : M_HUMAN._maxFace);
 				break;
 			case ELF:
-				face = Rnd.get(0, FEMALE.equals(sex) ? F_ELF._maxFace : M_ELF._maxFace);
+				face = Rnd.get(0, female ? F_ELF._maxFace : M_ELF._maxFace);
 				break;
 			case DARK_ELF:
-				face = Rnd.get(0, FEMALE.equals(sex) ? F_DARKELF._maxFace : M_DARKELF._maxFace);
+				face = Rnd.get(0, female ? F_DARKELF._maxFace : M_DARKELF._maxFace);
 				break;
 			case ORC:
-				face = Rnd.get(0, FEMALE.equals(sex) ? F_ORC._maxFace : M_ORC._maxFace);
+				face = Rnd.get(0, female ? F_ORC._maxFace : M_ORC._maxFace);
 				break;
 			case DWARF:
-				face = Rnd.get(0, FEMALE.equals(sex) ? F_DWARF._maxFace : M_DWARF._maxFace);
+				face = Rnd.get(0, female ? F_DWARF._maxFace : M_DWARF._maxFace);
 				break;
 			case KAMAEL:
-				face = Rnd.get(0, FEMALE.equals(sex) ? F_KAMAEL._maxFace : M_KAMAEL._maxFace);
+				face = Rnd.get(0, female ? F_KAMAEL._maxFace : M_KAMAEL._maxFace);
 		}
 		return (byte) face;
 	}
 	
-	public static byte toByte(String value)
+	public static Byte toByte(String value)
 	{
 		if (value == null || value.length() == 0)
 		{
-			return NO_VALUE;
+			return null;
 		}
 		return (byte) toInt(value.charAt(0));
 	}
@@ -147,5 +167,5 @@ public class HeadUtil
 		protected int _maxHairColor;
 		protected int _maxFace;
 	}
-	
+
 }
