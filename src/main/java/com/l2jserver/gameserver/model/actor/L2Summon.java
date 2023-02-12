@@ -966,7 +966,7 @@ public abstract class L2Summon extends L2Playable
 	@Override
 	public boolean isUndead()
 	{
-		return getRace() == Race.UNDEAD;
+		return getTemplate().getRace() == Race.UNDEAD;
 	}
 	
 	/**
@@ -1096,7 +1096,7 @@ public abstract class L2Summon extends L2Playable
 		}
 		
 		// Siege golems AI doesn't support attacking other than doors/walls at the moment.
-		if (target.isDoor() && (getRace() != Race.SIEGE_WEAPON))
+		if (target.isDoor() && (getTemplate().getRace() != Race.SIEGE_WEAPON))
 		{
 			return false;
 		}

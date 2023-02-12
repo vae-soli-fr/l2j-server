@@ -519,7 +519,7 @@ public class L2Npc extends L2Character
 	@Override
 	public boolean isUndead()
 	{
-		return getRace() == Race.UNDEAD;
+		return getTemplate().getRace() == Race.UNDEAD;
 	}
 	
 	/**
