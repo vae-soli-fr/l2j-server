@@ -639,7 +639,7 @@ public class L2DoorInstance extends L2Character
 			}
 			
 			final L2ServitorInstance servitor = (L2ServitorInstance) attacker;
-			if (servitor.getTemplate().getRace() != Race.SIEGE_WEAPON)
+			if (servitor.getRace() != Race.SIEGE_WEAPON)
 			{
 				return;
 			}
