@@ -47,7 +47,7 @@ public class HeadUtil
 	private static final List<ClassId> START_CLASSES = new LinkedList<>();
 	
 	static {
-		START_CLASSES.add(ClassId.femaleSoldier);
+		START_CLASSES.add(ClassId.maleSoldier);
 		START_CLASSES.add(ClassId.fighter);
 		START_CLASSES.add(ClassId.mage);
 		START_CLASSES.add(ClassId.elvenFighter);
@@ -57,7 +57,7 @@ public class HeadUtil
 		START_CLASSES.add(ClassId.orcFighter);
 		START_CLASSES.add(ClassId.orcMage);
 		START_CLASSES.add(ClassId.dwarvenFighter);
-		START_CLASSES.add(ClassId.maleSoldier);
+		START_CLASSES.add(ClassId.femaleSoldier);
 	}
 	
 	public static final byte randomHairStyle(Race race, boolean female)
