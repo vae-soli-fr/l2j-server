@@ -241,7 +241,7 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 			_enchantEffect = Math.min(127, set.getInt("fake_equipment_weaponEnchant", 0));
 			
 			_paperdoll = new int[PAPERDOLL_TOTALSLOTS];		
-			_paperdoll[PAPERDOLL_RHAND] = set.getInt("fake_equipment_rhand", 7); // apprentice rod
+			_paperdoll[PAPERDOLL_RHAND] = set.getInt("fake_equipment_rhand", 0);
 			_paperdoll[PAPERDOLL_GLOVES] = set.getInt("fake_equipment_gloves", 48); // short gloves		
 			_paperdoll[PAPERDOLL_CHEST] = set.getInt("fake_equipment_chest", 1146); // squire's shirt
 			_paperdoll[PAPERDOLL_FEET] = set.getInt("fake_equipment_feet", 1121); // apprentice shoes	
