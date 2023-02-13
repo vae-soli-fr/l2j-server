@@ -33,6 +33,7 @@ import com.l2jserver.Config;
 import com.l2jserver.gameserver.CustomImage;
 import com.l2jserver.gameserver.HeadUtil;
 import com.l2jserver.gameserver.ItemsAutoDestroy;
+import com.l2jserver.gameserver.RandomCollection;
 import com.l2jserver.gameserver.SevenSigns;
 import com.l2jserver.gameserver.SevenSignsFestival;
 import com.l2jserver.gameserver.ThreadPoolManager;
@@ -74,6 +75,7 @@ import com.l2jserver.gameserver.model.actor.stat.NpcStat;
 import com.l2jserver.gameserver.model.actor.status.NpcStatus;
 import com.l2jserver.gameserver.model.actor.templates.L2NpcTemplate;
 import com.l2jserver.gameserver.model.actor.templates.L2PcTemplate;
+import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.gameserver.model.entity.Castle;
 import com.l2jserver.gameserver.model.entity.Fort;
 import com.l2jserver.gameserver.model.entity.clanhall.SiegableHall;
@@ -118,6 +120,8 @@ public class L2Npc extends L2Character
 	public static final int INTERACTION_DISTANCE = 150;
 	/** Maximum distance where the drop may appear given this NPC position. */
 	public static final int RANDOM_ITEM_DROP_LIMIT = 70;
+	/** Weighted starting ClassId */
+	private static final RandomCollection<ClassId> WEIGHTED_CLASSIDS = new RandomCollection<>();
 	/** The L2Spawn object that manage this L2NpcInstance */
 	private L2Spawn _spawn;
 	/** The flag to specify if this L2NpcInstance is busy */
@@ -170,6 +174,18 @@ public class L2Npc extends L2Character
 	private Double _fakeCollisionRadius = null;
 	private Double _fakeCollisionHeight = null;
 	
+	static {
+		WEIGHTED_CLASSIDS.add(39, ClassId.fighter);
+		WEIGHTED_CLASSIDS.add(39, ClassId.mage);
+		WEIGHTED_CLASSIDS.add(3, ClassId.elvenFighter);
+		WEIGHTED_CLASSIDS.add(3, ClassId.elvenMage);
+		WEIGHTED_CLASSIDS.add(2, ClassId.darkFighter);
+		WEIGHTED_CLASSIDS.add(2, ClassId.darkMage);
+		WEIGHTED_CLASSIDS.add(3, ClassId.orcFighter);
+		WEIGHTED_CLASSIDS.add(3, ClassId.orcMage);
+		WEIGHTED_CLASSIDS.add(6, ClassId.dwarvenFighter);
+	}
+	
 	/**
 	 * Creates a NPC.
 	 * @param template the NPC template
@@ -211,7 +227,7 @@ public class L2Npc extends L2Character
 			
 			if (_baseClass == null)
 			{
-				L2PcTemplate pcTemplate = PlayerTemplateData.getInstance().getTemplate(HeadUtil.randomClassId(_female));
+				L2PcTemplate pcTemplate = PlayerTemplateData.getInstance().getTemplate(WEIGHTED_CLASSIDS.next());
 				_baseClass = pcTemplate.getClassId().getId();
 				_race = pcTemplate.getRace();
 				

@@ -18,11 +18,7 @@
  */
 package com.l2jserver.gameserver;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.l2jserver.gameserver.enums.Race;
-import com.l2jserver.gameserver.model.base.ClassId;
 import com.l2jserver.util.Rnd;
 
 /**
@@ -43,22 +39,6 @@ public class HeadUtil
 	private static final Head F_DWARF = new Head('G', 'D', 'C');
 	private static final Head M_KAMAEL = new Head('E', 'C', 'C');
 	private static final Head F_KAMAEL = new Head('G', 'C', 'C');
-	
-	private static final List<ClassId> START_CLASSES = new LinkedList<>();
-	
-	static {
-		START_CLASSES.add(ClassId.maleSoldier);
-		START_CLASSES.add(ClassId.fighter);
-		START_CLASSES.add(ClassId.mage);
-		START_CLASSES.add(ClassId.elvenFighter);
-		START_CLASSES.add(ClassId.elvenMage);
-		START_CLASSES.add(ClassId.darkFighter);
-		START_CLASSES.add(ClassId.darkMage);
-		START_CLASSES.add(ClassId.orcFighter);
-		START_CLASSES.add(ClassId.orcMage);
-		START_CLASSES.add(ClassId.dwarvenFighter);
-		START_CLASSES.add(ClassId.femaleSoldier);
-	}
 	
 	public static final byte randomHairStyle(Race race, boolean female)
 	{
@@ -110,11 +90,6 @@ public class HeadUtil
 				color = Rnd.get(0, female ? F_KAMAEL._maxHairColor : M_KAMAEL._maxHairColor);
 		}
 		return (byte) color;
-	}
-	
-	public static final ClassId randomClassId(boolean female)
-	{
-		return START_CLASSES.get(Rnd.get(female ? 1 : 0, START_CLASSES.size()-1));
 	}
 	
 	public static final byte randomFace(Race race, boolean female)
