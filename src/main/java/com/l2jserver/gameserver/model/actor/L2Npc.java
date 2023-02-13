@@ -161,7 +161,6 @@ public class L2Npc extends L2Character
 	private boolean _isDummy = false;
 	
 	/** Fake */
-	private AbnormalVisualEffect _vesperEffect = null;
 	private Byte _hairStyle = null;
 	private Byte _hairColor = null;
 	private Byte _face = null;
@@ -236,19 +235,6 @@ public class L2Npc extends L2Character
 			if (_face == null)
 			{
 				_face = HeadUtil.randomFace(_race, _female);
-			}
-			
-			switch(Rnd.get(0, 2))
-			{
-				case 0:
-					_vesperEffect = AbnormalVisualEffect.CHANGE_VES_C;
-					break;
-				case 1:
-					_vesperEffect = AbnormalVisualEffect.CHANGE_VES_D;
-					break;
-				case 2:
-				default:
-					_vesperEffect = AbnormalVisualEffect.CHANGE_VES_S;
 			}
 		}
 	}
@@ -2054,12 +2040,8 @@ public class L2Npc extends L2Character
 
 	@Override 
 	public int getAbnormalVisualEffectSpecial() {
-		if (isChampion()) 
+		if (isChampion() && !isFake()) 
 		{ 
-			if (isFake())
-			{
-				return super.getAbnormalVisualEffectSpecial() | _vesperEffect.getMask();
-			}
 			return super.getAbnormalVisualEffectSpecial() | AbnormalVisualEffect.NAVIT_ADVENT.getMask();
 		} 
 		return super.getAbnormalVisualEffectSpecial();
