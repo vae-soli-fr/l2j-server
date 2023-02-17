@@ -207,7 +207,10 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 		
 		if (_fake)
 		{
-			_female = set.getBoolean("fake_female", false);
+			if (set.getString("fake_female", null) != null)
+			{
+				_female = set.getBoolean("fake_female", false);
+			}
 			
 			Integer classId = set.getInt("fake_classId", -1);
 			if (classId >= 0)
