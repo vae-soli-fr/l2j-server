@@ -218,8 +218,8 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 				L2PcTemplate playerTemplate = PlayerTemplateData.getInstance().getTemplate(classId);
 				_race = playerTemplate.getRace();
 				_baseClass = playerTemplate.getClassId().getId();
-				_fakeCollisionHeight = _female ? playerTemplate.getFCollisionHeightFemale() : playerTemplate.getfCollisionHeight();
-				_fakeCollisionRadius = _female ? playerTemplate.getFCollisionRadiusFemale() : playerTemplate.getfCollisionRadius();
+				_fakeCollisionHeight = Boolean.TRUE.equals(_female) ? playerTemplate.getFCollisionHeightFemale() : playerTemplate.getfCollisionHeight();
+				_fakeCollisionRadius = Boolean.TRUE.equals(_female) ? playerTemplate.getFCollisionRadiusFemale() : playerTemplate.getfCollisionRadius();
 			}
 			
 			_hairStyle = HeadUtil.toByte(set.getString("fake_head_style", null));

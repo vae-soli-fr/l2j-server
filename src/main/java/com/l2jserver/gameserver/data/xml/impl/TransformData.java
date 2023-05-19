@@ -44,7 +44,7 @@ import com.l2jserver.util.data.xml.IXmlReader;
  */
 public final class TransformData implements IXmlReader
 {
-	private final int CUSTOM_BASE = 100_000;
+	public final int CUSTOM_BASE = 100_000;
 	private final Map<Integer, Transform> _transformData = new HashMap<>();
 	
 	protected TransformData()
@@ -223,11 +223,13 @@ public final class TransformData implements IXmlReader
 	
 	public synchronized Transform getTransform(int id)
 	{
-		if (id > CUSTOM_BASE && !_transformData.containsKey(id)) {
+		if (id > CUSTOM_BASE && !_transformData.containsKey(id))
+		{
 
 			L2NpcTemplate npc = NpcData.getInstance().getTemplate(Math.subtractExact(id, CUSTOM_BASE));
 
-			if (npc == null) {
+			if (npc == null)
+			{
 				return null;
 			}
 
