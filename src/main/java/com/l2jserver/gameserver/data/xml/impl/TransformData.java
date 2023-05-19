@@ -44,7 +44,7 @@ import com.l2jserver.util.data.xml.IXmlReader;
  */
 public final class TransformData implements IXmlReader
 {
-	public final int CUSTOM_BASE = 100_000;
+	public static final int CUSTOM_BASE = 100_000;
 	private final Map<Integer, Transform> _transformData = new HashMap<>();
 	
 	protected TransformData()
