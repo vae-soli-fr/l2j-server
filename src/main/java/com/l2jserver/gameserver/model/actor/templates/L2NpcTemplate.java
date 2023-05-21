@@ -116,7 +116,7 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	/** Fake */
 	private boolean _fake;
 	
-	private Race _race = null;
+	private Race _fakeRace = null;
 	private Integer _baseClass = null;
 	private Boolean _female = null;
 	private Double _fakeCollisionHeight = null;
@@ -216,7 +216,7 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 			if (classId >= 0)
 			{
 				L2PcTemplate playerTemplate = PlayerTemplateData.getInstance().getTemplate(classId);
-				_race = playerTemplate.getRace();
+				_fakeRace = playerTemplate.getRace();
 				_baseClass = playerTemplate.getClassId().getId();
 				_fakeCollisionHeight = Boolean.TRUE.equals(_female) ? playerTemplate.getFCollisionHeightFemale() : playerTemplate.getfCollisionHeight();
 				_fakeCollisionRadius = Boolean.TRUE.equals(_female) ? playerTemplate.getFCollisionRadiusFemale() : playerTemplate.getfCollisionRadius();
@@ -815,9 +815,9 @@ public class L2NpcTemplate extends L2CharTemplate implements IIdentifiable
 	@Override
 	public Race getRace()
 	{
-		if (_race != null)
+		if (_fakeRace != null)
 		{
-			return _race;
+			return _fakeRace;
 		}
 		return super.getRace();
 	}

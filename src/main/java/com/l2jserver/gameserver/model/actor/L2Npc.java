@@ -168,7 +168,7 @@ public class L2Npc extends L2Character
 	private Byte _hairStyle = null;
 	private Byte _hairColor = null;
 	private Byte _face = null;
-	private Race _race = null;
+	private Race _fakeRace = null;
 	private Boolean _female = null;
 	private Integer _baseClass = null;
 	private Double _fakeCollisionRadius = null;
@@ -212,7 +212,7 @@ public class L2Npc extends L2Character
 		if (template.isFake())
 		{
 			_baseClass = template.getBaseClass();
-			_race = template.getRace();
+			_fakeRace = template.getRace();
 			_female = template.isFemale();
 			_fakeCollisionRadius = template.getCollisionRadiusGrown();
 			_fakeCollisionHeight = template.getCollisionHeightGrown();
@@ -229,7 +229,7 @@ public class L2Npc extends L2Character
 			{
 				L2PcTemplate pcTemplate = PlayerTemplateData.getInstance().getTemplate(WEIGHTED_CLASSIDS.next());
 				_baseClass = pcTemplate.getClassId().getId();
-				_race = pcTemplate.getRace();
+				_fakeRace = pcTemplate.getRace();
 				
 				if (!template.isMounted())
 				{
@@ -240,17 +240,17 @@ public class L2Npc extends L2Character
 			
 			if (_hairStyle == null)
 			{
-				_hairStyle = HeadUtil.randomHairStyle(_race, _female);
+				_hairStyle = HeadUtil.randomHairStyle(_fakeRace, _female);
 			}
 			
 			if (_hairColor == null)
 			{
-				_hairColor = HeadUtil.randomHairColor(_race, _female);
+				_hairColor = HeadUtil.randomHairColor(_fakeRace, _female);
 			}
 			
 			if (_face == null)
 			{
-				_face = HeadUtil.randomFace(_race, _female);
+				_face = HeadUtil.randomFace(_fakeRace, _female);
 			}
 		}
 	}
@@ -2078,7 +2078,11 @@ public class L2Npc extends L2Character
 	@Override
 	public Race getRace()
 	{
-		return _race;
+		if (_fakeRace != null)
+		{
+			return _fakeRace;
+		}
+		return super.getRace();
 	}
 	
 	public byte getHairStyle()
