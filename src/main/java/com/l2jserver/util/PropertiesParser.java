@@ -79,7 +79,7 @@ public final class PropertiesParser
 		}
 		else
 		{
-			_log.info("[" + _file.getName() + "] property for key: " + key + " overridden in Java system properties");
+			_log.info("[" + _file.getName() + "] property for key: " + key + " overridden by environment variable");
 		}
 		return value != null ? value.trim() : null;
 	}
