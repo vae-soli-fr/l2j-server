@@ -63,7 +63,7 @@ public final class PropertiesParser
 	
 	public boolean containskey(String key)
 	{
-		if (System.getProperty(_name + "." + key) != null)
+		if (System.getenv(_name + "." + key) != null)
 		{
 			return true;
 		}
@@ -72,7 +72,7 @@ public final class PropertiesParser
 	
 	private String getValue(String key)
 	{
-		String value = System.getProperty(_name + "." + key);
+		String value = System.getenv(_name + "." + key);
 		if (value == null)
 		{
 			value = _properties.getProperty(key);
