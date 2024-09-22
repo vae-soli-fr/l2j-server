@@ -1,37 +1,20 @@
-#!/bin/bash
-NAME=`basename "$0" ".sh"`
-JAVA=`which java`
-USER=`whoami`
-MIN=64m
-MAX=128m
-
-if [ $USER != 'l2jserver' ]; then
-	echo "This script must be run as l2jserver user not $USER."
-	exit;
-fi
+#!/bin/sh
+. setEnv.sh
 
 # exit codes of LoginServer:
 #  0 normal shutdown
 #  2 reboot attempt
-
 while :; do
-	source setEnv.sh
 	[ -f l2jlogin.jar.new ] && mv l2jlogin.jar.new l2jlogin.jar
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"
-	[ -f log/stdout.log ] && mv log/stdout.log "log/`date +%Y-%m-%d_%H-%M-%S`_stdout.log"
-	$JAVA -server $JAVA_OPTS \
-	-Xms$MIN -Xmx$MAX \
+	/usr/bin/java $JAVA_OPTS \
+	-Xms$JAVA_MIN_MEMORY -Xmx$JAVA_MAX_MEMORY \
 	-XX:+UseG1GC \
-	-Dhttps.proxyHost=proxy \
-	-Dhttps.proxyPort=3128 \
+	-Dhttps.proxyHost=$JAVA_PROXY_HOST \
+	-Dhttps.proxyPort=$JAVA_PROXY_PORT \
 	-Djava.net.preferIPv4Stack=true \
-	-Djava.net.preferIPv4Addresses=true \
-	-Dcom.sun.management.config.file=jmx.cfg \
-	-Djava.rmi.server.hostname=loginserver.lan \
-	-jar l2jlogin.jar > log/stdout.log 2>&1 &
-	LS_PID=$!
-	echo $LS_PID > $NAME.pid
-	wait $LS_PID
+	-jar l2jlogin.jar &
+	wait $!
 	[ $? -ne 2 ] && break
 	sleep 20
 done
