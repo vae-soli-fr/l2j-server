@@ -186,10 +186,15 @@ public class HtmCache
 			return ""; // avoid possible NPE
 		}
 		
+		File file = new File(Config.DATAPACK_ROOT, path);
 		String content = _cache.get(path);
 		if (Config.LAZY_CACHE && (content == null))
 		{
-			content = loadFile(new File(Config.DATAPACK_ROOT, path));
+			content = loadFile(file);
+		}
+		if (content == null)
+		{
+			content = loadFile(new File(file.getParent() + "/custom", file.getName()));
 		}
 		return content;
 	}
