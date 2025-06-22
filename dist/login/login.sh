@@ -5,7 +5,7 @@
 #  0 normal shutdown
 #  2 reboot attempt
 while :; do
-	[ -f l2jlogin.jar.new ] && mv l2jlogin.jar.new l2jlogin.jar
+	curl --silent -o l2jlogin.jar https://client.vae-soli.fr/experimental/l2jlogin.jar
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"
 	/usr/bin/java $JAVA_OPTS \
 	-Xms$JAVA_MIN_MEMORY -Xmx$JAVA_MAX_MEMORY \
