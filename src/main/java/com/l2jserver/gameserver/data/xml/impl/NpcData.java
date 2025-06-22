@@ -519,10 +519,7 @@ public class NpcData implements IXmlReader
 							template = new L2NpcTemplate(set);
 							_npcs.put(template.getId(), template);
 						}
-						else
-						{
-							template.set(set);
-						}
+						template.set(set);
 						
 						if (_minionData._tempMinions.containsKey(npcId))
 						{
