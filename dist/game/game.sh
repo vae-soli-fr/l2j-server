@@ -1,10 +1,10 @@
 #!/bin/sh
-. setEnv.sh
 
 # exit codes of GameServer:
 #  0 normal shutdown
 #  2 reboot attempt
 while :; do
+	. setEnv.sh
 	curl --silent -o l2jserver.jar https://client.vae-soli.fr/experimental/l2jserver.jar
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"
 	[ -f log/item.log ] && mv log/item.log "log/`date +%Y-%m-%d_%H-%M-%S`_item.log"

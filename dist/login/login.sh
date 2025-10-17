@@ -1,10 +1,10 @@
 #!/bin/sh
-. setEnv.sh
 
 # exit codes of LoginServer:
 #  0 normal shutdown
 #  2 reboot attempt
 while :; do
+	. setEnv.sh
 	curl --silent -o l2jlogin.jar https://client.vae-soli.fr/experimental/l2jlogin.jar
 	[ -f log/java0.log.0 ] && mv log/java0.log.0 "log/`date +%Y-%m-%d_%H-%M-%S`_java.log"
 	/usr/bin/java $JAVA_OPTS \
