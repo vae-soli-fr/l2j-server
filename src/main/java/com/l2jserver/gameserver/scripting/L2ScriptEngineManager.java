@@ -53,7 +53,9 @@ public final class L2ScriptEngineManager
 	private static final Logger _log = Logger.getLogger(L2ScriptEngineManager.class.getName());
 	
 	public static final File SCRIPT_FOLDER = new File(Config.DATAPACK_ROOT.getAbsolutePath(), "data/scripts");
-	
+
+	private static final String CLASS_PATH = SCRIPT_FOLDER.getAbsolutePath() + ";" + System.getProperty("java.class.path");
+
 	public static L2ScriptEngineManager getInstance()
 	{
 		return SingletonHolder._instance;
@@ -121,9 +123,9 @@ public final class L2ScriptEngineManager
 				
 				for (String ext : factory.getExtensions())
 				{
-					if (!ext.equals("java") || factory.getLanguageName().equals("java"))
+					if (!ext.equalsIgnoreCase("java") || factory.getLanguageName().equalsIgnoreCase("java"))
 					{
-						_extEngines.put(ext, engine);
+						_extEngines.put(ext.toLowerCase(), engine);
 					}
 				}
 			}
@@ -158,7 +160,11 @@ public final class L2ScriptEngineManager
 	
 	private ScriptEngine getEngineByExtension(String ext)
 	{
-		return _extEngines.get(ext);
+		if (ext == null)
+		{
+			return null;
+		}
+		return _extEngines.get(ext.toLowerCase());
 	}
 	
 	public void executeScriptList(File list) throws IOException
@@ -363,7 +369,7 @@ public final class L2ScriptEngineManager
 				ScriptContext context = new SimpleScriptContext();
 				context.setAttribute("mainClass", getClassForFile(file).replace('/', '.').replace('\\', '.'), ScriptContext.ENGINE_SCOPE);
 				context.setAttribute(ScriptEngine.FILENAME, relativeName, ScriptContext.ENGINE_SCOPE);
-				context.setAttribute("classpath", SCRIPT_FOLDER.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
+				context.setAttribute("classpath", CLASS_PATH, ScriptContext.ENGINE_SCOPE);
 				context.setAttribute("sourcepath", SCRIPT_FOLDER.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
 				context.setAttribute(JythonScriptEngine.JYTHON_ENGINE_INSTANCE, engine, ScriptContext.ENGINE_SCOPE);
 				
@@ -389,7 +395,7 @@ public final class L2ScriptEngineManager
 				ScriptContext context = new SimpleScriptContext();
 				context.setAttribute("mainClass", getClassForFile(file).replace('/', '.').replace('\\', '.'), ScriptContext.ENGINE_SCOPE);
 				context.setAttribute(ScriptEngine.FILENAME, relativeName, ScriptContext.ENGINE_SCOPE);
-				context.setAttribute("classpath", SCRIPT_FOLDER.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
+				context.setAttribute("classpath", CLASS_PATH, ScriptContext.ENGINE_SCOPE);
 				context.setAttribute("sourcepath", SCRIPT_FOLDER.getAbsolutePath(), ScriptContext.ENGINE_SCOPE);
 				setCurrentLoadingScript(file);
 				try
